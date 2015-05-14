@@ -8,7 +8,7 @@ doDT=true
 doCSC=false
 
 if [ "$runComparison" = true ]; then
-    python PlotConfig_Generic.py > OUTPUT/${alignmentName}.out.txt
+    python PlotConfig_Generic.py > OUTPUT/${alignmentName}.out.txt -b
 fi
 
 if [ "$uploadComparison" = true ]; then
@@ -18,11 +18,11 @@ if [ "$uploadComparison" = true ]; then
 fi
 
 if [ "$doDT" = true -a "$runCorrelation" = true ]; then
-    python TMP_CREATE_CORRELATION_PLOTS_2.py $alignmentName 
+    python TMP_CREATE_CORRELATION_PLOTS_2.py $alignmentName -b
 fi
 
 if [ "$doCSC" = true -a "$runCorrelation" = true ]; then
-    python TMP_CREATE_CORRELATION_PLOTS_3.py $alignmentName 
+    python TMP_CREATE_CORRELATION_PLOTS_3.py $alignmentName -b
 fi
 
 
