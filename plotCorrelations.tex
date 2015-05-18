@@ -1,0 +1,333 @@
+\documentclass[ignorenonframetext]{beamer}
+\usepackage{arevmath}
+\usepackage{amssymb,amsmath}
+\usepackage{fancyhdr}
+\usepackage{heppennames}
+\usepackage{hepnicenames}
+\usepackage{rotating}
+\usepackage{multicol}
+\usepackage{multirow}
+%% \usepackage[margin=15mm]{geometry}
+
+\usepackage{tikz}
+\usetikzlibrary{shapes,snakes,positioning,arrows, decorations.markings}
+
+% frames.itex
+
+% 
+\mode<presentation>
+{
+%  \usetheme{Madrid}
+
+%  \usetheme{Montpellier}
+%  \usetheme{Pittsburgh}
+%  \usetheme{Singapore}
+%  \usetheme{Warsaw}	% original
+%  \usetheme{Frankfurt}
+\usetheme{PaloAlto}
+%  \usecolortheme{crane}
+%  \usecolortheme{rose}
+  % or ...
+\usecolortheme[RGB={99,1,14}]{structure}
+
+  \setbeamercovered{transparent}
+  \setbeamercovered{invisible}
+  % or whatever (possibly just delete it)
+  \setbeamertemplate{navigation symbols}{} 
+
+}
+
+\mode<article>
+{
+  \usepackage{fullpage}
+}
+\usepackage{url}
+
+\usepackage[english]{babel}
+\usepackage[latin1]{inputenc}
+\usepackage{times}
+\usepackage[T1]{fontenc}
+\usepackage{everyshi}
+\usepackage{eso-pic}
+\usepackage{calc}
+\usepackage{graphicx}
+\usepackage{epsfig}
+\usepackage{ifthen}
+\usepackage{wallpaper}
+
+\makeatletter
+\newdimen\tmpsbwd
+\tmpsbwd=\beamer@sidebarwidth
+\beamer@sidebarwidth=0pt
+\setbeamertemplate{headline}
+{%
+  \begin{beamercolorbox}[wd=\paperwidth]{frametitle}
+    \usebeamercolor[bg]{logo}%
+    \hbox to \tmpsbwd{\hss\vbox to
+      \beamer@headheight{\vss\hbox{\color{fg}\insertlogo}\vss}\hss}%
+ \end{beamercolorbox}
+}
+\setbeamertemplate{frametitle}
+{%
+  \nointerlineskip%
+  \vskip-\beamer@headheight%
+  \vbox to \beamer@headheight{%
+    \vfil
+    \leftskip=-\beamer@leftmargin%
+    \advance\leftskip by\tmpsbwd%
+    \advance\leftskip by0.3cm%
+    \rightskip=-\beamer@rightmargin%
+    \advance\rightskip by0.3cm plus1fil%
+    {\usebeamercolor[fg]{frametitle}\usebeamerfont{frametitle}\insertframetitle\par}%
+    {\usebeamercolor[fg]
+{framesubtitle}\usebeamerfont{framesubtitle}\insertframesubtitle\par}%
+    \vbox{}%
+    \vskip-1em%
+    \vfil
+  }%
+}
+\setbeamertemplate{footline}
+{%
+ \leavevmode%
+  \hbox{%
+  \begin{beamercolorbox}[wd=.4\paperwidth,ht=2.25ex,dp=1ex,center]{author in head/foot}%
+    \usebeamerfont{author in head/foot}\insertshortauthor\hspace{1em}\beamer@ifempty{\insertshortinstitute}{}{(\insertshortinstitute)}
+  \end{beamercolorbox}%
+  \begin{beamercolorbox}[wd=.6\paperwidth,ht=2.25ex,dp=1ex,center]{title in head/foot}%
+    \usebeamerfont{title in head/foot}\insertshorttitle\hspace*{3em}
+    \insertframenumber{} / \inserttotalframenumber\hspace*{1ex}
+  \end{beamercolorbox}}%
+  \vskip0pt%
+
+  %% \begin{beamercolorbox}[wd=\paperwidth,ht=10ex,dp=1ex]{footlinebox}
+  %% \end{beamercolorbox}
+}
+\setbeamertemplate{sidebar \beamer@sidebarside}%{sidebar theme}
+                  {
+                    \beamer@tempdim=\beamer@sidebarwidth%
+                    \advance\beamer@tempdim by -6pt%
+                    \insertverticalnavigation{\beamer@sidebarwidth}%
+                    \vfill
+                    \ifx\beamer@sidebarside\beamer@lefttext%
+                    \else%
+                    \usebeamercolor{white}%
+                    \llap{\usebeamertemplate***{navigation symbols}\hskip0.1cm}%
+                    \vskip2pt%
+                    \fi%
+                  }%
+\makeatother
+\setbeamercolor{section in sidebar}{fg = white}
+
+
+\setbeamertemplate{navigation symbols}{}
+
+\setbeamersize{sidebar width left=0cm}
+
+\beamertemplatenavigationsymbolsempty
+
+\bibliographystyle{acmtrans}
+\newcommand{\matlab}{{\sc Matlab}}
+
+\usepackage{slashed}
+\usepackage{caption}
+%% \usepackage{colours,soul}
+%% \usepackage{color}
+\usepackage{subfig}
+\usepackage{units}
+\usepackage{color}
+\usepackage{wasysym}
+
+
+\title[Muon alignment correlations]{Muon alignment correlations}
+
+\author[Author name]{Author name}
+
+\institute[Texas A\&M University]{
+}
+
+\date{\today}
+\subject{Muon alignment correlations}
+% This is only inserted into the PDF information catalog. Can be left
+% out. 
+
+
+% Comment this out, if you do not want the table of contents to pop up at the
+% beginning of each subsection:
+%% \AtBeginSubsection[]
+%% {
+%%   \begin{frame}<beamer>
+%%     \frametitle{Outline}
+%%     \tableofcontents[currentsection,currentsubsection]
+%%   \end{frame}
+%% }
+
+% If you wish to uncover everything in a step-wise fashion, uncomment
+% the following command: 
+%\beamerdefaultoverlayspecification{<+->}
+%\input{author.sty}
+
+\begin{document}
+
+\setcounter{page}{0}
+%% %% \maketitle
+%% \thispagestyle{empty}
+
+%% \begin{frame}
+%% \titlepage
+%% \end{frame}
+
+%% \begin{frame}
+%%   \frametitle{Outline}
+%%   \tableofcontents
+%% \end{frame}
+
+\graphicspath{{RESULT/mc_DT-1100-110001_5_3_12_ReferenceCopy_START53_V15_5_3_12_muonGeometryIdeal_v1_03/PDF/}}
+
+\begin{frame}
+  \vskip-8mm
+  \begin{figure}
+    \captionsetup[subfigure]{labelformat=empty}
+    \subfloat[\tiny dphix dphiy MB 0 1]{\includegraphics[width=30mm]{RESULT/mc_DT-1100-110001_5_3_12_ReferenceCopy_START53_V15_5_3_12_muonGeometryIdeal_v1_03/PDF/DT_corr_dphix_dphiy_MB_0_1.pdf}}
+    \subfloat[\tiny dphix dphiy MB m2 1]{\includegraphics[width=30mm]{RESULT/mc_DT-1100-110001_5_3_12_ReferenceCopy_START53_V15_5_3_12_muonGeometryIdeal_v1_03/PDF/DT_corr_dphix_dphiy_MB_m2_1.pdf}}
+    \subfloat[\tiny dphix dphiy MB p2 1]{\includegraphics[width=30mm]{RESULT/mc_DT-1100-110001_5_3_12_ReferenceCopy_START53_V15_5_3_12_muonGeometryIdeal_v1_03/PDF/DT_corr_dphix_dphiy_MB_p2_1.pdf}}
+    \subfloat[\tiny dphix dphiz MB 0 1]{\includegraphics[width=30mm]{RESULT/mc_DT-1100-110001_5_3_12_ReferenceCopy_START53_V15_5_3_12_muonGeometryIdeal_v1_03/PDF/DT_corr_dphix_dphiz_MB_0_1.pdf}}
+  \end{figure}
+\end{frame}
+
+
+
+\begin{frame}
+\vskip-8mm
+  \begin{figure}
+    \captionsetup[subfigure]{labelformat=empty}
+    \subfloat[\tiny dphix dphiy MB p2 1]{\includegraphics[width=30mm]{RESULT/mc_DT-1100-110001_5_3_12_ReferenceCopy_START53_V15_5_3_12_muonGeometryIdeal_v1_03/PDF/DT_corr_dphix_dphiz_MB_0_1.pdf}}
+    \subfloat[\tiny dphix dphiz MB 0 1]{\includegraphics[width=30mm]{RESULT/mc_DT-1100-110001_5_3_12_ReferenceCopy_START53_V15_5_3_12_muonGeometryIdeal_v1_03/PDF/DT_corr_dphix_dphiz_MB_p2_1.pdf}}
+    \subfloat[\tiny dphiy dphiz MB 0 1]{\includegraphics[width=30mm]{RESULT/mc_DT-1100-110001_5_3_12_ReferenceCopy_START53_V15_5_3_12_muonGeometryIdeal_v1_03/PDF/DT_corr_dphiy_dphiz_MB_0_1.pdf}}
+    \subfloat[\tiny dphiy dphiz MB m2 1]{\includegraphics[width=30mm]{RESULT/mc_DT-1100-110001_5_3_12_ReferenceCopy_START53_V15_5_3_12_muonGeometryIdeal_v1_03/PDF/DT_corr_dphiy_dphiz_MB_m2_1.pdf}}
+  \end{figure}
+\end{frame}
+
+
+\begin{frame}
+\vskip-8mm
+  \begin{figure}
+    \captionsetup[subfigure]{labelformat=empty}
+    \subfloat[\tiny dphiy dphiz MB p2 1]{\includegraphics[width=30mm]{RESULT/mc_DT-1100-110001_5_3_12_ReferenceCopy_START53_V15_5_3_12_muonGeometryIdeal_v1_03/PDF/DT_corr_dphiy_dphiz_MB_p2_1.pdf}}
+    \subfloat[\tiny dx dphix MB 0 1]{\includegraphics[width=30mm]{RESULT/mc_DT-1100-110001_5_3_12_ReferenceCopy_START53_V15_5_3_12_muonGeometryIdeal_v1_03/PDF/DT_corr_dx_dphix_MB_0_1.pdf}}
+    \subfloat[\tiny dx dphix MB m2 1]{\includegraphics[width=30mm]{RESULT/mc_DT-1100-110001_5_3_12_ReferenceCopy_START53_V15_5_3_12_muonGeometryIdeal_v1_03/PDF/DT_corr_dx_dphix_MB_m2_1.pdf}}
+    \subfloat[\tiny dx dphix MB p2 1]{\includegraphics[width=30mm]{RESULT/mc_DT-1100-110001_5_3_12_ReferenceCopy_START53_V15_5_3_12_muonGeometryIdeal_v1_03/PDF/DT_corr_dx_dphix_MB_p2_1.pdf}}
+  \end{figure}
+\end{frame}
+
+
+\begin{frame}
+\vskip-8mm
+  \begin{figure}
+    \captionsetup[subfigure]{labelformat=empty}
+    \subfloat[\tiny dx dphiy MB 0 1]{\includegraphics[width=30mm]{RESULT/mc_DT-1100-110001_5_3_12_ReferenceCopy_START53_V15_5_3_12_muonGeometryIdeal_v1_03/PDF/DT_corr_dx_dphiy_MB_0_1.pdf}}
+    \subfloat[\tiny dx dphiy MB m2 1]{\includegraphics[width=30mm]{RESULT/mc_DT-1100-110001_5_3_12_ReferenceCopy_START53_V15_5_3_12_muonGeometryIdeal_v1_03/PDF/DT_corr_dx_dphiy_MB_m2_1.pdf}}
+    \subfloat[\tiny dx dphiy MB p2 1]{\includegraphics[width=30mm]{RESULT/mc_DT-1100-110001_5_3_12_ReferenceCopy_START53_V15_5_3_12_muonGeometryIdeal_v1_03/PDF/DT_corr_dx_dphiy_MB_p2_1.pdf}}
+    \subfloat[\tiny dx dphiz MB 0 1]{\includegraphics[width=30mm]{RESULT/mc_DT-1100-110001_5_3_12_ReferenceCopy_START53_V15_5_3_12_muonGeometryIdeal_v1_03/PDF/DT_corr_dx_dphiz_MB_0_1.pdf}}
+  \end{figure}
+\end{frame}
+
+
+\begin{frame}
+\vskip-8mm
+  \begin{figure}
+    \captionsetup[subfigure]{labelformat=empty}
+    \subfloat[\tiny dx dphiz MB m2 1]{\includegraphics[width=30mm]{RESULT/mc_DT-1100-110001_5_3_12_ReferenceCopy_START53_V15_5_3_12_muonGeometryIdeal_v1_03/PDF/DT_corr_dx_dphiz_MB_m2_1.pdf}}
+    \subfloat[\tiny dx dphiz MB p2 1]{\includegraphics[width=30mm]{RESULT/mc_DT-1100-110001_5_3_12_ReferenceCopy_START53_V15_5_3_12_muonGeometryIdeal_v1_03/PDF/DT_corr_dx_dphiz_MB_p2_1.pdf}}
+    \subfloat[\tiny dx dy MB 0 1]{\includegraphics[width=30mm]{RESULT/mc_DT-1100-110001_5_3_12_ReferenceCopy_START53_V15_5_3_12_muonGeometryIdeal_v1_03/PDF/DT_corr_dx_dy_MB_0_1.pdf}}
+    \subfloat[\tiny dx dy MB m2 1]{\includegraphics[width=30mm]{RESULT/mc_DT-1100-110001_5_3_12_ReferenceCopy_START53_V15_5_3_12_muonGeometryIdeal_v1_03/PDF/DT_corr_dx_dy_MB_m2_1.pdf}}
+  \end{figure}
+\end{frame}
+
+
+\begin{frame}
+\vskip-8mm
+  \begin{figure}
+    \captionsetup[subfigure]{labelformat=empty}
+    \subfloat[\tiny dx dy MB p2 1]{\includegraphics[width=30mm]{RESULT/mc_DT-1100-110001_5_3_12_ReferenceCopy_START53_V15_5_3_12_muonGeometryIdeal_v1_03/PDF/DT_corr_dx_dy_MB_p2_1.pdf}}
+    \subfloat[\tiny dx dz MB 0 1]{\includegraphics[width=30mm]{RESULT/mc_DT-1100-110001_5_3_12_ReferenceCopy_START53_V15_5_3_12_muonGeometryIdeal_v1_03/PDF/DT_corr_dx_dz_MB_0_1.pdf}}
+    \subfloat[\tiny dx dz MB m2 1]{\includegraphics[width=30mm]{RESULT/mc_DT-1100-110001_5_3_12_ReferenceCopy_START53_V15_5_3_12_muonGeometryIdeal_v1_03/PDF/DT_corr_dx_dz_MB_m2_1.pdf}}
+    \subfloat[\tiny dx dz MB p2 1]{\includegraphics[width=30mm]{RESULT/mc_DT-1100-110001_5_3_12_ReferenceCopy_START53_V15_5_3_12_muonGeometryIdeal_v1_03/PDF/DT_corr_dx_dz_MB_p2_1.pdf}}
+  \end{figure}
+\end{frame}
+
+
+\begin{frame}
+\vskip-8mm
+  \begin{figure}
+    \captionsetup[subfigure]{labelformat=empty}
+    \subfloat[\tiny dy dphix MB 0 1]{\includegraphics[width=30mm]{RESULT/mc_DT-1100-110001_5_3_12_ReferenceCopy_START53_V15_5_3_12_muonGeometryIdeal_v1_03/PDF/DT_corr_dy_dphix_MB_0_1.pdf}}
+    \subfloat[\tiny dy dphix MB m2 1]{\includegraphics[width=30mm]{RESULT/mc_DT-1100-110001_5_3_12_ReferenceCopy_START53_V15_5_3_12_muonGeometryIdeal_v1_03/PDF/DT_corr_dy_dphix_MB_m2_1.pdf}}
+    \subfloat[\tiny dy dphix MB p2 1]{\includegraphics[width=30mm]{RESULT/mc_DT-1100-110001_5_3_12_ReferenceCopy_START53_V15_5_3_12_muonGeometryIdeal_v1_03/PDF/DT_corr_dy_dphix_MB_p2_1.pdf}}
+    \subfloat[\tiny dy dphiy MB 0 1]{\includegraphics[width=30mm]{RESULT/mc_DT-1100-110001_5_3_12_ReferenceCopy_START53_V15_5_3_12_muonGeometryIdeal_v1_03/PDF/DT_corr_dy_dphiy_MB_0_1.pdf}}
+  \end{figure}
+\end{frame}
+
+
+\begin{frame}
+\vskip-8mm
+  \begin{figure}
+    \captionsetup[subfigure]{labelformat=empty}
+    \subfloat[\tiny dy dphiy MB m2 1]{\includegraphics[width=30mm]{RESULT/mc_DT-1100-110001_5_3_12_ReferenceCopy_START53_V15_5_3_12_muonGeometryIdeal_v1_03/PDF/DT_corr_dy_dphiy_MB_m2_1.pdf}}
+    \subfloat[\tiny dy dphiy MB p2 1]{\includegraphics[width=30mm]{RESULT/mc_DT-1100-110001_5_3_12_ReferenceCopy_START53_V15_5_3_12_muonGeometryIdeal_v1_03/PDF/DT_corr_dy_dphiy_MB_p2_1.pdf}}
+    \subfloat[\tiny dy dphiz MB 0 1]{\includegraphics[width=30mm]{RESULT/mc_DT-1100-110001_5_3_12_ReferenceCopy_START53_V15_5_3_12_muonGeometryIdeal_v1_03/PDF/DT_corr_dy_dphiz_MB_0_1.pdf}}
+    \subfloat[\tiny dy dphiz MB m2 1]{\includegraphics[width=30mm]{RESULT/mc_DT-1100-110001_5_3_12_ReferenceCopy_START53_V15_5_3_12_muonGeometryIdeal_v1_03/PDF/DT_corr_dy_dphiz_MB_m2_1.pdf}}
+  \end{figure}
+\end{frame}
+
+
+\begin{frame}
+\vskip-8mm
+  \begin{figure}
+    \captionsetup[subfigure]{labelformat=empty}
+    \subfloat[\tiny dy dphiz MB p2 1]{\includegraphics[width=30mm]{RESULT/mc_DT-1100-110001_5_3_12_ReferenceCopy_START53_V15_5_3_12_muonGeometryIdeal_v1_03/PDF/DT_corr_dy_dphiz_MB_p2_1.pdf}}
+    \subfloat[\tiny dy dz MB 0 1]{\includegraphics[width=30mm]{RESULT/mc_DT-1100-110001_5_3_12_ReferenceCopy_START53_V15_5_3_12_muonGeometryIdeal_v1_03/PDF/DT_corr_dy_dz_MB_0_1.pdf}}
+    \subfloat[\tiny dy dz MB m2 1]{\includegraphics[width=30mm]{RESULT/mc_DT-1100-110001_5_3_12_ReferenceCopy_START53_V15_5_3_12_muonGeometryIdeal_v1_03/PDF/DT_corr_dy_dz_MB_m2_1.pdf}}
+    \subfloat[\tiny dy dz MB p2 1]{\includegraphics[width=30mm]{RESULT/mc_DT-1100-110001_5_3_12_ReferenceCopy_START53_V15_5_3_12_muonGeometryIdeal_v1_03/PDF/DT_corr_dy_dz_MB_p2_1.pdf}}
+  \end{figure}
+\end{frame}
+
+
+\begin{frame}
+\vskip-8mm
+  \begin{figure}
+    \captionsetup[subfigure]{labelformat=empty}
+    \subfloat[\tiny dz dphix MB 0 1]{\includegraphics[width=30mm]{RESULT/mc_DT-1100-110001_5_3_12_ReferenceCopy_START53_V15_5_3_12_muonGeometryIdeal_v1_03/PDF/DT_corr_dz_dphix_MB_0_1.pdf}}
+    \subfloat[\tiny dz dphix MB m2 1]{\includegraphics[width=30mm]{RESULT/mc_DT-1100-110001_5_3_12_ReferenceCopy_START53_V15_5_3_12_muonGeometryIdeal_v1_03/PDF/DT_corr_dz_dphix_MB_m2_1.pdf}}
+    \subfloat[\tiny dz dphix MB p2 1]{\includegraphics[width=30mm]{RESULT/mc_DT-1100-110001_5_3_12_ReferenceCopy_START53_V15_5_3_12_muonGeometryIdeal_v1_03/PDF/DT_corr_dz_dphix_MB_p2_1.pdf}}
+    \subfloat[\tiny dz dphiy MB 0 1]{\includegraphics[width=30mm]{RESULT/mc_DT-1100-110001_5_3_12_ReferenceCopy_START53_V15_5_3_12_muonGeometryIdeal_v1_03/PDF/DT_corr_dz_dphiy_MB_0_1.pdf}}
+  \end{figure}
+\end{frame}
+
+
+\begin{frame}
+\vskip-8mm
+  \begin{figure}
+    \captionsetup[subfigure]{labelformat=empty}
+    \subfloat[\tiny dz dphiy MB m2 1]{\includegraphics[width=30mm]{RESULT/mc_DT-1100-110001_5_3_12_ReferenceCopy_START53_V15_5_3_12_muonGeometryIdeal_v1_03/PDF/DT_corr_dz_dphiy_MB_m2_1.pdf}}
+    \subfloat[\tiny dz dphiy MB p2 1]{\includegraphics[width=30mm]{RESULT/mc_DT-1100-110001_5_3_12_ReferenceCopy_START53_V15_5_3_12_muonGeometryIdeal_v1_03/PDF/DT_corr_dz_dphiy_MB_p2_1.pdf}}
+    \subfloat[\tiny dz dphiz MB 0 1]{\includegraphics[width=30mm]{RESULT/mc_DT-1100-110001_5_3_12_ReferenceCopy_START53_V15_5_3_12_muonGeometryIdeal_v1_03/PDF/DT_corr_dz_dphiz_MB_0_1.pdf}}
+    \subfloat[\tiny dz dphiz MB m2 1]{\includegraphics[width=30mm]{RESULT/mc_DT-1100-110001_5_3_12_ReferenceCopy_START53_V15_5_3_12_muonGeometryIdeal_v1_03/PDF/DT_corr_dz_dphiz_MB_m2_1.pdf}}
+  \end{figure}
+\end{frame}
+
+\begin{frame}
+\vskip-8mm
+  \begin{figure}
+    \captionsetup[subfigure]{labelformat=empty}
+    \subfloat[\tiny dz dphiz MB p2 1]{\includegraphics[width=30mm]{RESULT/mc_DT-1100-110001_5_3_12_ReferenceCopy_START53_V15_5_3_12_muonGeometryIdeal_v1_03/PDF/DT_corr_dz_dphiz_MB_p2_1.pdf}}
+  \end{figure}
+\end{frame}
+
+%% \subsection{Biases/correlations}
+
+
+
+
+
+\mysep
+\end{document}
