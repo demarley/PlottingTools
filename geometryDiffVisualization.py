@@ -113,16 +113,28 @@ def draw_wheel(geom1, geom2, wheel, filename, length_factor=100., angle_factor=1
     wheel_template.save(filename)
 
 def draw_disk(geom1, geom2, endcap, station, filename, length_factor=1., angle_factor=100., colors=csc_colors):
-    if station == 1: disk_template = load_svg("disk1_endcap1_template.svg")
-    if station in (2, 3, 4): disk_template = load_svg("disk234_template.svg")
+    if station == 1: disk_template = load_svg("disk1_template.svg")
+    if station in (2, 3): disk_template = load_svg("disk23_template.svg")
+    if endcap == 1 and station == 4: disk_template = load_svg("diskp4_template.svg")
+    if endcap == 2 and station == 4: disk_template = load_svg("diskm4_template.svg")
 
     scale_factor = 0.233
     
     new_boxes = SVG("g")
 
-    # center of the template
-    originx = 339.74905
-    originy = 513.50318
+    for treeindex, svgitem in disk_template:
+        if isinstance(svgitem, SVG) and "id" in svgitem.attr and svgitem["id"] == "fakecenter":
+            fakecenter = pathtoPath(pathtoPath(svgitem).SVG())
+            sumx = 0.
+            sumy = 0.
+            sum1 = 0.
+            for i, di in enumerate(fakecenter.d):
+                if di[0] in ("M", "L"):
+                    sumx += di[1]
+                    sumy += di[2]
+                    sum1 += 1.
+            originx = sumx/sum1
+            originy = sumy/sum1
 
     for treeindex, svgitem in disk_template:
         if isinstance(svgitem, SVG) and "id" in svgitem.attr and svgitem["id"][:3] == "ME_":
@@ -130,17 +142,27 @@ def draw_disk(geom1, geom2, endcap, station, filename, length_factor=1., angle_f
             if m is None: raise Exception
 
             ring, chamber = int(m.group(1)), int(m.group(2))
-
-            xdiff = scale_factor * length_factor * (geom2.csc[endcap, station, ring, chamber].x - geom1.csc[endcap, station, ring, chamber].x) * signConventions["CSC", endcap, station, ring, chamber][0]
-            ydiff = scale_factor * length_factor * (geom2.csc[endcap, station, ring, chamber].y - geom1.csc[endcap, station, ring, chamber].y) * signConventions["CSC", endcap, station, ring, chamber][1]
-            phizdiff = -angle_factor * (geom2.csc[endcap, station, ring, chamber].phiz - geom1.csc[endcap, station, ring, chamber].phiz) * signConventions["CSC", endcap, station, ring, chamber][2]
+            xdiff = scale_factor * length_factor * (geom1.csc[endcap, station, ring, chamber].x - geom2.csc[endcap, station, ring, chamber].x) * signConventions["CSC", endcap, station, ring, chamber][0]
+            ydiff = -scale_factor * length_factor * (geom1.csc[endcap, station, ring, chamber].y - geom2.csc[endcap, station, ring, chamber].y) * signConventions["CSC", endcap, station, ring, chamber][1]
+            phizdiff = -angle_factor * (geom1.csc[endcap, station, ring, chamber].phiz - geom2.csc[endcap, station, ring, chamber].phiz) * signConventions["CSC", endcap, station, ring, chamber][2]
 
             svgitem["style"] = "fill:#e1e1e1;fill-opacity:1;stroke:#000000;stroke-width:1.0;stroke-dasharray:1, 1;stroke-dashoffset:0"
 
-            # copy chamber
             newBox = pathtoPath(svgitem)
 
-            # find the center of the chamber
+            # Inkscape outputs wrong SVG: paths are filled with movetos, rather than linetos; this fixes that
+            first = True
+            for i, di in enumerate(newBox.d):
+                if not first and di[0] == "m":
+                    di = list(di)
+                    di[0] = "l"
+                    newBox.d[i] = tuple(di)
+                first = False
+
+            # convert to absolute coordinates
+            newBox = pathtoPath(newBox.SVG())
+
+            # find the center of the object
             sumx = 0.
             sumy = 0.
             sum1 = 0.
@@ -152,32 +174,22 @@ def draw_disk(geom1, geom2, endcap, station, filename, length_factor=1., angle_f
             centerx = sumx/sum1
             centery = sumy/sum1
 
-            # global phi of the chamber
-            phipos = atan2(originy-centery, centerx - originx)
-
-            # global shifts of the chamber calculated from local shifts
-            dx = -sin(phipos)*xdiff - cos(phipos)*ydiff
-            dy = -cos(phipos)*xdiff + sin(phipos)*ydiff
-
-            # shift the chamber along global X and Y
+            phipos = atan2(centery - originy, centerx - originx) - pi/2.
             for i, di in enumerate(newBox.d):
                 if di[0] in ("M", "L"):
                     di = list(di)
-                    di[1] += dx
-                    di[2] += dy
+                    di[1] += cos(phipos)*xdiff - sin(phipos)*ydiff
+                    di[2] += sin(phipos)*xdiff + cos(phipos)*ydiff
                     newBox.d[i] = tuple(di)
 
-            # shift the center of the chamber along global X and Y
-            centerx += dx
-            centery += dy
+            centerx += cos(phipos)*xdiff - sin(phipos)*ydiff
+            centery += sin(phipos)*xdiff + cos(phipos)*ydiff
 
             for i, di in enumerate(newBox.d):
                 if di[0] in ("M", "L"):
                     di = list(di)
-                    # global shifts of the chamber calculated from local rotation
                     dispx = cos(phizdiff) * (di[1] - centerx) - sin(phizdiff) * (di[2] - centery)
                     dispy = sin(phizdiff) * (di[1] - centerx) + cos(phizdiff) * (di[2] - centery)
-                    # shift the chamber along global X and Y
                     di[1] = dispx + centerx
                     di[2] = dispy + centery
                     newBox.d[i] = tuple(di)
