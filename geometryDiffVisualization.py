@@ -113,7 +113,7 @@ def draw_wheel(geom1, geom2, wheel, filename, length_factor=100., angle_factor=1
     wheel_template.save(filename)
 
 def draw_disk(geom1, geom2, endcap, station, filename, length_factor=1., angle_factor=100., colors=csc_colors):
-    if station == 1: disk_template = load_svg("disk1_endcap1_template.svg")
+    if station == 1: disk_template = load_svg("disk1_template.svg")
     if station in (2, 3, 4): disk_template = load_svg("disk234_template.svg")
 
     scale_factor = 0.233
