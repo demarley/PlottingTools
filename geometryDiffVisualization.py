@@ -200,7 +200,10 @@ def draw_disk(geom1, geom2, endcap, station, filename, length_factor=1., angle_f
     disk_template.save(filename)
     
 def draw_sector(geom1, geom2, sector, filename, length_factor=100., angle_factor=100., colors=dt_colors):
-    sector_template = load_svg("sector_template.svg")
+    if sector < 13: 
+    	sector_template = load_svg("sector_template.svg")
+    else:
+    	sector_template = load_svg("sector_template_station4.svg")
 
     # make a new group to put the moved chambers into
     new_boxes = SVG("g")
