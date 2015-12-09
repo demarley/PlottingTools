@@ -198,3 +198,45 @@ def draw_disk(geom1, geom2, endcap, station, filename, length_factor=1., angle_f
             svgitem[0] += " (length x%g, angle x%g)" % (length_factor, angle_factor)
 
     disk_template.save(filename)
+    
+def draw_sector(geom1, geom2, sector, filename, length_factor=100., angle_factor=100., colors=dt_colors):
+    sector_template = load_svg("sector_template.svg")
+
+    # make a new group to put the moved chambers into
+    new_boxes = SVG("g")
+
+    # loop over the SVG tree, looking for our chambers (by id)
+    for treeindex, svgitem in sector_template:
+        if isinstance(svgitem, SVG) and "id" in svgitem.attr and svgitem["id"][:3] == "MB_":
+            m = re.match("MB_([0-9])_([0-9])", svgitem["id"])
+            if m is None: raise Exception
+
+            wheel, station = int(m.group(1))-2, int(m.group(2))
+
+            m = re.search("translate\(([0-9\.\-\+eE]+),([0-9\.\-\+eE]+)\)",svgitem["transform"])
+
+            tx = float(m.group(1))
+            ty = float(m.group(2))
+
+            ydiff =    -length_factor * (geom2.dt[wheel, station, sector].y   - geom1.dt[wheel, station, sector].y)    * signConventions["DT", wheel, station, sector][1]
+            zdiff =    -length_factor * (geom2.dt[wheel, station, sector].z   - geom1.dt[wheel, station, sector].z)    * signConventions["DT", wheel, station, sector][2]
+            phixdiff = angle_factor * (geom2.dt[wheel, station, sector].phix - geom1.dt[wheel, station, sector].phix) * signConventions["DT", wheel, station, sector][0]
+
+            newBox = svgitem.clone()
+
+            svgitem["style"] = "fill:#e1e1e1;fill-opacity:1;stroke:#000000;stroke-width:5.0;stroke-dasharray:1, 1;stroke-dashoffset:0"
+            newBox["style"] = "fill:%s;fill-opacity:0.5;stroke:#000000;stroke-width:5.0;stroke-opacity:1;stroke-dasharray:none" % colors(wheel, station, sector)
+            newBox["id"] = newBox["id"] + "_moved"
+
+            newBox["transform"] = "translate(%g,%g) rotate(%g)" % (tx + ydiff, ty - zdiff, phixdiff*180./pi) 
+
+            new_boxes.append(newBox)
+
+    for treeindex, svgitem in sector_template:
+        if isinstance(svgitem, SVG) and svgitem.t == "g" and "id" in svgitem.attr and svgitem["id"] == "chambers":
+            svgitem.append(new_boxes)
+
+        elif isinstance(svgitem, SVG) and "id" in svgitem.attr and svgitem["id"] == "title":
+            svgitem[0] = "Sector %d (length x%g, angle x%g)" % (sector,length_factor, angle_factor)
+
+    sector_template.save(filename)
