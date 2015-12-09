@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   version="1.1"
+   width="1629.8906"
+   height="620.625"
+   id="svg4488"
+   inkscape:version="0.48.3.1 r9886"
+   sodipodi:docname="sector_template.svg">
+  <metadata
+     id="metadata40">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs38" />
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="640"
+     inkscape:window-height="480"
+     id="namedview36"
+     showgrid="false"
+     fit-margin-top="40"
+     fit-margin-left="40"
+     fit-margin-right="40"
+     fit-margin-bottom="40"
+     inkscape:zoom="0.14895833"
+     inkscape:cx="907.89063"
+     inkscape:cy="55"
+     inkscape:window-x="0"
+     inkscape:window-y="27"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg4488" />
+  <g
+     id="labels"
+     transform="translate(-52.109375,25.625)">
+    <text
+       id="title"
+       x="500"
+       y="50"
+       style="font-size:48px">Sector X</text>
+    <text
+       id="m2"
+       x="365"
+       y="125"
+       style="font-size:32px">wheel −2</text>
+    <text
+       id="m1"
+       x="630"
+       y="125"
+       style="font-size:32px">wheel −1</text>
+    <text
+       id="0"
+       x="900"
+       y="125"
+       style="font-size:32px">wheel 0</text>
+    <text
+       id="p1"
+       x="1170"
+       y="125"
+       style="font-size:32px">wheel +1</text>
+    <text
+       id="p2"
+       x="1435"
+       y="125"
+       style="font-size:32px">wheel +2</text>
+    <text
+       id="st4"
+       x="90"
+       y="230"
+       style="font-size:32px">Station 4</text>
+    <text
+       id="st3"
+       x="90"
+       y="332.5"
+       style="font-size:32px">Station 3</text>
+    <text
+       id="st2"
+       x="90"
+       y="439.5"
+       style="font-size:32px">Station 2</text>
+    <text
+       id="st1"
+       x="90"
+       y="528"
+       style="font-size:32px">Station 1</text>
+  </g>
+  <g
+     id="chambers"
+     transform="translate(247.89062,225.625)">
+    <rect
+       id="background"
+       x="-20"
+       y="-20"
+       width="1362"
+       height="375"
+       style="fill:#ffe3e3" />
+    <rect
+       id="MB_0_4"
+       x="-126.8"
+       y="-19"
+       width="253.60001"
+       height="38"
+       transform="translate(126.8,19)"
+       style="fill:#e1e1e1;stroke:#000000" />
+    <rect
+       id="MB_1_4"
+       x="-126.8"
+       y="-19"
+       width="253.60001"
+       height="38"
+       transform="translate(392.4,19)"
+       style="fill:#e1e1e1;stroke:#000000" />
+    <rect
+       id="MB_2_4"
+       x="-126.8"
+       y="-19"
+       width="253.60001"
+       height="38"
+       transform="translate(661,19)"
+       style="fill:#e1e1e1;stroke:#000000" />
+    <rect
+       id="MB_3_4"
+       x="-126.8"
+       y="-19"
+       width="253.60001"
+       height="38"
+       transform="translate(929.6,19)"
+       style="fill:#e1e1e1;stroke:#000000" />
+    <rect
+       id="MB_4_4"
+       x="-126.8"
+       y="-19"
+       width="253.60001"
+       height="38"
+       transform="translate(1195.2,19)"
+       style="fill:#e1e1e1;stroke:#000000" />
+  </g>
+</svg>
