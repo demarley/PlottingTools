@@ -26,8 +26,8 @@ if isReport:
       h_ex.Fill(ex_mm)
       if ex_mm != 0.0: h_px.Fill(dx_mm/ex_mm)
       dy_mm = 10.0*(g1.dt[wheel, station, sector].y - g_ref.dt[wheel, station, sector].y)*signConventions["DT", wheel, station, sector][1]
+      h_dy.Fill(dy_mm)
       if ( station != 4 ) :
-        h_dy.Fill(dy_mm)
         ey_mm = 10.*r1.deltay.error
         h_ey.Fill(ey_mm)
         if ey_mm != 0.0: h_py.Fill(dy_mm/ey_mm)
@@ -60,8 +60,7 @@ else:
         dx_mm = 10.0*(g1.dt[wheel, station, sector].x - g_ref.dt[wheel, station, sector].x)*signConventions["DT", wheel, station, sector][0]
         h_dx.Fill(dx_mm)
         dy_mm = 10.0*(g1.dt[wheel, station, sector].y - g_ref.dt[wheel, station, sector].y)*signConventions["DT", wheel, station, sector][1]
-        if ( station != 4 ) :
-           h_dy.Fill(dy_mm)
+        h_dy.Fill(dy_mm)
         dz_mm = 10.0*(g1.dt[wheel, station, sector].z - g_ref.dt[wheel, station, sector].z)*signConventions["DT", wheel, station, sector][2]
         h_dz.Fill(dz_mm)
         dphix_mrad = 1000.0*(g1.dt[wheel, station, sector].phix - g_ref.dt[wheel, station, sector].phix)
