@@ -26,8 +26,8 @@ dphiz_bins, dphiz_min, dphiz_max = 1000, -1.6, 1.6
 
 xmlfile1             = "Geometries/"+alignmentName+".xml"
 referenceName        = "MCRUN2_73_V6"
-# xmlfile_ref          = "Geometries/initialMuonGeometry-DESRUN2_73_V3.xml" # reference geometry: initial or IDEAL
-xmlfile_ref          = "Geometries/initialMuonGeometry-MCRUN2_73_V6.xml" # reference geometry: initial or IDEAL
+xmlfile_ref          = "Geometries/initialMuonGeometry-DESRUN2_73_V3.xml" # reference geometry: initial or IDEAL
+#xmlfile_ref          = "Geometries/initialMuonGeometry-MCRUN2_73_V6.xml" # reference geometry: initial or IDEAL
 
 
 folderName = "RESULT/"+alignmentName+"/"
