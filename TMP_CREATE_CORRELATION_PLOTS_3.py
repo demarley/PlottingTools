@@ -7,6 +7,14 @@ execfile("geometryXMLparser.py")
 execfile("plotscripts.py")
 execfile("tdrStyle.py")
 
+boolPrintTrue = True
+
+def drawCorrelationFactor( TH2F, TLatex, printTrue):
+    if printTrue:
+      tempString = "#splitline{Correlation Factor:}{" + str(TH2F.GetCorrelationFactor()) + "}"
+      #TLatex.SetNDC(True)
+      TLatex.DrawLatexNDC(.65, .8, tempString) 
+
 
 alignmentName = sys.argv[1]   
 
@@ -44,6 +52,10 @@ g_ref = MuonGeometry(xmlfile_ref)
 
 c1 = ROOT.TCanvas("canvas", "canvas")
 c1.SetCanvasSize(900,900)
+
+T1 = ROOT.TLatex()
+T1.SetTextFont(43)
+T1.SetTextSize(30)
 
 legend = ROOT.TLegend(.17,.935,0.9,1.)
 legend.SetFillColor(ROOT.kWhite)
@@ -239,6 +251,7 @@ for endcap in (1, 2):
 
       h_dx_dy.Draw()
       legend.Draw()
+      drawCorrelationFactor(h_dx_dy, T1, boolPrintTrue)
       pngName = "CSC_corr_dx_dy_" + plotsLabel + ".png"
       pdfName = "CSC_corr_dx_dy_" + plotsLabel + ".pdf"
       c1.SaveAs(pngPath+pngName)
@@ -246,6 +259,7 @@ for endcap in (1, 2):
 
       h_dx_dz.Draw()
       legend.Draw()
+      drawCorrelationFactor(h_dx_dz, T1, boolPrintTrue)
       pngName = "CSC_corr_dx_dz_" + plotsLabel + ".png"
       pdfName = "CSC_corr_dx_dz_" + plotsLabel + ".pdf"
       c1.SaveAs(pngPath+pngName)
@@ -253,6 +267,7 @@ for endcap in (1, 2):
 
       h_dx_dphix.Draw()
       legend.Draw()
+      drawCorrelationFactor(h_dx_dphix, T1, boolPrintTrue)
       pngName = "CSC_corr_dx_dphix_" + plotsLabel + ".png"
       pdfName = "CSC_corr_dx_dphix_" + plotsLabel + ".pdf"
       c1.SaveAs(pngPath+pngName)
@@ -260,13 +275,15 @@ for endcap in (1, 2):
 
       h_dx_dphiy.Draw()
       legend.Draw()
+      drawCorrelationFactor(h_dx_dphiy, T1, boolPrintTrue)
       pngName = "CSC_corr_dx_dphiy_" + plotsLabel + ".png"
       pdfName = "CSC_corr_dx_dphiy_" + plotsLabel + ".pdf"
       c1.SaveAs(pngPath+pngName)
       c1.SaveAs(pdfPath+pdfName)
-
+        
       h_dx_dphiz.Draw()
       legend.Draw()
+      drawCorrelationFactor(h_dx_dphiz, T1, boolPrintTrue)
       pngName = "CSC_corr_dx_dphiz_" + plotsLabel + ".png"
       pdfName = "CSC_corr_dx_dphiz_" + plotsLabel + ".pdf"
       c1.SaveAs(pngPath+pngName)
@@ -275,6 +292,7 @@ for endcap in (1, 2):
 
       h_dy_dz.Draw()
       legend.Draw()
+      drawCorrelationFactor(h_dy_dz, T1, boolPrintTrue)
       pngName = "CSC_corr_dy_dz_" + plotsLabel + ".png"
       pdfName = "CSC_corr_dy_dz_" + plotsLabel + ".pdf"
       c1.SaveAs(pngPath+pngName)
@@ -282,6 +300,7 @@ for endcap in (1, 2):
 
       h_dy_dphix.Draw()
       legend.Draw()
+      drawCorrelationFactor(h_dy_dphix, T1, boolPrintTrue)
       pngName = "CSC_corr_dy_dphix_" + plotsLabel + ".png"
       pdfName = "CSC_corr_dy_dphix_" + plotsLabel + ".pdf"
       c1.SaveAs(pngPath+pngName)
@@ -289,6 +308,7 @@ for endcap in (1, 2):
 
       h_dy_dphiy.Draw()
       legend.Draw()
+      drawCorrelationFactor(h_dy_dphiy, T1, boolPrintTrue)
       pngName = "CSC_corr_dy_dphiy_" + plotsLabel + ".png"
       pdfName = "CSC_corr_dy_dphiy_" + plotsLabel + ".pdf"
       c1.SaveAs(pngPath+pngName)
@@ -296,6 +316,7 @@ for endcap in (1, 2):
 
       h_dy_dphiz.Draw()
       legend.Draw()
+      drawCorrelationFactor(h_dy_dphiz, T1, boolPrintTrue)
       pngName = "CSC_corr_dy_dphiz_" + plotsLabel + ".png"
       pdfName = "CSC_corr_dy_dphiz_" + plotsLabel + ".pdf"
       c1.SaveAs(pngPath+pngName)
@@ -304,6 +325,7 @@ for endcap in (1, 2):
 
       h_dz_dphix.Draw()
       legend.Draw()
+      drawCorrelationFactor(h_dz_dphix, T1, boolPrintTrue)
       pngName = "CSC_corr_dz_dphix_" + plotsLabel + ".png"
       pdfName = "CSC_corr_dz_dphix_" + plotsLabel + ".pdf"
       c1.SaveAs(pngPath+pngName)
@@ -311,6 +333,7 @@ for endcap in (1, 2):
 
       h_dz_dphiy.Draw()
       legend.Draw()
+      drawCorrelationFactor(h_dz_dphiy, T1, boolPrintTrue)
       pngName = "CSC_corr_dz_dphiy_" + plotsLabel + ".png"
       pdfName = "CSC_corr_dz_dphiy_" + plotsLabel + ".pdf"
       c1.SaveAs(pngPath+pngName)
@@ -318,6 +341,7 @@ for endcap in (1, 2):
 
       h_dz_dphiz.Draw()
       legend.Draw()
+      drawCorrelationFactor(h_dz_dphiz, T1, boolPrintTrue)
       pngName = "CSC_corr_dz_dphiz_" + plotsLabel + ".png"
       pdfName = "CSC_corr_dz_dphiz_" + plotsLabel + ".pdf"
       c1.SaveAs(pngPath+pngName)
@@ -326,6 +350,7 @@ for endcap in (1, 2):
 
       h_dphix_dphiy.Draw()
       legend.Draw()
+      drawCorrelationFactor(h_dphix_dphiy, T1, boolPrintTrue)
       pngName = "CSC_corr_dphix_dphiy_" + plotsLabel + ".png"
       pdfName = "CSC_corr_dphix_dphiy_" + plotsLabel + ".pdf"
       c1.SaveAs(pngPath+pngName)
@@ -333,6 +358,7 @@ for endcap in (1, 2):
 
       h_dphix_dphiz.Draw()
       legend.Draw()
+      drawCorrelationFactor(h_dphix_dphiz, T1, boolPrintTrue)
       pngName = "CSC_corr_dphix_dphiz_" + plotsLabel + ".png"
       pdfName = "CSC_corr_dphix_dphiz_" + plotsLabel + ".pdf"
       c1.SaveAs(pngPath+pngName)
@@ -341,6 +367,7 @@ for endcap in (1, 2):
 
       h_dphiy_dphiz.Draw()
       legend.Draw()
+      drawCorrelationFactor(h_dphiy_dphiz, T1, boolPrintTrue)
       pngName = "CSC_corr_dphiy_dphiz_" + plotsLabel + ".png"
       pdfName = "CSC_corr_dphiy_dphiz_" + plotsLabel + ".pdf"
       c1.SaveAs(pngPath+pngName)
