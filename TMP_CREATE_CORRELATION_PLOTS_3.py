@@ -7,15 +7,53 @@ execfile("geometryXMLparser.py")
 execfile("plotscripts.py")
 execfile("tdrStyle.py")
 
-boolPrintTrue = True
+def getFitParams(hist):
+    fit = hist.GetFunction("pol1")
+    
+    p0 = fit.GetParameter(0) # offset from x axis
+    p0e = fit.GetParError(0) # offset from x axis
+    
+    p1 = fit.GetParameter(1) # slope
+    p1e = fit.GetParError(1) # slope
+    
+    return p0, p0e, p1, p1e
 
 def drawCorrelationFactor( TH2F, TLatex, printTrue):
-    if printTrue:
-      tempString = "#splitline{Correlation Factor:}{" + str(TH2F.GetCorrelationFactor()) + "}"
-      #TLatex.SetNDC(True)
-      TLatex.DrawLatexNDC(.65, .8, tempString) 
+    if printTrue == "true":
+        if abs(TH2F.GetCorrelationFactor()) > 0.001:
+          TH2F.Fit("pol1", "QC")
+          fitParameters = getFitParams(TH2F)
+          corString = "#splitline{Correlation Factor:}{" + str(TH2F.GetCorrelationFactor()) + "}"
+          P0String = "P0: " +  str(fitParameters[0]) + " +/- " + str(fitParameters[1])
+          P1String = "P1: " +  str(fitParameters[2]) + " +/- " + str(fitParameters[3])
+          tempString = "#splitline{#splitline{" + corString + "}{" + P0String + "}}{" + P1String + "}"
+          #TLatex.SetNDC(True)
+          #TLatex.DrawLatexNDC(.65, .8, tempString) 
+          TLatex.DrawLatexNDC(.3, .8, tempString) 
+#def drawCorrelationFactor( TH2F, TLatex, printTrue):
+#    if printTrue:
+#        if abs(TH2F.GetCorrelationFactor()) > 0.0001:
+#          #graph = ROOT.gPad.GetPrimitive("Graph")
+#          TH2F.Fit("pol1", "QC")
+#          #graph.Fit("pol1", "QC")
+#          #profile = TH2F.ProfileY()
+#          #if profile.GetEntries() > 1:
+#          #    profile.Fit("pol1", "QC")
+#          #    print profile.GetFunction("pol1")
+#          #    if(TH2F.GetFunction("pol1")):
+#          fitParameters = getFitParams(TH2F)
+#          corString = "#splitline{Correlation Factor:}{" + str(TH2F.GetCorrelationFactor()) + "}"
+#          P0String = "P0: " +  str(fitParameters[0]) + " +/- " + str(fitParameters[1])
+#          P1String = "P1: " +  str(fitParameters[2]) + " +/- " + str(fitParameters[3])
+#          tempString = "#splitline{#splitline{" + corString + "}{" + P0String + "}}{" + P1String + "}"
+#          #TLatex.SetNDC(True)
+#          #TLatex.DrawLatexNDC(.65, .8, tempString) 
+#          TLatex.DrawLatexNDC(.3, .8, tempString) 
 
 
+boolPrintTrue = sys.argv[2]
+#print boolPrintTrue
+#boolPrintTrue = True
 alignmentName = sys.argv[1]   
 
 #dx_bins, dx_min, dx_max = 1000, -0.3, 0.3

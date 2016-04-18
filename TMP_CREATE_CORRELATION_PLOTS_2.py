@@ -8,7 +8,32 @@ execfile("geometryXMLparser.py")
 execfile("plotscripts.py")
 execfile("tdrStyle.py")
 
+def getFitParams(hist):
+    fit = hist.GetFunction("pol1")
+    
+    p0 = fit.GetParameter(0) # offset from x axis
+    p0e = fit.GetParError(0) # offset from x axis
+    
+    p1 = fit.GetParameter(1) # slope
+    p1e = fit.GetParError(1) # slope
+    
+    return p0, p0e, p1, p1e
+
+def drawCorrelationFactor( TH2F, TLatex, printTrue):
+    if printTrue:
+        if abs(TH2F.GetCorrelationFactor()) > 0.001:
+          TH2F.Fit("pol1", "QC")
+          fitParameters = getFitParams(TH2F)
+          corString = "#splitline{Correlation Factor:}{" + str(TH2F.GetCorrelationFactor()) + "}"
+          P0String = "P0: " +  str(fitParameters[0]) + " +/- " + str(fitParameters[1])
+          P1String = "P1: " +  str(fitParameters[2]) + " +/- " + str(fitParameters[3])
+          tempString = "#splitline{#splitline{" + corString + "}{" + P0String + "}}{" + P1String + "}"
+          #TLatex.SetNDC(True)
+          #TLatex.DrawLatexNDC(.65, .8, tempString) 
+          TLatex.DrawLatexNDC(.3, .8, tempString) 
+
 alignmentName = sys.argv[1] 
+boolPrintTrue = sys.argv[2] 
 
 #dx_bins, dx_min, dx_max = 1000, -0.3, 0.3
 #dy_bins, dy_min, dy_max = 1000, -2.6, 2.6
@@ -49,6 +74,10 @@ g_ref = MuonGeometry(xmlfile_ref)
 
 c1 = ROOT.TCanvas("canvas", "canvas")
 c1.SetCanvasSize(900,900)
+
+T1 = ROOT.TLatex()
+T1.SetTextFont(43)
+T1.SetTextSize(30)
 
 legend = ROOT.TLegend(.17,.935,0.9,1.)
 legend.SetFillColor(ROOT.kWhite)
@@ -228,6 +257,7 @@ for wheel in (-2, 0, 2):
 
   h_dx_dy.Draw()
   legend.Draw()
+  drawCorrelationFactor(h_dx_dy, T1, boolPrintTrue)
   pngName = "DT_corr_dx_dy_" + plotsLabel + ".png"
   pdfName = "DT_corr_dx_dy_" + plotsLabel + ".pdf"
   c1.SaveAs(pngPath+pngName)
@@ -235,6 +265,7 @@ for wheel in (-2, 0, 2):
 
   h_dx_dz.Draw()
   legend.Draw()
+  drawCorrelationFactor(h_dx_dz, T1, boolPrintTrue)
   pngName = "DT_corr_dx_dz_" + plotsLabel + ".png"
   pdfName = "DT_corr_dx_dz_" + plotsLabel + ".pdf"
   c1.SaveAs(pngPath+pngName)
@@ -242,6 +273,7 @@ for wheel in (-2, 0, 2):
 
   h_dx_dphix.Draw()
   legend.Draw()
+  drawCorrelationFactor(h_dx_dphix, T1, boolPrintTrue)
   pngName = "DT_corr_dx_dphix_" + plotsLabel + ".png"
   pdfName = "DT_corr_dx_dphix_" + plotsLabel + ".pdf"
   c1.SaveAs(pngPath+pngName)
@@ -249,6 +281,7 @@ for wheel in (-2, 0, 2):
 
   h_dx_dphiy.Draw()
   legend.Draw()
+  drawCorrelationFactor(h_dx_dphiy, T1, boolPrintTrue)
   pngName = "DT_corr_dx_dphiy_" + plotsLabel + ".png"
   pdfName = "DT_corr_dx_dphiy_" + plotsLabel + ".pdf"
   c1.SaveAs(pngPath+pngName)
@@ -256,6 +289,7 @@ for wheel in (-2, 0, 2):
 
   h_dx_dphiz.Draw()
   legend.Draw()
+  drawCorrelationFactor(h_dx_dphiz, T1, boolPrintTrue)
   pngName = "DT_corr_dx_dphiz_" + plotsLabel + ".png"
   pdfName = "DT_corr_dx_dphiz_" + plotsLabel + ".pdf"
   c1.SaveAs(pngPath+pngName)
@@ -264,6 +298,7 @@ for wheel in (-2, 0, 2):
 
   h_dy_dz.Draw()
   legend.Draw()
+  drawCorrelationFactor(h_dy_dz, T1, boolPrintTrue)
   pngName = "DT_corr_dy_dz_" + plotsLabel + ".png"
   pdfName = "DT_corr_dy_dz_" + plotsLabel + ".pdf"
   c1.SaveAs(pngPath+pngName)
@@ -271,6 +306,7 @@ for wheel in (-2, 0, 2):
 
   h_dy_dphix.Draw()
   legend.Draw()
+  drawCorrelationFactor(h_dy_dphix, T1, boolPrintTrue)
   pngName = "DT_corr_dy_dphix_" + plotsLabel + ".png"
   pdfName = "DT_corr_dy_dphix_" + plotsLabel + ".pdf"
   c1.SaveAs(pngPath+pngName)
@@ -278,6 +314,7 @@ for wheel in (-2, 0, 2):
 
   h_dy_dphiy.Draw()
   legend.Draw()
+  drawCorrelationFactor(h_dy_dphiy, T1, boolPrintTrue)
   pngName = "DT_corr_dy_dphiy_" + plotsLabel + ".png"
   pdfName = "DT_corr_dy_dphiy_" + plotsLabel + ".pdf"
   c1.SaveAs(pngPath+pngName)
@@ -285,6 +322,7 @@ for wheel in (-2, 0, 2):
 
   h_dy_dphiz.Draw()
   legend.Draw()
+  drawCorrelationFactor(h_dy_dphiz, T1, boolPrintTrue)
   pngName = "DT_corr_dy_dphiz_" + plotsLabel + ".png"
   pdfName = "DT_corr_dy_dphiz_" + plotsLabel + ".pdf"
   c1.SaveAs(pngPath+pngName)
@@ -293,6 +331,7 @@ for wheel in (-2, 0, 2):
 
   h_dz_dphix.Draw()
   legend.Draw()
+  drawCorrelationFactor(h_dz_dphix, T1, boolPrintTrue)
   pngName = "DT_corr_dz_dphix_" + plotsLabel + ".png"
   pdfName = "DT_corr_dz_dphix_" + plotsLabel + ".pdf"
   c1.SaveAs(pngPath+pngName)
@@ -300,6 +339,7 @@ for wheel in (-2, 0, 2):
 
   h_dz_dphiy.Draw()
   legend.Draw()
+  drawCorrelationFactor(h_dz_dphiy, T1, boolPrintTrue)
   pngName = "DT_corr_dz_dphiy_" + plotsLabel + ".png"
   pdfName = "DT_corr_dz_dphiy_" + plotsLabel + ".pdf"
   c1.SaveAs(pngPath+pngName)
@@ -307,6 +347,7 @@ for wheel in (-2, 0, 2):
 
   h_dz_dphiz.Draw()
   legend.Draw()
+  drawCorrelationFactor(h_dz_dphiz, T1, boolPrintTrue)
   pngName = "DT_corr_dz_dphiz_" + plotsLabel + ".png"
   pdfName = "DT_corr_dz_dphiz_" + plotsLabel + ".pdf"
   c1.SaveAs(pngPath+pngName)
@@ -315,6 +356,7 @@ for wheel in (-2, 0, 2):
 
   h_dphix_dphiy.Draw()
   legend.Draw()
+  drawCorrelationFactor(h_dphix_dphiy, T1, boolPrintTrue)
   pngName = "DT_corr_dphix_dphiy_" + plotsLabel + ".png"
   pdfName = "DT_corr_dphix_dphiy_" + plotsLabel + ".pdf"
   c1.SaveAs(pngPath+pngName)
@@ -322,6 +364,7 @@ for wheel in (-2, 0, 2):
 
   h_dphix_dphiz.Draw()
   legend.Draw()
+  drawCorrelationFactor(h_dphix_dphiz, T1, boolPrintTrue)
   pngName = "DT_corr_dphix_dphiz_" + plotsLabel + ".png"
   pdfName = "DT_corr_dphix_dphiz_" + plotsLabel + ".pdf"
   c1.SaveAs(pngPath+pngName)
@@ -330,6 +373,7 @@ for wheel in (-2, 0, 2):
 
   h_dphiy_dphiz.Draw()
   legend.Draw()
+  drawCorrelationFactor(h_dphiy_dphiz, T1, boolPrintTrue)
   pngName = "DT_corr_dphiy_dphiz_" + plotsLabel + ".png"
   pdfName = "DT_corr_dphiy_dphiz_" + plotsLabel + ".pdf"
   c1.SaveAs(pngPath+pngName)
