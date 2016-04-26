@@ -7,6 +7,7 @@ execfile("geometryXMLparser.py")
 execfile("plotscripts.py")
 execfile("tdrStyle.py")
 
+
 def getFitParams(hist):
     fit = hist.GetFunction("pol1")
     
@@ -23,37 +24,14 @@ def drawCorrelationFactor( TH2F, TLatex, printTrue):
         if abs(TH2F.GetCorrelationFactor()) > 0.001:
           TH2F.Fit("pol1", "QC")
           fitParameters = getFitParams(TH2F)
-          corString = "#splitline{Correlation Factor:}{" + str(TH2F.GetCorrelationFactor()) + "}"
-          P0String = "P0: " +  str(fitParameters[0]) + " +/- " + str(fitParameters[1])
-          P1String = "P1: " +  str(fitParameters[2]) + " +/- " + str(fitParameters[3])
+          corString = "Correlation Factor: %.3f" % (TH2F.GetCorrelationFactor())
+          P0String = "P0: %.3f +/- %.3f" % (fitParameters[0], fitParameters[1]) 
+          P1String = "P1: %.3f +/- %.3f" % (fitParameters[2], fitParameters[3]) 
           tempString = "#splitline{#splitline{" + corString + "}{" + P0String + "}}{" + P1String + "}"
-          #TLatex.SetNDC(True)
-          #TLatex.DrawLatexNDC(.65, .8, tempString) 
           TLatex.DrawLatexNDC(.3, .8, tempString) 
-#def drawCorrelationFactor( TH2F, TLatex, printTrue):
-#    if printTrue:
-#        if abs(TH2F.GetCorrelationFactor()) > 0.0001:
-#          #graph = ROOT.gPad.GetPrimitive("Graph")
-#          TH2F.Fit("pol1", "QC")
-#          #graph.Fit("pol1", "QC")
-#          #profile = TH2F.ProfileY()
-#          #if profile.GetEntries() > 1:
-#          #    profile.Fit("pol1", "QC")
-#          #    print profile.GetFunction("pol1")
-#          #    if(TH2F.GetFunction("pol1")):
-#          fitParameters = getFitParams(TH2F)
-#          corString = "#splitline{Correlation Factor:}{" + str(TH2F.GetCorrelationFactor()) + "}"
-#          P0String = "P0: " +  str(fitParameters[0]) + " +/- " + str(fitParameters[1])
-#          P1String = "P1: " +  str(fitParameters[2]) + " +/- " + str(fitParameters[3])
-#          tempString = "#splitline{#splitline{" + corString + "}{" + P0String + "}}{" + P1String + "}"
-#          #TLatex.SetNDC(True)
-#          #TLatex.DrawLatexNDC(.65, .8, tempString) 
-#          TLatex.DrawLatexNDC(.3, .8, tempString) 
 
 
 boolPrintTrue = sys.argv[2]
-#print boolPrintTrue
-#boolPrintTrue = True
 alignmentName = sys.argv[1]   
 
 #dx_bins, dx_min, dx_max = 1000, -0.3, 0.3
@@ -93,7 +71,7 @@ c1.SetCanvasSize(900,900)
 
 T1 = ROOT.TLatex()
 T1.SetTextFont(43)
-T1.SetTextSize(30)
+T1.SetTextSize(40)
 
 legend = ROOT.TLegend(.17,.935,0.9,1.)
 legend.SetFillColor(ROOT.kWhite)

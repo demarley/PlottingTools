@@ -20,17 +20,16 @@ def getFitParams(hist):
     return p0, p0e, p1, p1e
 
 def drawCorrelationFactor( TH2F, TLatex, printTrue):
-    if printTrue:
+    if printTrue == "true":
         if abs(TH2F.GetCorrelationFactor()) > 0.001:
           TH2F.Fit("pol1", "QC")
           fitParameters = getFitParams(TH2F)
-          corString = "#splitline{Correlation Factor:}{" + str(TH2F.GetCorrelationFactor()) + "}"
-          P0String = "P0: " +  str(fitParameters[0]) + " +/- " + str(fitParameters[1])
-          P1String = "P1: " +  str(fitParameters[2]) + " +/- " + str(fitParameters[3])
+          corString = "Correlation Factor: %.3f" % (TH2F.GetCorrelationFactor())
+          P0String = "P0: %.3f +/- %.3f" % (fitParameters[0], fitParameters[1]) 
+          P1String = "P1: %.3f +/- %.3f" % (fitParameters[2], fitParameters[3]) 
           tempString = "#splitline{#splitline{" + corString + "}{" + P0String + "}}{" + P1String + "}"
-          #TLatex.SetNDC(True)
-          #TLatex.DrawLatexNDC(.65, .8, tempString) 
           TLatex.DrawLatexNDC(.3, .8, tempString) 
+
 
 alignmentName = sys.argv[1] 
 boolPrintTrue = sys.argv[2] 
@@ -77,7 +76,7 @@ c1.SetCanvasSize(900,900)
 
 T1 = ROOT.TLatex()
 T1.SetTextFont(43)
-T1.SetTextSize(30)
+T1.SetTextSize(40)
 
 legend = ROOT.TLegend(.17,.935,0.9,1.)
 legend.SetFillColor(ROOT.kWhite)
