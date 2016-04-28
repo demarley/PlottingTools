@@ -25,8 +25,8 @@ def drawCorrelationFactor( TH2F, TLatex, printTrue):
           TH2F.Fit("pol1", "QC")
           fitParameters = getFitParams(TH2F)
           corString = "Correlation Factor: %.3f" % (TH2F.GetCorrelationFactor())
-          P0String = "P0: %.3f +/- %.3f" % (fitParameters[0], fitParameters[1]) 
-          P1String = "P1: %.3f +/- %.3f" % (fitParameters[2], fitParameters[3]) 
+          P0String = "P0: %.3f #pm %.3f" % (fitParameters[0], fitParameters[1]) 
+          P1String = "P1: %.3f #pm %.3f" % (fitParameters[2], fitParameters[3]) 
           tempString = "#splitline{#splitline{" + corString + "}{" + P0String + "}}{" + P1String + "}"
           TLatex.DrawLatexNDC(.3, .8, tempString) 
 
