@@ -33,6 +33,8 @@ def drawCorrelationFactor( TH2F, TLatex, printTrue):
 
 alignmentName = sys.argv[1] 
 boolPrintTrue = sys.argv[2] 
+xmlfile_ref   = sys.argv[3]
+xmlfile1      = "Geometries/"+alignmentName+".xml"
 
 #dx_bins, dx_min, dx_max = 1000, -0.3, 0.3
 #dy_bins, dy_min, dy_max = 1000, -2.6, 2.6
@@ -42,22 +44,12 @@ boolPrintTrue = sys.argv[2]
 #dphiz_bins, dphiz_min, dphiz_max = 1000, -0.3, 0.3
 
 #alignmentName = "mc_DT_res1100_dt111111_HWuncert111111_v1"
-dx_bins, dx_min, dx_max = 1000, -0.6, 0.6
-dy_bins, dy_min, dy_max = 1000, -5.1, 5.1
-dz_bins, dz_min, dz_max = 1000, -5.1, 5.1
+dx_bins, dx_min, dx_max = 1000, -2, 2
+dy_bins, dy_min, dy_max = 1000, -2, 2
+dz_bins, dz_min, dz_max = 1000, -2, 2
 dphix_bins, dphix_min, dphix_max = 1000, -1.1, 1.1
 dphiy_bins, dphiy_min, dphiy_max = 1000, -1.1, 1.1
 dphiz_bins, dphiz_min, dphiz_max = 1000, -1.1, 1.1
-
-xmlfile1             = "Geometries/"+alignmentName+".xml"
-referenceName        = "MCRUN2_73_V6"
-# referenceName        = "DESRUN2_73_V3"
-
-
-# xmlfile_ref          = "Geometries/initialMuonGeometry-DESRUN2_73_V3.xml" # reference geometry: initial or IDEAL
-xmlfile_ref          = "Geometries/initialMuonGeometry-MCRUN2_73_V6.xml" # reference geometry: initial or IDEAL
-
-
 
 folderName = "RESULT/"+alignmentName+"/"
 

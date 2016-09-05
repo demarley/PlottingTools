@@ -1,25 +1,24 @@
 execfile("Plot_Corrections_1st.py")
 
-# if alignmentName != "mc_DT-1111-111111_DESRUN2_73_V3_CMSSW_7_3_1_muonGeometry_YuriyStartup_v1_03":
-#   print "Error! Mismatch between alignment name \"" + alignmentName + "\" and configuration file name"
-#   sys.exit(-1)
+plotsHeader = "CMS 2016B  #sqrt{s} = 13 TeV   L_{int} = 2. fb^{-1}"
+if (str(sys.argv[2])=="true"):
+    isDT = True
+else:
+    isDT = False
+if (str(sys.argv[3])=="true"):
+    isCSC = True
+else:
+    isCSC = False
 
-#plotsHeader = "CMS Prelim. 2011   #sqrt{s} = 7 TeV   L_{int} = 5.3 fb^{-1}"
-#plotsHeader = "CMS 2011   #sqrt{s} = 7 TeV   L_{int} = 5.3 fb^{-1}"
-#plotsHeader = "CMS Prelim. 2012 A+B   #sqrt{s} = 8 TeV   L_{int} = 5.7 fb^{-1}"
-#plotsHeader = "CMS 2012 A+B   #sqrt{s} = 8 TeV   L_{int} = 5.7 fb^{-1}"
-plotsHeader = "CMS Simulation"
+xmlfile_ref        = sys.argv[1]
+xmlfile1           = "Geometries/"+alignmentName+".xml"
+referenceName      = sys.argv[4]
+correctionName     = sys.argv[5]
 
-isCSC = False
-isDT  = True
-xmlfile1             = "Geometries/"+alignmentName+".xml"
-referenceName        = "MC_53_V14"
-xmlfile_ref          = "Geometries/muonGeometry_MC_53_V14_Local.xml" # reference geometry: initial or IDEAL
-d_bins, d_min, d_max =  100, -4.0, 4.0 # bins and range for corrections
-correctionName       = "Displacements from ideal geometry" # 'corrections" if difference between initial and final geometries; 'displacements' if difference between IDEAL and final geometries
+#d_bins, d_min, d_max =  100, -4.0, 4.0 # bins and range for corrections
+d_bins, d_min, d_max =  200, -10.0, 10.0 # bins and range for corrections
 length_factor, angle_factor = 200., 200. # factors for visualization
 littleLabel = alignmentName+" - "+referenceName
-
 folderName = "RESULT/"+alignmentName+"/"
 
 isReport = False

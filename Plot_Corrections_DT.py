@@ -385,6 +385,7 @@ for wheel in +2, +1, 0, -1, -2:
       else: sectors = (1,2,3,4,5,6,7,8,9,10,11,12,13,14)
       for sector in sectors:
         dx_mm = 10.0*(g1.dt[wheel, station, sector].x - g_ref.dt[wheel, station, sector].x)*signConventions["DT", wheel, station, sector][0]
+        #if(dx_mm>2 or dx_mm<-2): print dx_mm, " in: ", wheel, station, sector
         h_dx.Fill(dx_mm)
         dtTab_dx.FillDt(wheel, station, sector,"%.3f" % dx_mm)
         dy_mm = 10.0*(g1.dt[wheel, station, sector].y - g_ref.dt[wheel, station, sector].y)*signConventions["DT", wheel, station, sector][1]

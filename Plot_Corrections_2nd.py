@@ -78,7 +78,9 @@ if isCSC:
   cscGroupTable.PrintHtml(htmlFile,summaryTable,summaryHtmlCaption, 0)
   cscGroupTable.PrintTex(texFile,summaryTable, ("Summary table %s" % alignmentName), ("tab:summary_%s" % alignmentName), 1)
 
-
+print str(htmlFile)
+print str(htmlName_d)
+print str(correctionName)
 
 PrintHtmlCode(htmlFile,"<p><hr width=\"100%\">")
 PrintHtmlCode(htmlFile,"<p>Additional information:<ul>")
