@@ -1,6 +1,6 @@
 execfile("Plot_Corrections_1st.py")
 
-plotsHeader = "CMS 2016B  #sqrt{s} = 13 TeV   L_{int} = 2. fb^{-1}"
+plotsHeader = "CMS 2016X  #sqrt{s} = 13 TeV   L_{int} = X fb^{-1}"
 if (str(sys.argv[2])=="true"):
     isDT = True
 else:

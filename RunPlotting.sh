@@ -1,35 +1,26 @@
-export alignmentName="data_DT-1100-111111_SingleMuon_Run2016D_MuAlCalIsolatedMu_276315_276811_8_0_8_v1_03"
+export alignmentName="mc_DT-1100-111111_CMSSW_8_0_17_misall_45M_8TeV_MatrPlus_v1_02"
 
-#xmlfile_ref="Geometries/mc_DT-1100-110001_CMSSW_8_0_8_patch1_ideal_45M_8TeV_Twisted_v4_03.xml" # 3 DOF after CONICAL
-#xmlfile_ref="Geometries/DTGeometry_coneInLocalZvsGlobalZ.xml" # CONICAL
-#xmlfile_ref="Geometries/muonGeometry_IDEAL_AllZeroes.Ape6x6.StdTags.746p3.DBv2.xml" # reference geometry: initial or IDEAL
-xmlfile_ref="Geometries/data_DT-1100-110001_SingleMuon_Run2015D-PromptReco-v3_RECO_CMSSW_7_4_12_patch4_pt20_pakhotin_v2_03.xml" # Nov 2015 Geom DT
-#xmlfile_ref="Geometries/data_DT-1100-110001_SingleMuon_Run2016B-PromptReco_MuAlCalIsolatedMu-v3_RECO_8_0_8_pt20_LatestCond2_03.xml" # 2016 Geom DT
-#xmlfile_ref="Geometries/data_CSC-1100-100001_SingleMuon_Run2015D-PromptReco-v3_RECO_CMSSW_7_4_12_patch4_pt20_pakhotin_v5_03.xml" # Nov 2015 Geom CSC
-#xmlfile_ref="Geometries/data_CSC-1100-100001_SingleMuon_Run2016B-PromptReco_MuAlCalIsolatedMu-v3_RECO_8_0_8_pt20_LatestCond2_Shifted_02.xml" # 2016 shifted Geom CSC
-#xmlfile_ref="Geometries/data_DT-1100-110001_SingleMuon_Run2016D_MuAlCalIsolatedMu_276315_276811_8_0_8_v1_03.xml" # 2016D 3DOF
+xmlfile_ref="Geometries/muonGeometry_IDEAL_AllZeroes.Ape6x6.StdTags.746p3.DBv2.xml" # reference geometry: initial or IDEAL
+#xmlfile_ref="Geometries/data_DT-1100-110001_SingleMuon_Run2016B-PromptReco_MuAlCalIsolatedMu-v3_RECO_8_0_8_pt20_LatestCond2_03.xml" #Early 2016B Geom DT
+#xmlfile_ref="Geometries/data_CSC-1100-100001_SingleMuon_Run2016B-PromptReco_MuAlCalIsolatedMu-v3_RECO_8_0_8_pt20_LatestCond2_Shifted_03.xml" #Early 2016B CSC
+#xmlfile_ref="Geometries/data_DT-1100-110001_SingleMuon_Run2016E_MuAlCalIsolatedMu_276830_277420_8_0_17_v1_03.xml" # 2016E 6 DOF
 
-#referenceName="3 DOF after Conical"
-#referenceName="Conical"
 #referenceName="Iter 1 vs Iter 3"
-#referenceName="IDEAL_808_p1"
-#referenceName="NOV_2015"
-referenceName="May_2016"
+referenceName="IDEAL_Geo"
+#referenceName="2016B_early"
+#referenceName="2016E_6DOF"
 
-#correctionName="Displacements from 3 DOF after Conical"
-#correctionName="Displacements from Conical"
-#correctionName="Displacements from Iter 1" # 'corrections" if difference between initial and final geometries; 'displacements' if difference between IDEAL and final geometries
-#correctionName="Displacements from ideal geometry" # 'corrections" if difference between initial and final geometries; 'displacements' if difference between IDEAL and final geometries
-#correctionName="Displacements from 2015 Nov. geometry" # 'corrections" if difference between initial and final geometries; 'displacements' if difference between IDEAL and final geometries
-correctionName="Displacements from 2016 May geometry" # 'corrections" if difference between initial and final geometries; 'displacements' if difference between IDEAL and final geometries
+correctionName="Displacements from ideal geometry" # 'corrections" if difference between initial and final geometries; 'displacements' if difference between IDEAL and final geometries
+#correctionName="Displacements from 2016B geometry" # 'corrections" if difference between initial and final geometries; 'displacements' if difference between IDEAL and final geometries
+#correctionName="Displacements from 2016E with 6DOF"#
 
 runComparison=true
 uploadComparison=true
 runCorrelation=false
-printCorrelationFactors=false
+printCorrelationFactors=true
 
 doDT="true"
-doCSC="false"
+doCSC="data"
 
 if [ "$runComparison" = true ]; then
     echo output: OUTPUT/${alignmentName}.out.txt
