@@ -1,4 +1,5 @@
 from geometryDiffVisualization import *
+import operator
 
 for station in 1,2,3,4:
   imageName = alignmentName+"-"+referenceName+("__MBs%s" % station)
@@ -293,6 +294,12 @@ dtTab_pphix = DtTable()
 dtTab_pphiy = DtTable()
 dtTab_pphiz = DtTable()
 
+map_ID_Diff_x={}
+map_ID_Diff_y={}
+map_ID_Diff_z={}
+map_ID_Diff_phix={}
+map_ID_Diff_phiy={}
+map_ID_Diff_phiz={}
 for wheel in +2, +1, 0, -1, -2:
   for station in 1, 2, 3, 4:
     h_dx.Reset("ICESM")
@@ -403,7 +410,15 @@ for wheel in +2, +1, 0, -1, -2:
         dphiz_mrad = 1000.0*(g1.dt[wheel, station, sector].phiz - g_ref.dt[wheel, station, sector].phiz)
         h_dphiz.Fill(dphiz_mrad)
         dtTab_dphiz.FillDt(wheel, station, sector,"%.3f" % dphiz_mrad)
-      
+        #Find worse 50 chambers
+        ID_chamber = "chamber_" + str(wheel) + "_" + str(station) + "_" + str(sector)
+        map_ID_Diff_x[ID_chamber] = round(abs(dx_mm),2)
+        map_ID_Diff_y[ID_chamber] = round(abs(dy_mm),2)
+        map_ID_Diff_z[ID_chamber] = round(abs(dz_mm),2)
+        map_ID_Diff_phix[ID_chamber] = round(abs(dphix_mrad),2)
+        map_ID_Diff_phiy[ID_chamber] = round(abs(dphiy_mrad),2)
+        map_ID_Diff_phiz[ID_chamber] = round(abs(dphiz_mrad),2)
+
 #****** Corrections: save plots and fill tables over homogeneous chambers ******
         
     dtGroupPrettyName = "MB %s/%s/ALL" % (wheel , station)
@@ -654,6 +669,47 @@ for wheel in +2, +1, 0, -1, -2:
         sSigma = "%.3f" % fit[1].GetParameter(2)
         dtGroupTable.FillDtGroup("pphizGaussSig", wheel, station, sSigma, "./PNG/"+pngName)
     
+#Print 2`0 worse chambers
+if map_ID_Diff_x:
+  print "---------------WORSE 20 CHAMBER IN X------------------"
+  sorted_x = sorted(map_ID_Diff_x.items(), key=operator.itemgetter(1))
+  sorted_x.reverse()
+  for iN in range(20):
+    print sorted_x[iN]
+if map_ID_Diff_y:
+  print "---------------WORSE 20 CHAMBER IN Y------------------"
+  sorted_y = sorted(map_ID_Diff_y.items(), key=operator.itemgetter(1))
+  sorted_y.reverse()
+  for iN in range(20):
+    print sorted_y[iN]
+if map_ID_Diff_z:
+  print "---------------WORSE 20 CHAMBER IN Z------------------"
+  sorted_z = sorted(map_ID_Diff_z.items(), key=operator.itemgetter(1))
+  sorted_z.reverse()
+  for iN in range(20):
+    print sorted_z[iN]
+if map_ID_Diff_phix:
+  print "---------------WORSE 20 CHAMBER IN PHIX------------------"
+  sorted_phix = sorted(map_ID_Diff_phix.items(), key=operator.itemgetter(1))
+  sorted_phix.reverse()
+  print sorted_phix
+  for iN in range(20):
+    print sorted_phix[iN]
+if map_ID_Diff_phiy:
+  print "---------------WORSE 20 CHAMBER IN PHIY------------------"
+  sorted_phiy = sorted(map_ID_Diff_phiy.items(), key=operator.itemgetter(1))
+  sorted_phiy.reverse()
+  print sorted_phiy
+  for iN in range(20):
+    print sorted_phiy[iN]
+if map_ID_Diff_phiz:
+  print "---------------WORSE 20 CHAMBER IN PHIZ------------------"
+  sorted_phiz = sorted(map_ID_Diff_phiz.items(), key=operator.itemgetter(1))
+  sorted_phiz.reverse()
+  print sorted_phiz
+  for iN in range(20):
+    print sorted_phiz[iN]
+
 #*******************************************************************************
 #                        Auxiliarly output HTML files                           
 #                           1. htmlName_d - file for corrections or biases      

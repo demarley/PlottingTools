@@ -1,0 +1,4 @@
+RESULT/*
+*.pyc
+OUTPUT/*
+Geometries/*xml
