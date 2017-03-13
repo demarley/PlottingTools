@@ -563,9 +563,9 @@ def DBdiff(database1, database2, reports1, reports2, window=10., selection=None,
                 if r1.deltaphix is not None and r2.deltaphix is not None and r1.deltaphix.error is not None and \
                    r2.deltaphix.error is not None and (r1.deltaphix.error**2 + r2.deltaphix.error**2) > 0.:
                     if normalized:
-                        fill = (db1.phix - db2.phix)/sqrt(r1.deltaphix.error**2 + r2.deltaphix.error**2)
+                        fill = (db1.phix - db2.phix)/sqrt(r1.deltaphix.error**2 + r2.deltaphix.error**2) * signConventions[r1.postal_address][0]
                     else:
-                        fill = (db1.phix - db2.phix) * 1000.
+                        fill = (db1.phix - db2.phix) * 1000. * signConventions[r1.postal_address][0]
                     hphix.Fill(fill)
                     if getvalues not in (False, None):
                         getvalues["phix"].append((fill, 10. * sqrt(r1.deltaphix.error**2 + r2.deltaphix.error**2)))
@@ -573,9 +573,9 @@ def DBdiff(database1, database2, reports1, reports2, window=10., selection=None,
                 if r1.deltaphiy is not None and r2.deltaphiy is not None and r1.deltaphiy.error is not None and \
                    r2.deltaphiy.error is not None and (r1.deltaphiy.error**2 + r2.deltaphiy.error**2) > 0.:
                     if normalized:
-                        fill = (db1.phiy - db2.phiy)/sqrt(r1.deltaphiy.error**2 + r2.deltaphiy.error**2)
+                        fill = (db1.phiy - db2.phiy)/sqrt(r1.deltaphiy.error**2 + r2.deltaphiy.error**2) * signConventions[r1.postal_address][1]
                     else:
-                        fill = (db1.phiy - db2.phiy) * 1000.
+                        fill = (db1.phiy - db2.phiy) * 1000. * signConventions[r1.postal_address][1]
                     hphiy.Fill(fill)
                     if getvalues not in (False, None):
                         getvalues["phiy"].append((fill, 10. * sqrt(r1.deltaphiy.error**2 + r2.deltaphiy.error**2)))
@@ -583,9 +583,9 @@ def DBdiff(database1, database2, reports1, reports2, window=10., selection=None,
                 if r1.deltaphiz is not None and r2.deltaphiz is not None and r1.deltaphiz.error is not None and \
                    r2.deltaphiz.error is not None and (r1.deltaphiz.error**2 + r2.deltaphiz.error**2) > 0.:
                     if normalized:
-                        fill = (db1.phiz - db2.phiz)/sqrt(r1.deltaphiz.error**2 + r2.deltaphiz.error**2)
+                        fill = (db1.phiz - db2.phiz)/sqrt(r1.deltaphiz.error**2 + r2.deltaphiz.error**2) * signConventions[r1.postal_address][2]
                     else:
-                        fill = (db1.phiz - db2.phiz) * 1000.
+                        fill = (db1.phiz - db2.phiz) * 1000. * signConventions[r1.postal_address][2]
                         print "phiz", r1.postal_address, db1.phiz, db2.phiz, fill, db1.x, db2.x, fillx
                     hphiz.Fill(fill)
                     if getvalues not in (False, None):
@@ -733,22 +733,22 @@ def DBdiffVersus(quantity, versus, database1, database2, reports1, reports2, win
                     if r1.deltaphix is not None and r2.deltaphix is not None and r1.deltaphix.error is not None and \
                        r2.deltaphix.error is not None and (r1.deltaphix.error**2 + r2.deltaphix.error**2) > 0.:
                         okay = True
-                        values.append((db1.phix - db2.phix) * 1000.)
-                        errors.append((r1.deltaphix.error**2 + r2.deltaphix.error**2) * 1000.)
+                        values.append((db1.phix - db2.phix) * 1000. * signConventions[r1.postal_address][0])
+                        errors.append((r1.deltaphix.error**2 + r2.deltaphix.error**2) * 1000. * signConventions[r1.postal_address][0])
 
                 elif quantity == "phiy":
                     if r1.deltaphiy is not None and r2.deltaphiy is not None and r1.deltaphiy.error is not None and \
                        r2.deltaphiy.error is not None and (r1.deltaphiy.error**2 + r2.deltaphiy.error**2) > 0.:
                         okay = True
-                        values.append((db1.phiy - db2.phiy) * 1000.)
-                        errors.append((r1.deltaphiy.error**2 + r2.deltaphiy.error**2) * 1000.)
+                        values.append((db1.phiy - db2.phiy) * 1000. * signConventions[r1.postal_address][1])
+                        errors.append((r1.deltaphiy.error**2 + r2.deltaphiy.error**2) * 1000. * signConventions[r1.postal_address][1])
 
                 elif quantity == "phiz":
                     if r1.deltaphiz is not None and r2.deltaphiz is not None and r1.deltaphiz.error is not None and \
                        r2.deltaphiz.error is not None and (r1.deltaphiz.error**2 + r2.deltaphiz.error**2) > 0.:
                         okay = True
-                        values.append((db1.phiz - db2.phiz) * 1000.)
-                        errors.append((r1.deltaphiz.error**2 + r2.deltaphiz.error**2) * 1000.)
+                        values.append((db1.phiz - db2.phiz) * 1000. * signConventions[r1.postal_address][2])
+                        errors.append((r1.deltaphiz.error**2 + r2.deltaphiz.error**2) * 1000. * signConventions[r1.postal_address][2])
 
                 else: raise Exception
 

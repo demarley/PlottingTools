@@ -37,17 +37,17 @@ if isReport:
       ez_mm = 10.*r1.deltaz.error
       h_ez.Fill(ez_mm)
       if ez_mm != 0.0: h_pz.Fill(dz_mm/ez_mm)
-      dphix_mrad = 1000.0*(g1.dt[wheel, station, sector].phix - g_ref.dt[wheel, station, sector].phix)
+      dphix_mrad = 1000.0*(g1.dt[wheel, station, sector].phix - g_ref.dt[wheel, station, sector].phix)*signConventions["DT", wheel, station, sector][0]
       h_dphix.Fill(dphix_mrad)
       ephix_mrad = 1000.*r1.deltaphix.error
       h_ephix.Fill(ephix_mrad)
       if ephix_mrad != 0.0: h_pphix.Fill(dphix_mrad/ephix_mrad)
-      dphiy_mrad = 1000.0*(g1.dt[wheel, station, sector].phiy - g_ref.dt[wheel, station, sector].phiy)
+      dphiy_mrad = 1000.0*(g1.dt[wheel, station, sector].phiy - g_ref.dt[wheel, station, sector].phiy)*signConventions["DT", wheel, station, sector][1]
       h_dphiy.Fill(dphiy_mrad)
       ephiy_mrad = 1000.*r1.deltaphiy.error
       h_ephiy.Fill(ephiy_mrad)
       if ephiy_mrad != 0.0: h_pphiy.Fill(dphiy_mrad/ephiy_mrad)
-      dphiz_mrad = 1000.0*(g1.dt[wheel, station, sector].phiz - g_ref.dt[wheel, station, sector].phiz)
+      dphiz_mrad = 1000.0*(g1.dt[wheel, station, sector].phiz - g_ref.dt[wheel, station, sector].phiz)*signConventions["DT", wheel, station, sector][2]
       h_dphiz.Fill(dphiz_mrad)
       ephiz_mrad = 1000.*r1.deltaphiz.error
       h_ephiz.Fill(ephiz_mrad)
@@ -64,11 +64,11 @@ else:
         h_dy.Fill(dy_mm)
         dz_mm = 10.0*(g1.dt[wheel, station, sector].z - g_ref.dt[wheel, station, sector].z)*signConventions["DT", wheel, station, sector][2]
         h_dz.Fill(dz_mm)
-        dphix_mrad = 1000.0*(g1.dt[wheel, station, sector].phix - g_ref.dt[wheel, station, sector].phix)
+        dphix_mrad = 1000.0*(g1.dt[wheel, station, sector].phix - g_ref.dt[wheel, station, sector].phix)*signConventions["DT", wheel, station, sector][0]
         h_dphix.Fill(dphix_mrad)
-        dphiy_mrad = 1000.0*(g1.dt[wheel, station, sector].phiy - g_ref.dt[wheel, station, sector].phiy)
+        dphiy_mrad = 1000.0*(g1.dt[wheel, station, sector].phiy - g_ref.dt[wheel, station, sector].phiy)*signConventions["DT", wheel, station, sector][1]
         h_dphiy.Fill(dphiy_mrad)
-        dphiz_mrad = 1000.0*(g1.dt[wheel, station, sector].phiz - g_ref.dt[wheel, station, sector].phiz)
+        dphiz_mrad = 1000.0*(g1.dt[wheel, station, sector].phiz - g_ref.dt[wheel, station, sector].phiz)*signConventions["DT", wheel, station, sector][2]
         h_dphiz.Fill(dphiz_mrad)
 
 #*******************************************************************************
@@ -356,7 +356,7 @@ for wheel in +2, +1, 0, -1, -2:
             pz = dz_mm/ez_mm
             h_pz.Fill(pz)
             dtTab_pz.FillDt(wheel, station, sector,"%.3f" % pz)
-          dphix_mrad = 1000.*(g1.dt[wheel, station, sector].phix - g_ref.dt[wheel, station, sector].phix)
+          dphix_mrad = 1000.*(g1.dt[wheel, station, sector].phix - g_ref.dt[wheel, station, sector].phix)*signConventions["DT", wheel, station, sector][0]
           h_dphix.Fill(dphix_mrad)
           dtTab_dphix.FillDt(wheel, station, sector,"%.3f" % dphix_mrad)
           ephix_mrad = 1000.*r1.deltaphix.error
@@ -366,7 +366,7 @@ for wheel in +2, +1, 0, -1, -2:
             pphix = dphix_mrad/ephix_mrad
             h_pphix.Fill(pphix)
             dtTab_pphix.FillDt(wheel, station, sector,"%.3f" % pphix)
-          dphiy_mrad = 1000.*(g1.dt[wheel, station, sector].phiy - g_ref.dt[wheel, station, sector].phiy)
+          dphiy_mrad = 1000.*(g1.dt[wheel, station, sector].phiy - g_ref.dt[wheel, station, sector].phiy)*signConventions["DT", wheel, station, sector][1]
           h_dphiy.Fill(dphiy_mrad)
           dtTab_dphiy.FillDt(wheel, station, sector,"%.3f" % dphiy_mrad)
           ephiy_mrad = 1000.*r1.deltaphiy.error
@@ -376,7 +376,7 @@ for wheel in +2, +1, 0, -1, -2:
             pphiy = dphiy_mrad/ephiy_mrad
             h_pphiy.Fill(pphiy)
             dtTab_pphiy.FillDt(wheel, station, sector,"%.3f" % pphiy)
-          dphiz_mrad = 1000.*(g1.dt[wheel, station, sector].phiz - g_ref.dt[wheel, station, sector].phiz)
+          dphiz_mrad = 1000.*(g1.dt[wheel, station, sector].phiz - g_ref.dt[wheel, station, sector].phiz)*signConventions["DT", wheel, station, sector][2]
           h_dphiz.Fill(dphiz_mrad)
           dtTab_dphiz.FillDt(wheel, station, sector,"%.3f" % dphiz_mrad)
           ephiz_mrad = 1000.*r1.deltaphiz.error
@@ -401,13 +401,13 @@ for wheel in +2, +1, 0, -1, -2:
         dz_mm = 10.0*(g1.dt[wheel, station, sector].z - g_ref.dt[wheel, station, sector].z)*signConventions["DT", wheel, station, sector][2]
         h_dz.Fill(dz_mm)
         dtTab_dz.FillDt(wheel, station, sector,"%.3f" % dz_mm)
-        dphix_mrad = 1000.0*(g1.dt[wheel, station, sector].phix - g_ref.dt[wheel, station, sector].phix)
+        dphix_mrad = 1000.0*(g1.dt[wheel, station, sector].phix - g_ref.dt[wheel, station, sector].phix)*signConventions["DT", wheel, station, sector][0]
         h_dphix.Fill(dphix_mrad)
         dtTab_dphix.FillDt(wheel, station, sector,"%.3f" % dphix_mrad)
-        dphiy_mrad = 1000.0*(g1.dt[wheel, station, sector].phiy - g_ref.dt[wheel, station, sector].phiy)
+        dphiy_mrad = 1000.0*(g1.dt[wheel, station, sector].phiy - g_ref.dt[wheel, station, sector].phiy)*signConventions["DT", wheel, station, sector][1]
         h_dphiy.Fill(dphiy_mrad)
         dtTab_dphiy.FillDt(wheel, station, sector,"%.3f" % dphiy_mrad)
-        dphiz_mrad = 1000.0*(g1.dt[wheel, station, sector].phiz - g_ref.dt[wheel, station, sector].phiz)
+        dphiz_mrad = 1000.0*(g1.dt[wheel, station, sector].phiz - g_ref.dt[wheel, station, sector].phiz)*signConventions["DT", wheel, station, sector][2]
         h_dphiz.Fill(dphiz_mrad)
         dtTab_dphiz.FillDt(wheel, station, sector,"%.3f" % dphiz_mrad)
         #Find worse 50 chambers

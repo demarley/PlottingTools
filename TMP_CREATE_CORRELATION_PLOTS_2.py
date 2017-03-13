@@ -206,9 +206,9 @@ for wheel in (-2, -1, 0, 1, 2):
       dx_mm = 10.0*(g1.dt[wheel, station, sector].x - g_ref.dt[wheel, station, sector].x)*signConventions["DT", wheel, station, sector][0]
       dy_mm = 10.0*(g1.dt[wheel, station, sector].y - g_ref.dt[wheel, station, sector].y)*signConventions["DT", wheel, station, sector][1]
       dz_mm = 10.0*(g1.dt[wheel, station, sector].z - g_ref.dt[wheel, station, sector].z)*signConventions["DT", wheel, station, sector][2]
-      dphix_mrad = 1000.0*(g1.dt[wheel, station, sector].phix - g_ref.dt[wheel, station, sector].phix)
-      dphiy_mrad = 1000.0*(g1.dt[wheel, station, sector].phiy - g_ref.dt[wheel, station, sector].phiy)
-      dphiz_mrad = 1000.0*(g1.dt[wheel, station, sector].phiz - g_ref.dt[wheel, station, sector].phiz)
+      dphix_mrad = 1000.0*(g1.dt[wheel, station, sector].phix - g_ref.dt[wheel, station, sector].phix)*signConventions["DT", wheel, station, sector][0]
+      dphiy_mrad = 1000.0*(g1.dt[wheel, station, sector].phiy - g_ref.dt[wheel, station, sector].phiy)*signConventions["DT", wheel, station, sector][1]
+      dphiz_mrad = 1000.0*(g1.dt[wheel, station, sector].phiz - g_ref.dt[wheel, station, sector].phiz)*signConventions["DT", wheel, station, sector][2]
       X_vec.append(dx_mm); Y_vec.append(dy_mm); Z_vec.append(dz_mm); PhiX_vec.append(dphix_mrad); PhiY_vec.append(dphiy_mrad); PhiZ_vec.append(dphiz_mrad);
 
       h_dx_dy.Fill(dx_mm, dy_mm)
