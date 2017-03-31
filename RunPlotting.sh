@@ -1,4 +1,4 @@
-export alignmentName="mc_CSC-1100-100001_CMSSW_8_0_24_GTasym_45M_8TeV_misall_03"
+export alignmentName="mc_DT-1100-111111_CMSSW_8_0_24_GTasym_45M_8TeV_misallFixsigma_03"
 
 xmlfile_ref="Geometries/muonGeometry_IDEAL_AllZeroes.Ape6x6.StdTags.746p3.DBv2.xml" # reference geometry: initial or IDEAL
 #xmlfile_ref="Geometries/data_DT-1100-110001_SingleMuon_Run2016B-PromptReco_MuAlCalIsolatedMu-v3_RECO_8_0_8_pt20_LatestCond2_03.xml" #Early 2016B Geom DT
@@ -24,8 +24,8 @@ uploadComparison=true
 runCorrelation=false
 printCorrelationFactors=true
 
-doDT="false"
-doCSC="true"
+doDT="true"
+doCSC="false"
 
 if [ "$runComparison" = true ]; then
     echo output: OUTPUT/${alignmentName}.out.txt

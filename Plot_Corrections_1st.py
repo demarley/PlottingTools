@@ -13,8 +13,6 @@ from Class_CscGroupTable import *
 
 from Histo_FitAndDraw import *
 
-#alignmentName = os.environ["alignmentName"]
-
 try:  
    alignmentName = os.environ["alignmentName"]
 except KeyError: 
