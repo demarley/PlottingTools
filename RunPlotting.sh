@@ -1,10 +1,6 @@
 export alignmentName="mc_DT-1100-111111_CMSSW_8_0_24_GTasym_45M_8TeV_misallFixsigma_03"
 
 xmlfile_ref="Geometries/muonGeometry_IDEAL_AllZeroes.Ape6x6.StdTags.746p3.DBv2.xml" # reference geometry: initial or IDEAL
-#xmlfile_ref="Geometries/data_DT-1100-110001_SingleMuon_Run2016B-PromptReco_MuAlCalIsolatedMu-v3_RECO_8_0_8_pt20_LatestCond2_03.xml" #Early 2016B Geom DT
-#xmlfile_ref="Geometries/data_CSC-1100-100001_SingleMuon_Run2016B-PromptReco_MuAlCalIsolatedMu-v3_RECO_8_0_8_pt20_LatestCond2_Shifted_03.xml" #Early 2016B CSC
-#xmlfile_ref="Geometries/data_DT-1100-110001_SingleMuon_Run2016E_MuAlCalIsolatedMu_276830_277420_8_0_17_NewTrack_v1_03.xml" # 2016E 3 DOF DT
-#xmlfile_ref="Geometries/data_CSC-1100-110001_SingleMuon_Run2016E_MuAlCalIsolatedMu_276830_277420_8_0_17_NewTrack_v1_03.xml" # 2016E 3 DOF CSC
 #xmlfile_ref="Geometries/data_DT-1100-111111_SingleMuon_Run2016G_MuAlCalIsolatedMu_278820_280385_8_0_24_Rerecov1_03.xml" # 2016G 6 DOF DT
 #xmlfile_ref="Geometries/data_CSC-1100-110001_SingleMuon_Run2016G_MuAlCalIsolatedMu_278820_280385_8_0_24_Rerecov1_03.xml" #2016G 6 DOF CSC
 
