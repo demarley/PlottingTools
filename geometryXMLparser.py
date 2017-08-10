@@ -11,6 +11,9 @@
 #     bool eulerAngles = false
 #     int32 precision = 8
 # }
+import xml.sax # External libraries (standard in Python >= 2.4, at least)
+
+
 
 def dtorder(a, b):
   for ai, bi, name in zip(list(a) + [0]*(5 - len(a)), \
@@ -50,8 +53,6 @@ def cscorder(a, b):
 
   return cmp(a, b)
 
-# External libraries (standard in Python >= 2.4, at least)
-import xml.sax
 
 class Alignable:
     def pos(self):
