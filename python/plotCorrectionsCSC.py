@@ -52,15 +52,19 @@ class PlotCorrectionsCSC(object):
 
 
         self.label = self.alignmentName+" - "+self.referenceName
-        self.text  = {'e':"Alignment fit uncertainties"
+        self.text  = {'e':"Fit Uncertainties"
                       'p':"Pulls",
                       'd':self.correctionName}
 
         self.groupTableList = {
+          'd':["dxRMS","dyRMS","dzRMS","dphixRMS","dphiyRMS","dphizRMS"],
           'e':["exMean","eyMean","ezMean","ephixMean","ephiyMean","ephizMean"],
           'p':["pxRMS","pyRMS","pzRMS","pphixRMS","pphiyRMS","pphizRMS"]
           }
         self.groupTableListFull = {
+          'd':["dxRMS","dxGaussSig","dyRMS","dyGaussSig","dzRMS","dzGaussSig",
+               "dphixRMS","dphixGaussSig","dphiyRMS","dphiyGaussSig",
+               "dphizRMS","dphizGaussSig"]
           'e':["exMean","exGaussMean","eyMean","eyGaussMean","ezMean","ezGaussMean",
                "ephixMean","ephixGaussMean","ephiyMean","ephiyGaussMean",
                "ephizMean","ephizGaussMean"],
@@ -74,10 +78,11 @@ class PlotCorrectionsCSC(object):
 
         self.cscTab = {"d":{"x":CscTable(),"y":CscTable(),"z":CscTable(),
                             "phix":CscTable(),"phiy":CscTable(),"phiz":CscTable()},
-                      {"e":{"x":CscTable(),"y":CscTable(),"z":CscTable(),
+                       "e":{"x":CscTable(),"y":CscTable(),"z":CscTable(),
                             "phix":CscTable(),"phiy":CscTable(),"phiz":CscTable()},
-                      {"p":{"x":CscTable(),"y":CscTable(),"z":CscTable(),
+                       "p":{"x":CscTable(),"y":CscTable(),"z":CscTable(),
                             "phix":CscTable(),"phiy":CscTable(),"phiz":CscTable()}
+                      }
 
         if self.isReport:
             rep = importlib.import_module(self.config.reportfile())
@@ -143,19 +148,19 @@ class PlotCorrectionsCSC(object):
 
             # uncertainty & pull
             if rep is not None:
-				delta =  getattr(rep,"delta"+cc)
-				e_mm  =  factor
-				e_mm  *= delta.error
-				self.histo.histograms["h_e"][cc].Fill(e_mm)
+                delta =  getattr(rep,"delta"+cc)
+                e_mm  =  factor
+                e_mm  *= delta.error
+                self.histo.histograms["h_e"][cc].Fill(e_mm)
 
-				if fillTable:
-					self.cscTab["e"][cc].FillCsc(endcap,disk,ring,chamber,"%.3f" % e_mm)
+                if fillTable:
+                    self.cscTab["e"][cc].FillCsc(endcap,disk,ring,chamber,"%.3f" % e_mm)
 
-				if fabs(e_mm) > 1e-8:
-					p = d_mm/e_mm
-					self.histo.histograms["h_p"][cc].Fill(p)
-					if fillTable:
-						self.cscTab["p"][cc].FillCsc(endcap,disk,ring,chamber,"%.3f" % p)
+                if fabs(e_mm) > 1e-8:
+                    p = d_mm/e_mm
+                    self.histo.histograms["h_p"][cc].Fill(p)
+                    if fillTable:
+                        self.cscTab["p"][cc].FillCsc(endcap,disk,ring,chamber,"%.3f" % p)
 
         return
 
@@ -192,7 +197,7 @@ class PlotCorrectionsCSC(object):
                 ring    = r1.postal_address[3]
                 chamber = r1.postal_address[4]
 
-				self.fillHistograms( endcap,disk,ring,chamber,rep=r1 )
+                self.fillHistograms( endcap,disk,ring,chamber,rep=r1 )
 
         else:
             for endcap in self.endcaps:
@@ -211,15 +216,15 @@ class PlotCorrectionsCSC(object):
         histTitle = systemPrettyName+": {0}"
 
         for dof in self.dof:
-            self.fitDrawHists("d",dof,histTitle.format(self.text["d"],label)
+            self.fitDrawHists("d",dof,histTitle.format(self.text["d"],label))
 
             if self.isReport:
 
                 ### Uncertainties
-                self.fitDrawHists("e",dof,histTitle.format(self.text["e"],self.alignmentName)
+                self.fitDrawHists("e",dof,histTitle.format(self.text["e"],self.alignmentName))
 
                 ### Pulls
-                self.fitDrawHists("p",dof,histTitle.format(self.text["p"],label)
+                self.fitDrawHists("p",dof,histTitle.format(self.text["p"],label))
 
 
 
@@ -260,65 +265,65 @@ class PlotCorrectionsCSC(object):
 
                     cscGroupPrettyName = "ME{0}{1}/{2}/ALL".format(sEndcapSign,disk,ring)
                     histTitle   = cscGroupPrettyName+": {0}"
-					pngName = "CSC_{0}{1}_{2}_{3}_{4}.png"
-					pdfName = "CSC_{0}{1}_{2}_{3}_{4}.pdf"
+                    pngName = "CSC_{0}{1}_{2}_{3}_{4}.png"
+                    pdfName = "CSC_{0}{1}_{2}_{3}_{4}.pdf"
 
-					for dof in self.dof:
-					    pngName_d = pngName.format('d',dof,sEndcapPorM,disk,ring)
-					    pdfName_d = pngName.format('d',dof,sEndcapPorM,disk,ring)
+                    for dof in self.dof:
+                        pngName_d = pngName.format('d',dof,sEndcapPorM,disk,ring)
+                        pdfName_d = pngName.format('d',dof,sEndcapPorM,disk,ring)
 
-						h = self.histo.histograms["h_d"][dof]
-						h.SetTitle(histTitle.format(self.text['d']))
-						fit = self.hfd.FitAndDraw(h,self.label)
-						self.histo.legend.Draw()
+                        h = self.histo.histograms["h_d"][dof]
+                        h.SetTitle(histTitle.format(self.text['d']))
+                        fit = self.hfd.FitAndDraw(h,self.label)
+                        self.histo.legend.Draw()
 
-						self.histo.c1.SaveAs( self.pngPath+"/"+pngName_d )
-						self.histo.c1.SaveAs( self.pdfPath+"/"+pdfName_d )
+                        self.histo.c1.SaveAs( self.pngPath+"/"+pngName_d )
+                        self.histo.c1.SaveAs( self.pdfPath+"/"+pdfName_d )
 
-						sRMS = "%.3f" % h.GetRMS()
-						self.cscGroupTable.FillCscGroup("d{0}RMS".format(dof),endcap,disk,ring,sRMS,"./PNG/"+pngName_d)
-						if fit[0]:
-							sSigma = "%.3f" % fit[1].GetParameter(2)
-							self.cscGroupTable.FillCscGroup("d{0}GaussSig".format(dof),endcap,disk,ring,sSigma,"./PNG/"+pngName_d)
+                        sRMS = "%.3f" % h.GetRMS()
+                        self.cscGroupTable.FillCscGroup("d{0}RMS".format(dof),endcap,disk,ring,sRMS,"./PNG/"+pngName_d)
+                        if fit[0]:
+                            sSigma = "%.3f" % fit[1].GetParameter(2)
+                            self.cscGroupTable.FillCscGroup("d{0}GaussSig".format(dof),endcap,disk,ring,sSigma,"./PNG/"+pngName_d)
 
 
                     #****** Fit uncert: save plots and fill tables over homogeneous chambers *******
                     #******** Pulls: save plots and fill tables over homogeneous chambers **********
 
                         if self.isReport:
-					    	pngName_e = pngName.format('e',dof,sEndcapPorM,disk,ring)
-					    	pdfName_e = pngName.format('e',dof,sEndcapPorM,disk,ring)
+                            pngName_e = pngName.format('e',dof,sEndcapPorM,disk,ring)
+                            pdfName_e = pngName.format('e',dof,sEndcapPorM,disk,ring)
 
-						    ## uncertainties
-							h = self.histo.histograms["h_e"][dof]
-							h.SetTitle(histTitle.format(self.text['e']))
-							fit = self.hfd.FitAndDraw(h,self.alignmentName)
-							self.histo.legend.Draw()
-							self.histo.c1.SaveAs( self.pngPath+"/"+pngName_e )
-							self.histo.c1.SaveAs( self.pdfPath+"/"+pdfName_e )
+                            ## uncertainties
+                            h = self.histo.histograms["h_e"][dof]
+                            h.SetTitle(histTitle.format(self.text['e']))
+                            fit = self.hfd.FitAndDraw(h,self.alignmentName)
+                            self.histo.legend.Draw()
+                            self.histo.c1.SaveAs( self.pngPath+"/"+pngName_e )
+                            self.histo.c1.SaveAs( self.pdfPath+"/"+pdfName_e )
 
-							sMean = "%.3f" % h.GetMean()
-							self.cscGroupTable.FillCscGroup("e{0}Mean".format(dof),endcap,disk,ring,sMean,"./PNG/"+pngName_e)
-							if fit[0]:
-								sGaussMean = "%.3f" % fit[1].GetParameter(1)
-								self.cscGroupTable.FillCscGroup("e{0}GaussMean".format(dof),endcap,disk,ring,sGaussMean,"./PNG/"+pngName_e)
+                            sMean = "%.3f" % h.GetMean()
+                            self.cscGroupTable.FillCscGroup("e{0}Mean".format(dof),endcap,disk,ring,sMean,"./PNG/"+pngName_e)
+                            if fit[0]:
+                                sGaussMean = "%.3f" % fit[1].GetParameter(1)
+                                self.cscGroupTable.FillCscGroup("e{0}GaussMean".format(dof),endcap,disk,ring,sGaussMean,"./PNG/"+pngName_e)
 
-					    	pngName_p = pngName.format('p',dof,sEndcapPorM,disk,ring)
-					    	pdfName_p = pngName.format('p',dof,sEndcapPorM,disk,ring)
+                            pngName_p = pngName.format('p',dof,sEndcapPorM,disk,ring)
+                            pdfName_p = pngName.format('p',dof,sEndcapPorM,disk,ring)
 
-							## pulls
-							h = self.histo.histograms["h_p"][dof]
-							h.SetTitle(histTitle.format(self.text['p']))
-							fit = self.hfd.FitAndDraw(h,self.label)
-							self.histo.legend.Draw()
-							self.histo.c1.SaveAs( self.pngPath+"/"+pngName_p )
-							self.histo.c1.SaveAs( self.pdfPath+"/"+pdfName_p )
+                            ## pulls
+                            h = self.histo.histograms["h_p"][dof]
+                            h.SetTitle(histTitle.format(self.text['p']))
+                            fit = self.hfd.FitAndDraw(h,self.label)
+                            self.histo.legend.Draw()
+                            self.histo.c1.SaveAs( self.pngPath+"/"+pngName_p )
+                            self.histo.c1.SaveAs( self.pdfPath+"/"+pdfName_p )
 
-							sRMS = "%.3f" % h.GetRMS()
-							self.cscGroupTable.FillCscGroup("p{0}RMS".format(dof),endcap,disk,ring,sMean,"./PNG/"+pngName_p)
-							if fit[0]:
-								sSigma = "%.3f" % fit[1].GetParameter(2)
-								self.cscGroupTable.FillCscGroup("p{0}GaussSig".format(dof),endcap,disk,ring,sGaussMean,"./PNG/"+pngName_p)
+                            sRMS = "%.3f" % h.GetRMS()
+                            self.cscGroupTable.FillCscGroup("p{0}RMS".format(dof),endcap,disk,ring,sMean,"./PNG/"+pngName_p)
+                            if fit[0]:
+                                sSigma = "%.3f" % fit[1].GetParameter(2)
+                                self.cscGroupTable.FillCscGroup("p{0}GaussSig".format(dof),endcap,disk,ring,sGaussMean,"./PNG/"+pngName_p)
 
 
 
@@ -329,112 +334,9 @@ class PlotCorrectionsCSC(object):
         #                           2. htmlName_e - file for fit uncertainties          
         #                           3. htmlName_p - file for pulls                      
         #*******************************************************************************
-
-        #************************* Corrections: print all DOF **************************
-
-        htmlFile_d = self.htmlPath + htmlName_d
-        texFile_d  = self.texPath  + texName_d
-
-        self.html.PrintHtmlHeader(htmlFile_d)
-        self.tex.PrintTexHeader(texFile_d)
-
-        self.html.PrintHtmlCode(htmlFile_d,"<font size=\"+2\">Alignment %s for %s</font>" % (self.text['d'],self.alignmentName) )
-        self.html.PrintHtmlCode(htmlFile_d,"<p>")
-        self.html.PrintHtmlCode(htmlFile_d,"<table border=\"1\" cellpadding=\"5\">")
-        caption = "<font size=+1>%s</font> <br><font size=-1><pre>%s</pre></font>" % (self.text['d'],self.label)
-        self.html.PrintHtmlCode(htmlFile_d,"<caption>%s</caption>" % caption)
-        self.html.PrintHtmlCode(htmlFile_d,"<tr align=center>")
-
-        for dof in self.dof: 
-            pngName = "CSC_d%s.png" % dof
-            self.html.PrintHtmlCode(htmlFile_d,"<td><a href=\"./PNG/%s\"><img src=\"./PNG/%s\" alt=\"text\" width=\"250\"></a></td>" % (pngName, pngName))
-            if dof == "z": self.html.PrintHtmlCode(htmlFile_d,"</tr><tr align=center>")
-
-        self.html.PrintHtmlCode(htmlFile_d,"</tr>")
-        self.html.PrintHtmlCode(htmlFile_d,"</table>")
-
-
-
-        # Visualization
-        self.html.PrintHtmlCode(htmlFile_d,"<p>")
-        self.html.PrintHtmlCode(htmlFile_d,"<table border=\"1\" cellpadding=\"5\">")
-        caption = ("<font size=+1>Alignment %s visualization</font> <br><font size=-1>" % correctionName ) +self.alignmentName+" - "+self.referenceName+"</font>"
-        self.html.PrintHtmlCode(htmlFile_d,"<caption>%s</caption>" % caption)
-
-        for endcap in self.endcaps:
-            self.html.PrintHtmlCode(htmlFile_d,"<tr align=center>")
-            sEndcapPorM = "p" if endcap==1 else "m"
-
-            for disk in self.disks:
-                diskPrettyName = "__ME%s%s" % (sEndcapPorM,disk)
-                imageName = self.alignmentName+"-"+self.referenceName+diskPrettyName
-                pngName = imageName+".png"
-                self.html.PrintHtmlCode(htmlFile_d,"<td><a href=\"./PNG/%s\"><img src=\"./PNG/%s\" alt=\"text\" width=\"300\"></a></td>" % (pngName, pngName))
-            self.html.PrintHtmlCode(htmlFile_d,"</tr>")
-
-        self.html.PrintHtmlCode(htmlFile_d,"</table>")
-
-
-
-
-
-        self.html.PrintHtmlCode(htmlFile_d,"<p>")
-        caption = ("<font size=+1>Alignment %s averaged over homogeneous chambers</font> <br><font size=-1>" % correctionName )+self.alignmentName+" - "+self.referenceName+"</font>"
-        self.cscGroupTable.PrintHtml(htmlFile_d,["dxRMS","dyRMS","dzRMS","dphixRMS","dphiyRMS","dphizRMS"],caption,0)
-
-        self.html.PrintHtmlCode(htmlFile_d,"<p>")
-        caption = ("<font size=+1>Alignment %s averaged over homogeneous chambers</font> <br><font size=-1>" % correctionName )+self.alignmentName+" - "+self.referenceName+"</font>"
-        self.cscGroupTable.PrintHtml(htmlFile_d,["dxRMS","dxGaussSig","dyRMS","dyGaussSig","dzRMS","dzGaussSig","dphixRMS","dphixGaussSig","dphiyRMS","dphiyGaussSig","dphizRMS","dphizGaussSig"],caption,0)
-
-        #************************* Corrections: print separate DOF *********************
-
-        for dof in self.dof:
-  
-            self.html.PrintHtmlCode(htmlFile_d,"<p>")
-
-            htmlDof = self.histo.html_names[dof]
-            texDof  = self.histo.latex_names[dof]
-            unitDof = self.histo.units[dof].strip("(").rstrip(")")
-  
-            htmlCaption = "<font size=+1>%s <i>%s</i> (%s) </font> <br><font size=-1><pre>%s</pre></font>" % (self.text['d'],htmlDof,unitDof,self.label)
-            texCaption  = "%s $%s$~(%s) \\\\ {\\tiny \\verb;%s;}" % (correctionName, texDof, unitDof, littleLabel)
-
-            self.cscTab["d"][dof].PrintHtml(htmlFile_d, htmlCaption, 0)
-            self.cscTab["d"][dof].PrintTex(texFile_d,   texCaption, "cscTab_d"+dof, 0)
-
-            htmlCaption = ("<font size=+1>%s <i>%s</i> (%s) in homogeneous chambers</font> <br><font size=-1><pre>%s</pre></font>" % (self.text['d'],htmlDof,unitDof,self.label) )
-  
-            self.html.PrintHtmlCode(htmlFile_d,"<p>")
-            self.html.PrintHtmlCode(htmlFile_d,"<table border=\"1\" cellpadding=\"5\">")
-            self.html.PrintHtmlCode(htmlFile_d,"<caption>%s</caption>" % htmlCaption)
-            self.html.PrintHtmlCode(htmlFile_d,"<tr align=center><th></th><th></th><th><i>Disk 1</i></th><th><i>Disk 2</i></th><th><i>Disk 3</i></th><th><i>Disk 4</i></th>")
-            for endcap in self.endcaps:
-                sEndcapPorM = "p" if endcap==1 else "m"
-
-                for ring in self.rings[1]:
-                    self.html.PrintHtmlCode( htmlFile_d, "<tr align=center>" )
-                    if ring == 1:
-                        if endcap == 1: self.html.PrintHtmlCode( htmlFile_d, "<th rowspan=\"3\"><i>ME+</i></th>" )
-                        else:           self.html.PrintHtmlCode( htmlFile_d, "<th rowspan=\"3\"><i>ME-</i></th>" )
-                    self.html.PrintHtmlCode( htmlFile_d, ("<th><i>Ring %s</i></th>" % ring) )
-
-                    for disk in self.disks:
-                        pngName = "CSC_d%s_%s_%s_%s.png" % (dof, sEndcapPorM, disk, ring)
-                        if disk != 1 and ring == 3:
-                            self.html.PrintHtmlCode( htmlFile_d, "<td>None</td>" )
-                        else:
-                            self.html.PrintHtmlCode( htmlFile_d, ("<td><a href=\"./PNG/%s\"><img src=\"./PNG/%s\" alt=\"text\" width=\"250\"></a></td>" % (pngName, pngName)) )
-
-                self.html.PrintHtmlCode(htmlFile_d,"</tr>")
-
-            self.html.PrintHtmlCode(htmlFile_d,"</table>")
-
-        self.html.PrintHtmlTrailer(htmlFile_d)
-        self.tex.PrintTexTrailer(texFile_d)
-
+        self.writeData("d")
 
         if self.isReport:
-            #************************ Fit uncert: print all DOF **************************
             self.writeData("e")
             self.writeData("p")
 
@@ -451,97 +353,108 @@ class PlotCorrectionsCSC(object):
             htmlFile += self.htmlName_e
             texFile  += self.texName_e
             label    =  self.alignmentName
-
             htmlDofString = ["delta;","sigma;<sub>fit</sub>"]
             texDofString  = ["delta","sigma_{fit}"]
-        else:
+        elif type=="p":
             htmlFile += self.htmlName_p
             texFile  += self.texName_p
             label     = self.label
             htmlDofString = ["&delta;",""]
             texDofString  = ["\\delta ",""]
+        else:
+            htmlFile += self.htmlName_d
+            texFile  += self.texName_d
+            label     = self.label
+            htmlDofString = ["",""]
+            texDofString  = ["",""]
 
-		self.html.PrintHtmlHeader(htmlFile)
-		self.tex.PrintTexHeader(texFile)
 
-		self.html.PrintHtmlCode(htmlFile,"<font size=\"+2\">{0} for {1}</font>".format(self.text[type],self.alignmentName) )
-		self.html.PrintHtmlCode(htmlFile,"<p>")
-		self.html.PrintHtmlCode(htmlFile,"<table border=\"1\" cellpadding=\"5\">")
+        self.html.PrintHtmlHeader(htmlFile)
+        self.tex.PrintTexHeader(texFile)
+
+        self.html.PrintHtmlCode(htmlFile,"<font size=\"+2\">{0} for {1}</font>".format(self.text[type],self.alignmentName) )
+        self.html.PrintHtmlCode(htmlFile,"<p>")
+        self.html.PrintHtmlCode(htmlFile,"<table border=\"1\" cellpadding=\"5\">")
 
         caption = "<font size=+1>{0}</font> <br><font size=-1>{1}</font>".format(self.text[type],label)
 
-		self.html.PrintHtmlCode(htmlFile,"<caption>{0}</caption>".format(caption))
-		self.html.PrintHtmlCode(htmlFile,"<tr align=center>")
+        self.html.PrintHtmlCode(htmlFile,"<caption>{0}</caption>".format(caption))
+        self.html.PrintHtmlCode(htmlFile,"<tr align=center>")
 
-		for dof in self.dof: 
-			pngName = "CSC_"+type+dof+".png"
-			self.html.PrintHtmlCode(htmlFile,"<td><a href=\"./PNG/%s\"><img src=\"./PNG/%s\" alt=\"text\" width=\"250\"></a></td>" % (pngName, pngName))
-			if dof == "z": self.html.PrintHtmlCode(htmlFile,"</tr><tr align=center>")
+        for dof in self.dof: 
+            pngName = "CSC_"+type+dof+".png"
+            self.html.PrintHtmlCode(htmlFile,"<td><a href=\"./PNG/%s\"><img src=\"./PNG/%s\" alt=\"text\" width=\"250\"></a></td>" % (pngName, pngName))
+            if dof == "z": self.html.PrintHtmlCode(htmlFile,"</tr><tr align=center>")
 
-		self.html.PrintHtmlCode(htmlFile,"</tr>")
-		self.html.PrintHtmlCode(htmlFile,"</table>")
+        self.html.PrintHtmlCode(htmlFile,"</tr>")
+        self.html.PrintHtmlCode(htmlFile,"</table>")
 
-		self.html.PrintHtmlCode(htmlFile,"<p>")
-		caption2 = "averaged over homogeneous chambers"
-	    caption  = "<font size=+1>{0} {1}</font> <br><font size=-1>{2}</font>".format(self.text[type],caption2,label)
-	    self.cscGroupTable.PrintHtml(htmlFile,self.groupTableList['e'],caption,0)
+        self.html.PrintHtmlCode(htmlFile,"<p>")
+        caption2 = "averaged over homogeneous chambers"
+        caption  = "<font size=+1>{0} {1}</font> <br><font size=-1>{2}</font>".format(self.text[type],caption2,label)
+        self.cscGroupTable.PrintHtml(htmlFile,self.groupTableList['e'],caption,0)
 
-		self.html.PrintHtmlCode(htmlFile,"<p>")
-	    self.cscGroupTable.PrintHtml(htmlFile,self.groupTableListFull['e'],caption,0)
+        self.html.PrintHtmlCode(htmlFile,"<p>")
+        self.cscGroupTable.PrintHtml(htmlFile,self.groupTableListFull['e'],caption,0)
 
 
-	    #************************ Separate DOF *********************
-		for dof in self.dof:
+        #************************ Separate DOF *********************
+        for dof in self.dof:
 
-			htmlDof = self.histo.html_names[dof].replace(htmlDofString[0],htmlDofString[1])
-			texDof  = self.histo.latex_names[dof].replace(texDofString[0],texDofString[1])
-			unitDof = self.histo.units[dof].strip("(").rstrip(")")
+            htmlDof = self.histo.html_names[dof].replace(htmlDofString[0],htmlDofString[1])
+            texDof  = self.histo.latex_names[dof].replace(texDofString[0],texDofString[1])
+            unitDof = self.histo.units[dof].strip("(").rstrip(")")
 
             if type=="e":
-	            htmlCaption = "<font size=+1><{0} <i>{1}</i> ({2})</font> <br><font size=-1><pre>{3}</pre></font>".format(self.text[type],htmlDof,unitDof,label)
-    	        texCaption  = "%s $%s$~(%s) \\\\ {\\tiny \\verb;%s;}" % (self.text[type],texDof, unitDof, label)
-				caption     = "<font size=+1><{0} <i>{1}</i> ({2}) in homogeneous chambers</font> <br><font size=-1><pre>{3}</pre></font>".format(self.text[type],htmlDof,unitDof,label)
-			else:
-				htmlCaption = "<font size=+1>{0} for <i>{1}</i></font> <br><font size=-1><pre>{2}</pre></font>".format(self.text[type],htmlDof, label)
-				texCaption  = "%s for $%s$ \\\\ {\\tiny \\verb;%s;}" % (self.text[type],htmlDof,label)
-				caption     = "{0} for <i>{1}</i> in homogeneous chambers</font> <br><font size=-1><pre>{2}</pre></font>".format(self.text[type],htmlDof,label)
+                htmlCaption = "<font size=+1><{0} <i>{1}</i> ({2})</font> <br><font size=-1><pre>{3}</pre></font>".format(self.text[type],htmlDof,unitDof,label)
+                texCaption  = "%s $%s$~(%s) \\\\ {\\tiny \\verb;%s;}" % (self.text[type],texDof, unitDof, label)
+                caption     = "<font size=+1><{0} <i>{1}</i> ({2}) in homogeneous chambers</font> <br><font size=-1><pre>{3}</pre></font>".format(self.text[type],htmlDof,unitDof,label)
+            elif type=="p":
+                htmlCaption = "<font size=+1>{0} for <i>{1}</i></font> <br><font size=-1><pre>{2}</pre></font>".format(self.text[type],htmlDof, label)
+                texCaption  = "%s for $%s$ \\\\ {\\tiny \\verb;%s;}" % (self.text[type],htmlDof,label)
+                caption     = "{0} for <i>{1}</i> in homogeneous chambers</font> <br><font size=-1><pre>{2}</pre></font>".format(self.text[type],htmlDof,label)
+            else:
+                htmlCaption = "<font size=+1>%s <i>%s</i> (%s) </font> <br><font size=-1><pre>%s</pre></font>" % (self.text['d'],htmlDof,unitDof,self.label)
+                texCaption  = "%s $%s$~(%s) \\\\ {\\tiny \\verb;%s;}" % (self.text[type], texDof, unitDof, label)
+                caption     = "<font size=+1>%s <i>%s</i> (%s) in homogeneous chambers</font> <br><font size=-1><pre>%s</pre></font>"%(self.text['d'],htmlDof,unitDof,self.label) 
 
 
-			self.cscTab[type][dof].PrintHtml(htmlFile, htmlCaption, 0)
-	    	self.cscTab[type][dof].PrintTex(texFile,   texCaption, "cscTab_"type+dof, 0)
 
-			self.html.PrintHtmlCode(htmlFile,"<p>")
-			self.html.PrintHtmlCode(htmlFile,"<table border=\"1\" cellpadding=\"5\">")
-			self.html.PrintHtmlCode(htmlFile,"<caption>%s</caption>" % caption)
-			self.html.PrintHtmlCode(htmlFile,"<tr align=center><th></th><th></th><th><i>Disk 1</i></th><th><i>Disk 2</i></th><th><i>Disk 3</i></th><th><i>Disk 4</i></th>")
-			for endcap in self.endcaps:
-				sEndcapPorM = "p" if endcap==1 else "m"
+            self.cscTab[type][dof].PrintHtml(htmlFile, htmlCaption, 0)
+            self.cscTab[type][dof].PrintTex(texFile,   texCaption, "cscTab_"type+dof, 0)
 
-				for ring in self.rings[1]:
-					self.html.PrintHtmlCode( htmlFile, "<tr align=center>" )
+            self.html.PrintHtmlCode(htmlFile,"<p>")
+            self.html.PrintHtmlCode(htmlFile,"<table border=\"1\" cellpadding=\"5\">")
+            self.html.PrintHtmlCode(htmlFile,"<caption>%s</caption>" % caption)
+            self.html.PrintHtmlCode(htmlFile,"<tr align=center><th></th><th></th><th><i>Disk 1</i></th><th><i>Disk 2</i></th><th><i>Disk 3</i></th><th><i>Disk 4</i></th>")
+            for endcap in self.endcaps:
+                sEndcapPorM = "p" if endcap==1 else "m"
 
-					if ring == 1:
-						if endcap == 1: self.html.PrintHtmlCode( htmlFile, "<th rowspan=\"3\"><i>ME+</i></th>" )
-						else:           self.html.PrintHtmlCode( htmlFile, "<th rowspan=\"3\"><i>ME-</i></th>" )
-					self.html.PrintHtmlCode( htmlFile, ("<th><i>Ring %s</i></th>" % ring) )
+                for ring in self.rings[1]:
+                    self.html.PrintHtmlCode( htmlFile, "<tr align=center>" )
 
-					for disk in self.disks:
-						pngName = "CSC_%s%s_%s_%s_%s.png" % (type,dof,sEndcapPorM,disk,ring)
-						if disk != 1 and ring == 3:
-						    self.html.PrintHtmlCode( htmlFile, "<td>None</td>" )
-						else:
-						    self.html.PrintHtmlCode( htmlFile, ("<td><a href=\"./PNG/%s\"><img src=\"./PNG/%s\" alt=\"text\" width=\"250\"></a></td>" % (pngName, pngName)) )
-				self.html.PrintHtmlCode(htmlFile,"</tr>")
+                    if ring == 1:
+                        if endcap == 1: self.html.PrintHtmlCode( htmlFile, "<th rowspan=\"3\"><i>ME+</i></th>" )
+                        else:           self.html.PrintHtmlCode( htmlFile, "<th rowspan=\"3\"><i>ME-</i></th>" )
+                    self.html.PrintHtmlCode( htmlFile, ("<th><i>Ring %s</i></th>" % ring) )
 
-			self.html.PrintHtmlCode(htmlFile,"</table>")
+                    for disk in self.disks:
+                        pngName = "CSC_%s%s_%s_%s_%s.png" % (type,dof,sEndcapPorM,disk,ring)
+                        if disk != 1 and ring == 3:
+                            self.html.PrintHtmlCode( htmlFile, "<td>None</td>" )
+                        else:
+                            self.html.PrintHtmlCode( htmlFile, ("<td><a href=\"./PNG/%s\"><img src=\"./PNG/%s\" alt=\"text\" width=\"250\"></a></td>" % (pngName, pngName)) )
+                self.html.PrintHtmlCode(htmlFile,"</tr>")
 
-		self.html.PrintHtmlTrailer(htmlFile)
-		self.tex.PrintTexTrailer(htmlFile)
+            self.html.PrintHtmlCode(htmlFile,"</table>")
 
-	    return
+        self.html.PrintHtmlTrailer(htmlFile)
+        self.tex.PrintTexTrailer(htmlFile)
+
+        return
 
 
-    def setupself.cscGroupTable(self):
+    def setupCscGroupTable(self):
         """Setup the CSC group table"""
         self.cscGroupTable.AddCscGroupVar("dxRMS",         "&delta;x (mm) <br>RMS",                           "$RMS(\\delta x)$",                     "mm")
         self.cscGroupTable.AddCscGroupVar("dxGaussSig",    "&delta;x (mm) <br>Gauss Sigma",                   "$\\sigma_{Gauss}(\\delta x)$",         "mm")

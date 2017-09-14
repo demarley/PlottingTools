@@ -16,21 +16,19 @@ class Histogrammer(object):
         self.config = cfg   # configuration object from MuonAlignmentAlgorithms/scripts/
         self.name   = name
 
-        color = ROOT.TColor
+        self.lineColor = ROOT.kBlack
+        self.yTitle    = "Number of "
+        color          = ROOT.TColor()
+
         if self.config.isDT():
-            # self.fillColor = ROOT.kGreen + 3
-            self.fillColor = color.GetColor("#ffe0a1")
-            self.lineColor = ROOT.kBlack
-            self.yTitle    = "Number of DTs"
+            self.fillColor  = color.GetColor("#ffe0a1")   # ROOT.kGreen + 3
+            self.yTitle    += "DTs"
         elif self.config.isCSC():
-            # self.fillColor = ROOT.kBlue - 7
-            self.fillColor = color.GetColor("#3ffa3f")
-            self.lineColor = ROOT.kBlack
-            self.yTitle    = "Number of CSCs"
+            self.fillColor  = color.GetColor("#3ffa3f")   # ROOT.kBlue - 7
+            self.yTitle    += "CSCs"
         else:
-            self.fillColor = ROOT.kCyan
-            self.lineColor = ROOT.kBlack
-            self.yTitle    = "Number of chambers"
+            self.fillColor  = ROOT.kCyan
+            self.yTitle    += "chambers"
 
         self.histograms  = {}
         self.coordinates = ["x","y","z","phix","phiy","phiz"]

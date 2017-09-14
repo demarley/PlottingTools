@@ -6,7 +6,7 @@ Plot corrections class for CSCs
 """
 import info
 import operator
-from geometryDiffVisualization import *
+from geometryDiffVisualization import * 
 
 for station in 1,2,3,4:
   imageName = alignmentName+"-"+referenceName+("__MBs%s" % station)
