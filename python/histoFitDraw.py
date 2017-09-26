@@ -24,10 +24,10 @@ class HistoFitDraw(object):
 
 	def FitAndDraw(histo, littleLabel="", doFit=True):
 	    """Fit and draw histogram"""
-		self.vb.DEBUG("doFit: {0}".format(doFit))
+            self.vb.DEBUG("doFit: {0}".format(doFit))
 
-		hEntries = histo.GetEntries()
-		hNorm    = histo.Integral()*histo.GetBinWidth(0)
+hEntries = histo.GetEntries()
+hNorm    = histo.Integral()*histo.GetBinWidth(0)
 		hMean    = histo.GetMean()
 		hMeanErr = histo.GetMeanError()
 		hRms     = histo.GetRMS()

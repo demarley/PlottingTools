@@ -5,10 +5,9 @@ Dan Marley
 Plot corrections class for CSCs
 """
 import os
-import importlib
 
 from cscTable import CscTable
-from cscGroupTable import cscGroupTable
+from cscGroupTable import CscGroupTable
 
 import info
 from util import HTML,TeX
@@ -52,7 +51,7 @@ class PlotCorrectionsCSC(object):
 
 
         self.label = self.alignmentName+" - "+self.referenceName
-        self.text  = {'e':"Fit Uncertainties"
+        self.text  = {'e':"Fit Uncertainties",
                       'p':"Pulls",
                       'd':self.correctionName}
 
@@ -64,7 +63,7 @@ class PlotCorrectionsCSC(object):
         self.groupTableListFull = {
           'd':["dxRMS","dxGaussSig","dyRMS","dyGaussSig","dzRMS","dzGaussSig",
                "dphixRMS","dphixGaussSig","dphiyRMS","dphiyGaussSig",
-               "dphizRMS","dphizGaussSig"]
+               "dphizRMS","dphizGaussSig"],
           'e':["exMean","exGaussMean","eyMean","eyGaussMean","ezMean","ezGaussMean",
                "ephixMean","ephixGaussMean","ephiyMean","ephiyGaussMean",
                "ephizMean","ephizGaussMean"],
@@ -85,7 +84,8 @@ class PlotCorrectionsCSC(object):
                       }
 
         if self.isReport:
-            rep = importlib.import_module(self.config.reportfile())
+            rep = __import__(self.config.reportfile())
+               # importlib.import_module(self.config.reportfile()) # not available
                # reportfile1 = "Geometries/"+alignmentName+"_report.py"
             self.report = rep.reports()
 
@@ -389,24 +389,24 @@ class PlotCorrectionsCSC(object):
         self.html.PrintHtmlCode(htmlFile,"</tr>")
         self.html.PrintHtmlCode(htmlFile,"</table>")
 
-		# Visualization
+        # Visualization
 
-		self.html.PrintHtmlCode(htmlFile_d,"<p>")
-		self.html.PrintHtmlCode(htmlFile_d,"<table border=\"1\" cellpadding=\"5\">")
-		caption = ("<font size=+1>Alignment %s visualization</font> <br><font size=-1>" % self.correctionName ) +alignmentName+" - "+referenceName+"</font>"
-		self.html.PrintHtmlCode(htmlFile_d,"<caption>%s</caption>" % caption)
-		for endcap in 1,2:
-			self.html.PrintHtmlCode(htmlFile_d,"<tr align=center>")
-			for disk in 1,2,3,4:
-				if endcap == 1: diskPrettyName = "__MEp%s" % disk
-				else:           diskPrettyName = "__MEm%s" % disk
+        self.html.PrintHtmlCode(htmlFile_d,"<p>")
+        self.html.PrintHtmlCode(htmlFile_d,"<table border=\"1\" cellpadding=\"5\">")
+        caption = ("<font size=+1>Alignment %s visualization</font> <br><font size=-1>" % self.correctionName ) +alignmentName+" - "+referenceName+"</font>"
+        self.html.PrintHtmlCode(htmlFile_d,"<caption>%s</caption>" % caption)
+        for endcap in 1,2:
+            self.html.PrintHtmlCode(htmlFile_d,"<tr align=center>")
+            for disk in 1,2,3,4:
+                if endcap == 1: diskPrettyName = "__MEp%s" % disk
+                else:           diskPrettyName = "__MEm%s" % disk
 
-				imageName = self.alignmentName+"-"+self.referenceName+diskPrettyName
-				pngName   = imageName+".png"
+                imageName = self.alignmentName+"-"+self.referenceName+diskPrettyName
+                pngName   = imageName+".png"
 
-				self.html.PrintHtmlCode(htmlFile_d,"<td><a href=\"./PNG/%s\"><img src=\"./PNG/%s\" alt=\"text\" width=\"300\"></a></td>" % (pngName, pngName))
-			self.html.PrintHtmlCode(htmlFile_d,"</tr>")
-		self.html.PrintHtmlCode(htmlFile_d,"</table>")
+                self.html.PrintHtmlCode(htmlFile_d,"<td><a href=\"{0}/{1}\"><img src=\"{0}/{1}\" alt=\"text\" width=\"300\"></a></td>".format(self.pngPath,pngName))
+            self.html.PrintHtmlCode(htmlFile_d,"</tr>")
+        self.html.PrintHtmlCode(htmlFile_d,"</table>")
 
 
         self.html.PrintHtmlCode(htmlFile,"<p>")
@@ -441,7 +441,7 @@ class PlotCorrectionsCSC(object):
 
 
             self.cscTab[type][dof].PrintHtml(htmlFile, htmlCaption, 0)
-            self.cscTab[type][dof].PrintTex(texFile,   texCaption, "cscTab_"type+dof, 0)
+            self.cscTab[type][dof].PrintTex(texFile,   texCaption, "cscTab_"+type+dof, 0)
 
             self.html.PrintHtmlCode(htmlFile,"<p>")
             self.html.PrintHtmlCode(htmlFile,"<table border=\"1\" cellpadding=\"5\">")

@@ -55,7 +55,7 @@ class PlotCorrectionsDT(object):
 
 
         self.label = self.alignmentName+" - "+self.referenceName
-        self.text  = {'e':"Fit Uncertainties"
+        self.text  = {'e':"Fit Uncertainties",
                       'p':"Pulls",
                       'd':self.correctionName}
 
