@@ -30,7 +30,7 @@ def dt():
     wheels   = [-2, -1, 0, 1, 2]
     stations = [1,2,3,4]
     sectors  = range(1,13)
-    sectors4 = range(1,15)      # more sections for station 4
+    sectors4 = range(1,15)      # more sectors for station 4
 
     dt_info  = {
       "wheels":wheels,
@@ -39,3 +39,9 @@ def dt():
       "sectors4":sectors4}
 
     return dt_info
+
+
+e_bins, e_min, e_max  =  50, 0.0, 0.5 # bins and range for fit uncertainties
+p_bins, p_min, p_max  =  100, -10.0, 10.0 # bins and range for pulls
+
+## THE END ##

@@ -75,8 +75,9 @@ class CscGroupTable(Table):
         self.FillCscGroupByName(varName, endcap, disk, ring, data, link)
         return
 
-  
+
     def PrintHtml(self, htmlFileName, varNamesToPrint="Var", caption="CSC Group Table Caption", isComplete=False):
+        """Print HTML information to file"""
         varIndices = []
         for varName in varNamesToPrint:
             varIndex = self.GetVarIndex(varName)
@@ -131,7 +132,8 @@ class CscGroupTable(Table):
         return
 
 
-    def PrintTex(self, texFileName, varNamesToPrint="Var", caption="CSC Group Table Caption", label="cscGroupTable", isComplete=0):
+    def PrintTex(self, texFileName, varNamesToPrint="Var", caption="CSC Group Table Caption", label="cscGroupTable", isComplete=False):
+        """Print TeX information to file"""
         varIndices = []
         for varName in varNamesToPrint:
             varIndex = self.GetVarIndex(varName)

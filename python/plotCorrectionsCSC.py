@@ -5,18 +5,17 @@ Dan Marley
 Plot corrections class for CSCs
 """
 import os
-import info
+import importlib
 
 from cscTable import CscTable
 from cscGroupTable import cscGroupTable
 
-import importlib
-
+import info
 from util import HTML,TeX
 from histoFitDraw import HistoFitDraw
-from histogrammer import Hisogrammer
-from geometryDiffVisualization import *
-
+from histogrammer import Histogrammer
+import geometryDiffVisualization as gdv
+import signConventions as sc
 
 class PlotCorrectionsCSC(object):
     """Class for plotting corrections in the CSC"""
@@ -28,8 +27,9 @@ class PlotCorrectionsCSC(object):
         self.disks   = csc_info["disks"]
         self.rings   = csc_info["rings"]
 
-        self.alignmentName = self.cfg.alignmentName()
-        self.referenceName = self.cfg.referenceName()
+        self.alignmentName  = self.cfg.alignmentName()
+        self.referenceName  = self.cfg.referenceName()
+        self.correctionName = self.cfg.correctionName()
 
         # Setup histogrammer
         self.histo = Histogrammer(self.cfg)
@@ -40,7 +40,7 @@ class PlotCorrectionsCSC(object):
         self.dof      = self.histo.coordinates    # ["x","y","z","phix","phiy","phiz"]
         self.isReport = self.cfg.isReport()
 
-        self.hfd  = HistoFitDraw()
+        self.hfd  = HistoFitDraw(config)
         self.html = HTML()
         self.tex  = TeX()
 
@@ -141,7 +141,7 @@ class PlotCorrectionsCSC(object):
             d_mm  = factor
             d_mm *= (g_new - g_ref)
             if cartesian:
-                d_mm *= signConventions["CSC",endcap,disk,ring,chamber][i]
+                d_mm *= sc.signConventions["CSC",endcap,disk,ring,chamber][i]
             self.histo.histograms["h_d"][cc].Fill(d_mm)
             if fillTable:
                 self.cscTab["d"][cc].FillCsc(endcap,disk,ring,chamber,"%.3f" % d_mm)
@@ -182,7 +182,7 @@ class PlotCorrectionsCSC(object):
                 imageName = self.alignmentName+"-"+self.referenceName+diskPrettyName
                 svgName   = imageName+".svg"
 
-                draw_disk(self.g_new,self.g_ref,endcap,disk,self.svgPath+svgName,length_factor,angle_factor)
+                gdv.draw_disk(self.g_new,self.g_ref,endcap,disk,self.svgPath+svgName,length_factor,angle_factor)
 
                 pngName  = imageName+".png"
                 retvalue = os.system("convert -density 104.2 {0} {1}".format(self.svgPath+svgName,self.pngPath+pngName) )
@@ -281,10 +281,10 @@ class PlotCorrectionsCSC(object):
                         self.histo.c1.SaveAs( self.pdfPath+"/"+pdfName_d )
 
                         sRMS = "%.3f" % h.GetRMS()
-                        self.cscGroupTable.FillCscGroup("d{0}RMS".format(dof),endcap,disk,ring,sRMS,"./PNG/"+pngName_d)
+                        self.cscGroupTable.FillCscGroup("d{0}RMS".format(dof),endcap,disk,ring,sRMS,self.pngPath+pngName_d)
                         if fit[0]:
                             sSigma = "%.3f" % fit[1].GetParameter(2)
-                            self.cscGroupTable.FillCscGroup("d{0}GaussSig".format(dof),endcap,disk,ring,sSigma,"./PNG/"+pngName_d)
+                            self.cscGroupTable.FillCscGroup("d{0}GaussSig".format(dof),endcap,disk,ring,sSigma,self.pngPath+pngName_d)
 
 
                     #****** Fit uncert: save plots and fill tables over homogeneous chambers *******
@@ -303,10 +303,10 @@ class PlotCorrectionsCSC(object):
                             self.histo.c1.SaveAs( self.pdfPath+"/"+pdfName_e )
 
                             sMean = "%.3f" % h.GetMean()
-                            self.cscGroupTable.FillCscGroup("e{0}Mean".format(dof),endcap,disk,ring,sMean,"./PNG/"+pngName_e)
+                            self.cscGroupTable.FillCscGroup("e{0}Mean".format(dof),endcap,disk,ring,sMean,self.pngPath+pngName_e)
                             if fit[0]:
                                 sGaussMean = "%.3f" % fit[1].GetParameter(1)
-                                self.cscGroupTable.FillCscGroup("e{0}GaussMean".format(dof),endcap,disk,ring,sGaussMean,"./PNG/"+pngName_e)
+                                self.cscGroupTable.FillCscGroup("e{0}GaussMean".format(dof),endcap,disk,ring,sGaussMean,self.pngPath+pngName_e)
 
                             pngName_p = pngName.format('p',dof,sEndcapPorM,disk,ring)
                             pdfName_p = pngName.format('p',dof,sEndcapPorM,disk,ring)
@@ -320,10 +320,10 @@ class PlotCorrectionsCSC(object):
                             self.histo.c1.SaveAs( self.pdfPath+"/"+pdfName_p )
 
                             sRMS = "%.3f" % h.GetRMS()
-                            self.cscGroupTable.FillCscGroup("p{0}RMS".format(dof),endcap,disk,ring,sMean,"./PNG/"+pngName_p)
+                            self.cscGroupTable.FillCscGroup("p{0}RMS".format(dof),endcap,disk,ring,sRMS,self.pngPath+pngName_p)
                             if fit[0]:
                                 sSigma = "%.3f" % fit[1].GetParameter(2)
-                                self.cscGroupTable.FillCscGroup("p{0}GaussSig".format(dof),endcap,disk,ring,sGaussMean,"./PNG/"+pngName_p)
+                                self.cscGroupTable.FillCscGroup("p{0}GaussSig".format(dof),endcap,disk,ring,sSigma,self.pngPath+pngName_p)
 
 
 
@@ -389,6 +389,26 @@ class PlotCorrectionsCSC(object):
         self.html.PrintHtmlCode(htmlFile,"</tr>")
         self.html.PrintHtmlCode(htmlFile,"</table>")
 
+		# Visualization
+
+		self.html.PrintHtmlCode(htmlFile_d,"<p>")
+		self.html.PrintHtmlCode(htmlFile_d,"<table border=\"1\" cellpadding=\"5\">")
+		caption = ("<font size=+1>Alignment %s visualization</font> <br><font size=-1>" % self.correctionName ) +alignmentName+" - "+referenceName+"</font>"
+		self.html.PrintHtmlCode(htmlFile_d,"<caption>%s</caption>" % caption)
+		for endcap in 1,2:
+			self.html.PrintHtmlCode(htmlFile_d,"<tr align=center>")
+			for disk in 1,2,3,4:
+				if endcap == 1: diskPrettyName = "__MEp%s" % disk
+				else:           diskPrettyName = "__MEm%s" % disk
+
+				imageName = self.alignmentName+"-"+self.referenceName+diskPrettyName
+				pngName   = imageName+".png"
+
+				self.html.PrintHtmlCode(htmlFile_d,"<td><a href=\"./PNG/%s\"><img src=\"./PNG/%s\" alt=\"text\" width=\"300\"></a></td>" % (pngName, pngName))
+			self.html.PrintHtmlCode(htmlFile_d,"</tr>")
+		self.html.PrintHtmlCode(htmlFile_d,"</table>")
+
+
         self.html.PrintHtmlCode(htmlFile,"<p>")
         caption2 = "averaged over homogeneous chambers"
         caption  = "<font size=+1>{0} {1}</font> <br><font size=-1>{2}</font>".format(self.text[type],caption2,label)
@@ -426,7 +446,7 @@ class PlotCorrectionsCSC(object):
             self.html.PrintHtmlCode(htmlFile,"<p>")
             self.html.PrintHtmlCode(htmlFile,"<table border=\"1\" cellpadding=\"5\">")
             self.html.PrintHtmlCode(htmlFile,"<caption>%s</caption>" % caption)
-            self.html.PrintHtmlCode(htmlFile,"<tr align=center><th></th><th></th><th><i>Disk 1</i></th><th><i>Disk 2</i></th><th><i>Disk 3</i></th><th><i>Disk 4</i></th>")
+            self.html.PrintHtmlCode(htmlFile,"<tr align=center><th></th><th></th><th><i>Disk {0}</i></th><th><i>Disk {1}</i></th><th><i>Disk {2}</i></th><th><i>Disk {3}</i></th>".format(self.disks[0],self.disks[1],self.disks[2],self.disks[3]))
             for endcap in self.endcaps:
                 sEndcapPorM = "p" if endcap==1 else "m"
 
@@ -443,7 +463,7 @@ class PlotCorrectionsCSC(object):
                         if disk != 1 and ring == 3:
                             self.html.PrintHtmlCode( htmlFile, "<td>None</td>" )
                         else:
-                            self.html.PrintHtmlCode( htmlFile, ("<td><a href=\"./PNG/%s\"><img src=\"./PNG/%s\" alt=\"text\" width=\"250\"></a></td>" % (pngName, pngName)) )
+                            self.html.PrintHtmlCode( htmlFile, ("<td><a href=\"{0}/{1}\"><img src=\"{0}/{1}\" alt=\"text\" width=\"250\"></a></td>".format(self.pngPath,pngName)) )
                 self.html.PrintHtmlCode(htmlFile,"</tr>")
 
             self.html.PrintHtmlCode(htmlFile,"</table>")

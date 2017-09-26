@@ -1,13 +1,14 @@
 """
-7 August 2017
+14 September 2017
 Dan Marley
 daniel.edison.marley@cernSPAMNOT.ch
 
 Utilities for the plotting scripts.
 
-Two classes: 
-- html (writing html files)
-- tex  (writing tex files)
+Three classes: 
+- html    (writing html files)
+- tex     (writing tex files)
+- verbose (printing output to terminal)
 """
 
 
@@ -15,7 +16,7 @@ class HTML(object):
     """Functions for printing data to html files"""
     def PrintHtmlHeader(self,htmlFileName):
 
-        htmlFile=open(htmlFileName, 'w')
+        htmlFile = open(htmlFileName, 'w')
         print >> htmlFile, "<!DOCTYPE html>"
         print >> htmlFile, "<html>"
         print >> htmlFile, "<body>"
@@ -26,7 +27,7 @@ class HTML(object):
 
     def PrintHtmlTrailer(self,htmlFileName):
 
-        htmlFile=open(htmlFileName, 'a')
+        htmlFile = open(htmlFileName, 'a')
         print >> htmlFile, "</body>"
         print >> htmlFile, "</html>"
         htmlFile.close()
@@ -36,7 +37,7 @@ class HTML(object):
 
     def PrintHtmlCode(self,htmlFileName, code):
 
-        htmlFile=open(htmlFileName, 'a')
+        htmlFile = open(htmlFileName, 'a')
         print >> htmlFile, code
         htmlFile.close()
 
@@ -52,8 +53,8 @@ class TeX(object):
 
 
     def PrintTexHeader(self,texFileName):
-
-        texFile=open(texFileName, 'w')
+        """Header to TeX file"""
+        texFile = open(texFileName, 'w')
         print >> texFile, "\\documentclass[letterpaper]{article}"
         print >> texFile, "\\usepackage{rotating}"
         print >> texFile, "\\usepackage{amsmath}"
@@ -76,8 +77,8 @@ class TeX(object):
   
 
     def PrintTexTrailer(self,texFileName):
-
-        texFile=open(texFileName, 'a')
+        """Trailer to TeX file"""
+        texFile = open(texFileName, 'a')
         print >> texFile, ""
         print >> texFile, "\\end{document}"
         texFile.close()
@@ -86,10 +87,57 @@ class TeX(object):
 
 
     def PrintTexCode(self,texFileName, code):
-
-        texFile=open(texFileName, 'a')
+        """Write code to tex file"""
+        texFile = open(texFileName, 'a')
         print >> texFile, code
         texFile.close()
+
+        return
+## End TeX
+
+
+class VERBOSE(object):
+    """
+        Object for handling output to terminal.
+        Same class in MuonAlignment repo
+
+        @description Multiple "levels" for verbose output.
+                     The higher the level, the less output is printed.
+                     New level "MUTE" will silence all outputs.
+    """
+    def __init__(self,level="INFO"):
+        self.verboseMap = {"DEBUG":  0,
+                           "INFO":   1,
+                           "WARNING":2,
+                           "ERROR":  3,
+                           "MUTE":   4};
+        self.level = level
+        self.name  = None
+
+    def DEBUG(self,message):
+        """Debug level - most verbose"""
+        self.verbose("DEBUG",message)
+        return
+
+    def INFO(self,message):
+        """Info level - standard output"""
+        self.verbose("INFO",message)
+        return
+
+    def WARNING(self,message):
+        """Warning level - if something seems wrong but code can continue"""
+        self.verbose("WARNING",message)
+        return
+
+    def ERROR(self,message):
+        """Error level - something is wrong"""
+        self.verbose("ERROR",message)
+        return
+
+    def verbose(self,level,message):
+        if self.verboseMap[level] >= self.verboseMap[self.level]:
+            msg = "{0} : {1}".format(self.name,message) if self.name is not None else message
+            print " {0} :: {1}".format(level,msg)
 
         return
 

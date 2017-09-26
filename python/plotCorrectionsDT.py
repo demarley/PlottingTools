@@ -1,999 +1,530 @@
 """
-8 August 2017
+25 September 2017
 Dan Marley
 
-Plot corrections class for CSCs
+Plot corrections class for DTs
 """
-import info
+import os
 import operator
-from geometryDiffVisualization import * 
+import importlib
 
-for station in 1,2,3,4:
-  imageName = alignmentName+"-"+referenceName+("__MBs%s" % station)
-  svgName = imageName+".svg"
-  draw_station(g1, g_ref, station, svgPath+svgName, length_factor, angle_factor)
-  pngName = imageName+".png"
-  retvalue = os.system("convert -density 104.2 %s %s" % (svgPath+svgName, pngPath+pngName) )
+from dtTable import DtTable
+from dtGroupTable import dtGroupTable
 
-for wheel in -2,-1,0,1,2:
-  imageName = alignmentName+"-"+referenceName+("__MBw%s" % wheel)
-  svgName = imageName+".svg"
-  draw_wheel(g1, g_ref, wheel, svgPath+svgName, length_factor, angle_factor)
-  pngName = imageName+".png"
-  retvalue = os.system("convert -density 104.2 %s %s" % (svgPath+svgName, pngPath+pngName) )
-
-if isReport:
-  for r1 in report1:
-    if ( r1.postal_address[0] == "DT" and r1.status == "PASS") :
-      wheel   = r1.postal_address[1]
-      station = r1.postal_address[2]
-      sector  = r1.postal_address[3]
-      dx_mm = 10.0*(g1.dt[wheel, station, sector].x - g_ref.dt[wheel, station, sector].x)*signConventions["DT", wheel, station, sector][0]
-      h_dx.Fill(dx_mm)
-      ex_mm = 10.*r1.deltax.error
-      h_ex.Fill(ex_mm)
-      if ex_mm != 0.0: h_px.Fill(dx_mm/ex_mm)
-      dy_mm = 10.0*(g1.dt[wheel, station, sector].y - g_ref.dt[wheel, station, sector].y)*signConventions["DT", wheel, station, sector][1]
-      h_dy.Fill(dy_mm)
-      if ( station != 4 ) :
-        ey_mm = 10.*r1.deltay.error
-        h_ey.Fill(ey_mm)
-        if ey_mm != 0.0: h_py.Fill(dy_mm/ey_mm)
-      dz_mm = 10.0*(g1.dt[wheel, station, sector].z - g_ref.dt[wheel, station, sector].z)*signConventions["DT", wheel, station, sector][2]
-      h_dz.Fill(dz_mm)
-      ez_mm = 10.*r1.deltaz.error
-      h_ez.Fill(ez_mm)
-      if ez_mm != 0.0: h_pz.Fill(dz_mm/ez_mm)
-      dphix_mrad = 1000.0*(g1.dt[wheel, station, sector].phix - g_ref.dt[wheel, station, sector].phix)*signConventions["DT", wheel, station, sector][0]
-      h_dphix.Fill(dphix_mrad)
-      ephix_mrad = 1000.*r1.deltaphix.error
-      h_ephix.Fill(ephix_mrad)
-      if ephix_mrad != 0.0: h_pphix.Fill(dphix_mrad/ephix_mrad)
-      dphiy_mrad = 1000.0*(g1.dt[wheel, station, sector].phiy - g_ref.dt[wheel, station, sector].phiy)*signConventions["DT", wheel, station, sector][1]
-      h_dphiy.Fill(dphiy_mrad)
-      ephiy_mrad = 1000.*r1.deltaphiy.error
-      h_ephiy.Fill(ephiy_mrad)
-      if ephiy_mrad != 0.0: h_pphiy.Fill(dphiy_mrad/ephiy_mrad)
-      dphiz_mrad = 1000.0*(g1.dt[wheel, station, sector].phiz - g_ref.dt[wheel, station, sector].phiz)*signConventions["DT", wheel, station, sector][2]
-      h_dphiz.Fill(dphiz_mrad)
-      ephiz_mrad = 1000.*r1.deltaphiz.error
-      h_ephiz.Fill(ephiz_mrad)
-      if ephiz_mrad != 0.0: h_pphiz.Fill(dphiz_mrad/ephiz_mrad)
-else:
-  for wheel in -2, -1, 0, +1, +2:
-    for station in 1, 2, 3, 4:
-      if station != 4: sectors = (1,2,3,4,5,6,7,8,9,10,11,12)
-      else: sectors = (1,2,3,4,5,6,7,8,9,10,11,12,13,14)
-      for sector in sectors:
-        dx_mm = 10.0*(g1.dt[wheel, station, sector].x - g_ref.dt[wheel, station, sector].x)*signConventions["DT", wheel, station, sector][0]
-        h_dx.Fill(dx_mm)
-        dy_mm = 10.0*(g1.dt[wheel, station, sector].y - g_ref.dt[wheel, station, sector].y)*signConventions["DT", wheel, station, sector][1]
-        h_dy.Fill(dy_mm)
-        dz_mm = 10.0*(g1.dt[wheel, station, sector].z - g_ref.dt[wheel, station, sector].z)*signConventions["DT", wheel, station, sector][2]
-        h_dz.Fill(dz_mm)
-        dphix_mrad = 1000.0*(g1.dt[wheel, station, sector].phix - g_ref.dt[wheel, station, sector].phix)*signConventions["DT", wheel, station, sector][0]
-        h_dphix.Fill(dphix_mrad)
-        dphiy_mrad = 1000.0*(g1.dt[wheel, station, sector].phiy - g_ref.dt[wheel, station, sector].phiy)*signConventions["DT", wheel, station, sector][1]
-        h_dphiy.Fill(dphiy_mrad)
-        dphiz_mrad = 1000.0*(g1.dt[wheel, station, sector].phiz - g_ref.dt[wheel, station, sector].phiz)*signConventions["DT", wheel, station, sector][2]
-        h_dphiz.Fill(dphiz_mrad)
-
-#*******************************************************************************
-
-systemPrettyName = "MB ALL"
-histTitle = systemPrettyName+": "+correctionName
-
-h_dx.SetTitle(histTitle)
-fit = FitAndDraw(h_dx, littleLabel, 0)
-legend.Draw()
-pngName = "DT_dx.png"
-pdfName = "DT_dx.pdf"
-c1.SaveAs(pngPath+pngName)
-c1.SaveAs(pdfPath+pdfName)
-
-h_dy.SetTitle(histTitle)
-fit = FitAndDraw(h_dy, littleLabel, 0)
-legend.Draw()
-pngName = "DT_dy.png"
-pdfName = "DT_dy.pdf"
-c1.SaveAs(pngPath+pngName)
-c1.SaveAs(pdfPath+pdfName)
-
-h_dz.SetTitle(histTitle)
-fit = FitAndDraw(h_dz, littleLabel, 0)
-legend.Draw()
-pngName = "DT_dz.png"
-pdfName = "DT_dz.pdf"
-c1.SaveAs(pngPath+pngName)
-c1.SaveAs(pdfPath+pdfName)
-
-h_dphix.SetTitle(histTitle)
-fit = FitAndDraw(h_dphix, littleLabel, 0)
-legend.Draw()
-pngName = "DT_dphix.png"
-pdfName = "DT_dphix.pdf"
-c1.SaveAs(pngPath+pngName)
-c1.SaveAs(pdfPath+pdfName)
-
-h_dphiy.SetTitle(histTitle)
-fit = FitAndDraw(h_dphiy, littleLabel, 0)
-legend.Draw()
-pngName = "DT_dphiy.png"
-pdfName = "DT_dphiy.pdf"
-c1.SaveAs(pngPath+pngName)
-c1.SaveAs(pdfPath+pdfName)
-
-h_dphiz.SetTitle(histTitle)
-fit = FitAndDraw(h_dphiz, littleLabel, 0)
-legend.Draw()
-pngName = "DT_dphiz.png"
-pdfName = "DT_dphiz.pdf"
-c1.SaveAs(pngPath+pngName)
-c1.SaveAs(pdfPath+pdfName)
+import info
+from util import HTML,TeX
+from histoFitDraw import HistoFitDraw
+from histogrammer import Hisogrammer
+import geometryDiffVisualization as gdv
+import signConventions as sc
 
 
-#*******************************************************************************
+class PlotCorrectionsDT(object):
+    """Class for plotting corrections in the DT"""
+    def initialize(self,config):
+        self.cfg = config
 
-if isReport:
-  histTitle = systemPrettyName+": Alignment fit uncertainties"
-  
-  h_ex.SetTitle(histTitle)
-  fit = FitAndDraw(h_ex, alignmentName, 0)
-  legend.Draw()
-  pngName = "DT_ex.png"
-  pdfName = "DT_ex.pdf"
-  c1.SaveAs(pngPath+pngName)
-  c1.SaveAs(pdfPath+pdfName)
-  
-  h_ey.SetTitle(histTitle)
-  fit = FitAndDraw(h_ey, alignmentName, 0)
-  legend.Draw()
-  pngName = "DT_ey.png"
-  pdfName = "DT_ey.pdf"
-  c1.SaveAs(pngPath+pngName)
-  c1.SaveAs(pdfPath+pdfName)
-  
-  h_ez.SetTitle(histTitle)
-  fit = FitAndDraw(h_ez, alignmentName, 0)
-  legend.Draw()
-  pngName = "DT_ez.png"
-  pdfName = "DT_ez.pdf"
-  c1.SaveAs(pngPath+pngName)
-  c1.SaveAs(pdfPath+pdfName)
-  
-  h_ephix.SetTitle(histTitle)
-  fit = FitAndDraw(h_ephix, alignmentName, 0)
-  legend.Draw()
-  pngName = "DT_ephix.png"
-  pdfName = "DT_ephix.pdf"
-  c1.SaveAs(pngPath+pngName)
-  c1.SaveAs(pdfPath+pdfName)
-  
-  h_ephiy.SetTitle(histTitle)
-  fit = FitAndDraw(h_ephiy, alignmentName, 0)
-  legend.Draw()
-  pngName = "DT_ephiy.png"
-  pdfName = "DT_ephiy.pdf"
-  c1.SaveAs(pngPath+pngName)
-  c1.SaveAs(pdfPath+pdfName)
-  
-  h_ephiz.SetTitle(histTitle)
-  fit = FitAndDraw(h_ephiz, alignmentName, 0)
-  legend.Draw()
-  pngName = "DT_ephiz.png"
-  pdfName = "DT_ephiz.pdf"
-  c1.SaveAs(pngPath+pngName)
-  c1.SaveAs(pdfPath+pdfName)
+        dt_info = info.dt()
+        self.wheels   = dt_info["wheels"]
+        self.stations = dt_info["stations"]
+        self.sectors  = dt_info["sectors"]
+        self.sectors4 = dt_info["sectors4"]
 
-  #*******************************************************************************
+        self.alignmentName  = self.cfg.alignmentName()
+        self.referenceName  = self.cfg.referenceName()
+        self.correctionName = self.cfg.correctionName()
 
-  histTitle = systemPrettyName+": Pulls"
-  
-  h_px.SetTitle(histTitle) 
-  fit = FitAndDraw(h_px, littleLabel, 1)
-  legend.Draw()
-  pngName = "DT_px.png"
-  pdfName = "DT_px.pdf"
-  c1.SaveAs(pngPath+pngName)
-  c1.SaveAs(pdfPath+pdfName)
-  
-  h_py.SetTitle(histTitle)
-  fit = FitAndDraw(h_py, littleLabel, 1)
-  legend.Draw()
-  pngName = "DT_py.png"
-  pdfName = "DT_py.pdf"
-  c1.SaveAs(pngPath+pngName)
-  c1.SaveAs(pdfPath+pdfName)
-  
-  h_pz.SetTitle(histTitle)
-  fit = FitAndDraw(h_pz, littleLabel, 1)
-  legend.Draw()
-  pngName = "DT_pz.png"
-  pdfName = "DT_pz.pdf"
-  c1.SaveAs(pngPath+pngName)
-  c1.SaveAs(pdfPath+pdfName)
-  
-  h_pphix.SetTitle(histTitle)
-  fit = FitAndDraw(h_pphix, littleLabel, 1)
-  legend.Draw()
-  pngName = "DT_pphix.png"
-  pdfName = "DT_pphix.pdf"
-  c1.SaveAs(pngPath+pngName)
-  c1.SaveAs(pdfPath+pdfName)
-  
-  h_pphiy.SetTitle(histTitle)
-  fit = FitAndDraw(h_pphiy, littleLabel, 1)
-  legend.Draw()
-  pngName = "DT_pphiy.png"
-  pdfName = "DT_pphiy.pdf"
-  c1.SaveAs(pngPath+pngName)
-  c1.SaveAs(pdfPath+pdfName)
-  
-  h_pphiz.SetTitle(histTitle)
-  fit = FitAndDraw(h_pphiz, littleLabel, 1)
-  legend.Draw()
-  pngName = "DT_pphiz.png"
-  pdfName = "DT_pphiz.pdf"
-  c1.SaveAs(pngPath+pngName)
-  c1.SaveAs(pdfPath+pdfName)
+        # Setup histogrammer
+        self.histo = Histogrammer(self.cfg)
+        self.histo.initialize()
+        self.histo.legend.SetHeader(self.cfg.plotsHeader()) 
+            # "CMS 2016X  #sqrt{s} = 13 TeV   L_{int} = X fb^{-1}"
 
-#*******************************************************************************
+        self.dof      = self.histo.coordinates    # ["x","y","z","phix","phiy","phiz"]
+        self.isReport = self.cfg.isReport()
 
-dtGroupTable = DtGroupTable()
+        self.hfd  = HistoFitDraw(config)
+        self.html = HTML()
+        self.tex  = TeX()
 
-dtGroupTable.AddDtGroupVar("dxRMS",         "&delta;x (mm) <br>RMS",                           "$RMS(\\delta x)$",                     "mm")
-dtGroupTable.AddDtGroupVar("dxGaussSig",    "&delta;x (mm) <br>Gauss Sigma",                   "$\\sigma_{Gauss}(\\delta x)$",         "mm")
-dtGroupTable.AddDtGroupVar("dyRMS",         "&delta;y (mm) <br>RMS",                           "$RMS(\\delta y)$",                     "mm")
-dtGroupTable.AddDtGroupVar("dyGaussSig",    "&delta;y (mm) <br>Gauss Sigma",                   "$\\sigma_{Gauss}(\\delta y)$",         "mm")
-dtGroupTable.AddDtGroupVar("dzRMS",         "&delta;z (mm) <br>RMS",                           "$RMS(\\delta z)$",                     "mm")
-dtGroupTable.AddDtGroupVar("dzGaussSig",    "&delta;z (mm) <br>Gauss Sigma",                   "$\\sigma_{Gauss}(\\delta z)$",         "mm")
-dtGroupTable.AddDtGroupVar("dphixRMS",      "&delta;&phi;<sub>x</sub> (mrad) <br>RMS",         "$RMS(\\delta \\phi_{x})$",             "mrad")
-dtGroupTable.AddDtGroupVar("dphixGaussSig", "&delta;&phi;<sub>x</sub> (mrad) <br>Gauss Sigma", "$\\sigma_{Gauss}(\\delta \\phi_{x})$", "mrad")
-dtGroupTable.AddDtGroupVar("dphiyRMS",      "&delta;&phi;<sub>y</sub> (mrad) <br>RMS",         "$RMS(\\delta \\phi_{y})$",             "mrad")
-dtGroupTable.AddDtGroupVar("dphiyGaussSig", "&delta;&phi;<sub>y</sub> (mrad) <br>Gauss Sigma", "$\\sigma_{Gauss}(\\delta \\phi_{y})$", "mrad")
-dtGroupTable.AddDtGroupVar("dphizRMS",      "&delta;&phi;<sub>z</sub> (mrad) <br>RMS",         "$RMS(\\delta \\phi_{z})$",             "mrad")
-dtGroupTable.AddDtGroupVar("dphizGaussSig", "&delta;&phi;<sub>z</sub> (mrad) <br>Gauss Sigma", "$\\sigma_{Gauss}(\\delta \\phi_{z})$", "mrad")
+        self.pngPath  = self.cfg.pngPath()
+        self.pdfPath  = self.cfg.pdfPath()
+        self.svgPath  = self.cfg.svgPath()
+        self.htmlPath = self.cfg.htmlPath()
+        self.texPath  = self.cfg.texPath()
 
-dtGroupTable.AddDtGroupVar("exMean",         "&sigma;<sub>fit</sub>x (mm) <br>Mean",                         "$Mean(\\sigma_{fit} x) $",               "mm")
-dtGroupTable.AddDtGroupVar("exGaussMean",    "&sigma;<sub>fit</sub>x (mm) <br>Gauss Mean",                   "$Mean_{Gauss}(\\sigma_{fit} x) $",       "mm")
-dtGroupTable.AddDtGroupVar("eyMean",         "&sigma;<sub>fit</sub>y (mm) <br>Mean",                         "$Mean(\\sigma_{fit} y) $",               "mm")
-dtGroupTable.AddDtGroupVar("eyGaussMean",    "&sigma;<sub>fit</sub>y (mm) <br>Gauss Mean",                   "$Mean_{Gauss}(\\sigma_{fit} y) $",       "mm")
-dtGroupTable.AddDtGroupVar("ezMean",         "&sigma;<sub>fit</sub>z (mm) <br>Mean",                         "$Mean(\\sigma_{fit} z) $",               "mm")
-dtGroupTable.AddDtGroupVar("ezGaussMean",    "&sigma;<sub>fit</sub>z (mm) <br>Gauss Mean",                   "$Mean_{Gauss}(\\sigma_{fit} z) $",       "mm")
-dtGroupTable.AddDtGroupVar("ephixMean",      "&sigma;<sub>fit</sub>&phi;<sub>x</sub> (mrad) <br>Mean",       "$Mean(\\sigma_{fit} \\phi_x) $",         "mrad")
-dtGroupTable.AddDtGroupVar("ephixGaussMean", "&sigma;<sub>fit</sub>&phi;<sub>x</sub> (mrad) <br>Gauss Mean", "$Mean_{Gauss}(\\sigma_{fit} \\phi_x) $", "mrad")
-dtGroupTable.AddDtGroupVar("ephiyMean",      "&sigma;<sub>fit</sub>&phi;<sub>y</sub> (mrad) <br>Mean",       "$Mean(\\sigma_{fit} \\phi_y) $",         "mrad")
-dtGroupTable.AddDtGroupVar("ephiyGaussMean", "&sigma;<sub>fit</sub>&phi;<sub>y</sub> (mrad) <br>Gauss Mean", "$Mean_{Gauss}(\\sigma_{fit} \\phi_y) $", "mrad")
-dtGroupTable.AddDtGroupVar("ephizMean",      "&sigma;<sub>fit</sub>&phi;<sub>z</sub> (mrad) <br>Mean",       "$Mean(\\sigma_{fit} \\phi_z) $",         "mrad")
-dtGroupTable.AddDtGroupVar("ephizGaussMean", "&sigma;<sub>fit</sub>&phi;<sub>z</sub> (mrad) <br>Gauss Mean", "$Mean_{Gauss}(\\sigma_{fit} \\phi_z) $", "mrad")
 
-dtGroupTable.AddDtGroupVar("pxRMS","x pull <br>RMS",                                 "$RMS(P x)$",                     None)
-dtGroupTable.AddDtGroupVar("pxGaussSig","x pull <br>Gauss Sigma",                    "$\\sigma_{Gauss}(P x)$",         None)
-dtGroupTable.AddDtGroupVar("pyRMS","y pull <br>RMS",                                 "$RMS(P y)$",                     None)
-dtGroupTable.AddDtGroupVar("pyGaussSig","y pull <br>Gauss Sigma",                    "$\\sigma_{Gauss}(P y)$",         None)
-dtGroupTable.AddDtGroupVar("pzRMS","z pull <br>RMS",                                 "$RMS(P z)$",                     None)
-dtGroupTable.AddDtGroupVar("pzGaussSig","z pull <br>Gauss Sigma",                    "$\\sigma_{Gauss}(P z)$",         None)
-dtGroupTable.AddDtGroupVar("pphixRMS","&phi;<sub>x</sub> pull <br>RMS",              "$RMS(P \\phi_{x})$",             None)
-dtGroupTable.AddDtGroupVar("pphixGaussSig","&phi;<sub>x</sub> pull <br>Gauss Sigma", "$\\sigma_{Gauss}(P \\phi_{x})$", None)
-dtGroupTable.AddDtGroupVar("pphiyRMS","&phi;<sub>y</sub> pull <br>RMS",              "$RMS(P \\phi_{y})$",             None)
-dtGroupTable.AddDtGroupVar("pphiyGaussSig","&phi;<sub>y</sub> pull <br>Gauss Sigma", "$\\sigma_{Gauss}(P \\phi_{y})$", None)
-dtGroupTable.AddDtGroupVar("pphizRMS","&phi;<sub>z</sub> pull <br>RMS",              "$RMS(P \\phi_{z})$",             None)
-dtGroupTable.AddDtGroupVar("pphizGaussSig","&phi;<sub>z</sub> pull <br>Gauss Sigma", "$\\sigma_{Gauss}(P \\phi_{z})$", None)
+        self.label = self.alignmentName+" - "+self.referenceName
+        self.text  = {'e':"Fit Uncertainties"
+                      'p':"Pulls",
+                      'd':self.correctionName}
 
-dtTab_dx    = DtTable()
-dtTab_dy    = DtTable()
-dtTab_dz    = DtTable()
-dtTab_dphix = DtTable()
-dtTab_dphiy = DtTable()
-dtTab_dphiz = DtTable()
+        self.groupTableList = {
+          'd':["dxRMS","dyRMS","dzRMS","dphixRMS","dphiyRMS","dphizRMS"],
+          'e':["exMean","eyMean","ezMean","ephixMean","ephiyMean","ephizMean"],
+          'p':["pxRMS","pyRMS","pzRMS","pphixRMS","pphiyRMS","pphizRMS"]
+          }
+        self.groupTableListFull = {
+          'd':["dxRMS","dxGaussSig","dyRMS","dyGaussSig","dzRMS","dzGaussSig",
+               "dphixRMS","dphixGaussSig","dphiyRMS","dphiyGaussSig",
+               "dphizRMS","dphizGaussSig"]
+          'e':["exMean","exGaussMean","eyMean","eyGaussMean","ezMean","ezGaussMean",
+               "ephixMean","ephixGaussMean","ephiyMean","ephiyGaussMean",
+               "ephizMean","ephizGaussMean"],
+          'p':["pxRMS","pxGaussSig","pyRMS","pyGaussSig","pzRMS","pzGaussSig",
+               "pphixRMS","pphixGaussSig","pphiyRMS","pphiyGaussSig",
+               "pphizRMS","pphizGaussSig"]
+          }
 
-dtTab_ex    = DtTable()
-dtTab_ey    = DtTable()
-dtTab_ez    = DtTable()
-dtTab_ephix = DtTable()
-dtTab_ephiy = DtTable()
-dtTab_ephiz = DtTable()
+        self.dtGroupTable = dtGroupTable()
+        self.setupDtGroupTable()
 
-dtTab_px    = DtTable()
-dtTab_py    = DtTable()
-dtTab_pz    = DtTable()
-dtTab_pphix = DtTable()
-dtTab_pphiy = DtTable()
-dtTab_pphiz = DtTable()
+        self.dtTab = {"d":{"x":DtTable(),"y":DtTable(),"z":DtTable(),
+                            "phix":DtTable(),"phiy":DtTable(),"phiz":DtTable()},
+                       "e":{"x":DtTable(),"y":DtTable(),"z":DtTable(),
+                            "phix":DtTable(),"phiy":DtTable(),"phiz":DtTable()},
+                       "p":{"x":DtTable(),"y":DtTable(),"z":DtTable(),
+                            "phix":DtTable(),"phiy":DtTable(),"phiz":DtTable()}
+                      }
 
-map_ID_Diff_x={}
-map_ID_Diff_y={}
-map_ID_Diff_z={}
-map_ID_Diff_phix={}
-map_ID_Diff_phiy={}
-map_ID_Diff_phiz={}
-for wheel in +2, +1, 0, -1, -2:
-  for station in 1, 2, 3, 4:
-    h_dx.Reset("ICESM")
-    h_dy.Reset("ICESM")
-    h_dz.Reset("ICESM")
-    h_dphix.Reset("ICESM")
-    h_dphiy.Reset("ICESM")
-    h_dphiz.Reset("ICESM")
-    h_ex.Reset("ICESM")
-    h_ey.Reset("ICESM")
-    h_ez.Reset("ICESM")
-    h_ephix.Reset("ICESM")
-    h_ephiy.Reset("ICESM")
-    h_ephiz.Reset("ICESM")
-    h_px.Reset("ICESM")
-    h_py.Reset("ICESM")
-    h_pz.Reset("ICESM")
-    h_pphix.Reset("ICESM")
-    h_pphiy.Reset("ICESM")
-    h_pphiz.Reset("ICESM")
-    
-    if isReport:
-      for r1 in report1:
-        if ( r1.postal_address[0] == "DT" and r1.status == "PASS" and r1.postal_address[1] == wheel and r1.postal_address[2] == station) :
-          sector  = r1.postal_address[3]
-          dx_mm = 10.0*(g1.dt[wheel, station, sector].x - g_ref.dt[wheel, station, sector].x)*signConventions["DT", wheel, station, sector][0]
-          h_dx.Fill(dx_mm)
-          dtTab_dx.FillDt(wheel, station, sector,"%.3f" % dx_mm)
-          ex_mm = 10.*r1.deltax.error
-          h_ex.Fill(ex_mm)
-          dtTab_ex.FillDt(wheel, station, sector,"%.3f" % ex_mm)
-          if ex_mm != 0.0:
-            px = dx_mm/ex_mm
-            h_px.Fill(px)
-            dtTab_px.FillDt(wheel, station, sector,"%.3f" % px)
-          dy_mm = 10.0*(g1.dt[wheel, station, sector].y - g_ref.dt[wheel, station, sector].y)*signConventions["DT", wheel, station, sector][1]
-          h_dy.Fill(dy_mm)
-          dtTab_dy.FillDt(wheel, station, sector,"%.3f" % dy_mm)
-          if ( station != 4 ) :
-            ey_mm = 10.*r1.deltay.error
-            h_ey.Fill(ey_mm)
-            dtTab_ey.FillDt(wheel, station, sector,"%.3f" % ey_mm)
-            if ey_mm != 0.0:
-              py = dy_mm/ey_mm
-              h_py.Fill(py)
-              dtTab_py.FillDt(wheel, station, sector,"%.3f" % py)
-          dz_mm = 10.0*(g1.dt[wheel, station, sector].z - g_ref.dt[wheel, station, sector].z)*signConventions["DT", wheel, station, sector][2]
-          h_dz.Fill(dz_mm)
-          dtTab_dz.FillDt(wheel, station, sector,"%.3f" % dz_mm)
-          ez_mm = 10.*r1.deltaz.error
-          h_ez.Fill(ez_mm)
-          dtTab_ez.FillDt(wheel, station, sector,"%.3f" % ez_mm)
-          if ez_mm != 0.0:
-            pz = dz_mm/ez_mm
-            h_pz.Fill(pz)
-            dtTab_pz.FillDt(wheel, station, sector,"%.3f" % pz)
-          dphix_mrad = 1000.*(g1.dt[wheel, station, sector].phix - g_ref.dt[wheel, station, sector].phix)*signConventions["DT", wheel, station, sector][0]
-          h_dphix.Fill(dphix_mrad)
-          dtTab_dphix.FillDt(wheel, station, sector,"%.3f" % dphix_mrad)
-          ephix_mrad = 1000.*r1.deltaphix.error
-          h_ephix.Fill(ephix_mrad)
-          dtTab_ephix.FillDt(wheel, station, sector,"%.3f" % ephix_mrad)
-          if ephix_mrad != 0.0:
-            pphix = dphix_mrad/ephix_mrad
-            h_pphix.Fill(pphix)
-            dtTab_pphix.FillDt(wheel, station, sector,"%.3f" % pphix)
-          dphiy_mrad = 1000.*(g1.dt[wheel, station, sector].phiy - g_ref.dt[wheel, station, sector].phiy)*signConventions["DT", wheel, station, sector][1]
-          h_dphiy.Fill(dphiy_mrad)
-          dtTab_dphiy.FillDt(wheel, station, sector,"%.3f" % dphiy_mrad)
-          ephiy_mrad = 1000.*r1.deltaphiy.error
-          h_ephiy.Fill(ephiy_mrad)
-          dtTab_ephiy.FillDt(wheel, station, sector,"%.3f" % ephiy_mrad)
-          if ephiy_mrad != 0.0:
-            pphiy = dphiy_mrad/ephiy_mrad
-            h_pphiy.Fill(pphiy)
-            dtTab_pphiy.FillDt(wheel, station, sector,"%.3f" % pphiy)
-          dphiz_mrad = 1000.*(g1.dt[wheel, station, sector].phiz - g_ref.dt[wheel, station, sector].phiz)*signConventions["DT", wheel, station, sector][2]
-          h_dphiz.Fill(dphiz_mrad)
-          dtTab_dphiz.FillDt(wheel, station, sector,"%.3f" % dphiz_mrad)
-          ephiz_mrad = 1000.*r1.deltaphiz.error
-          h_ephiz.Fill(ephiz_mrad)
-          dtTab_ephiz.FillDt(wheel, station, sector,"%.3f" % ephiz_mrad)
-          if ephiz_mrad != 0.0:
-            pphiz = dphiz_mrad/ephiz_mrad
-            h_pphiz.Fill(pphiz)
-            dtTab_pphiz.FillDt(wheel, station, sector,"%.3f" % pphiz)
+		self.map_ID_Diff = {"x":{},   "y":{},   "z":{},
+                            "phix":{},"phiy":{},"phiz":{}}
 
-    else: # if isReport
-      if station != 4: sectors = (1,2,3,4,5,6,7,8,9,10,11,12)
-      else: sectors = (1,2,3,4,5,6,7,8,9,10,11,12,13,14)
-      for sector in sectors:
-        dx_mm = 10.0*(g1.dt[wheel, station, sector].x - g_ref.dt[wheel, station, sector].x)*signConventions["DT", wheel, station, sector][0]
-        #if(dx_mm>2 or dx_mm<-2): print dx_mm, " in: ", wheel, station, sector
-        h_dx.Fill(dx_mm)
-        dtTab_dx.FillDt(wheel, station, sector,"%.3f" % dx_mm)
-        dy_mm = 10.0*(g1.dt[wheel, station, sector].y - g_ref.dt[wheel, station, sector].y)*signConventions["DT", wheel, station, sector][1]
-        h_dy.Fill(dy_mm)
-        dtTab_dy.FillDt(wheel, station, sector,"%.3f" % dy_mm)
-        dz_mm = 10.0*(g1.dt[wheel, station, sector].z - g_ref.dt[wheel, station, sector].z)*signConventions["DT", wheel, station, sector][2]
-        h_dz.Fill(dz_mm)
-        dtTab_dz.FillDt(wheel, station, sector,"%.3f" % dz_mm)
-        dphix_mrad = 1000.0*(g1.dt[wheel, station, sector].phix - g_ref.dt[wheel, station, sector].phix)*signConventions["DT", wheel, station, sector][0]
-        h_dphix.Fill(dphix_mrad)
-        dtTab_dphix.FillDt(wheel, station, sector,"%.3f" % dphix_mrad)
-        dphiy_mrad = 1000.0*(g1.dt[wheel, station, sector].phiy - g_ref.dt[wheel, station, sector].phiy)*signConventions["DT", wheel, station, sector][1]
-        h_dphiy.Fill(dphiy_mrad)
-        dtTab_dphiy.FillDt(wheel, station, sector,"%.3f" % dphiy_mrad)
-        dphiz_mrad = 1000.0*(g1.dt[wheel, station, sector].phiz - g_ref.dt[wheel, station, sector].phiz)*signConventions["DT", wheel, station, sector][2]
-        h_dphiz.Fill(dphiz_mrad)
-        dtTab_dphiz.FillDt(wheel, station, sector,"%.3f" % dphiz_mrad)
-        #Find worse 50 chambers
-        ID_chamber = "chamber_" + str(wheel) + "_" + str(station) + "_" + str(sector)
-        map_ID_Diff_x[ID_chamber] = round(abs(dx_mm),2)
-        map_ID_Diff_y[ID_chamber] = round(abs(dy_mm),2)
-        map_ID_Diff_z[ID_chamber] = round(abs(dz_mm),2)
-        map_ID_Diff_phix[ID_chamber] = round(abs(dphix_mrad),2)
-        map_ID_Diff_phiy[ID_chamber] = round(abs(dphiy_mrad),2)
-        map_ID_Diff_phiz[ID_chamber] = round(abs(dphiz_mrad),2)
+        if self.isReport:
+            rep = importlib.import_module(self.config.reportfile())
+               # reportfile1 = "Geometries/"+alignmentName+"_report.py"
+            self.report = rep.reports()
 
-#****** Corrections: save plots and fill tables over homogeneous chambers ******
-        
-    dtGroupPrettyName = "MB %s/%s/ALL" % (wheel , station)
-    histTitle = dtGroupPrettyName+": "+correctionName
-    
-    h_dx.SetTitle(histTitle)
-    fit = FitAndDraw(h_dx, littleLabel)
-    legend.Draw()
-    pngName = "DT_dx_%s_%s.png" % (wheel , station)
-    pdfName = "DT_dx_%s_%s.pdf" % (wheel , station)
-    c1.SaveAs(pngPath+pngName)
-    c1.SaveAs(pdfPath+pdfName)
-    sRMS = "%.3f" % h_dx.GetRMS()
-    dtGroupTable.FillDtGroup("dxRMS", wheel, station, sRMS, "./PNG/"+pngName)
-    if fit[0]:
-      sSigma = "%.3f" % fit[1].GetParameter(2)
-      dtGroupTable.FillDtGroup("dxGaussSig", wheel, station, sSigma, "./PNG/"+pngName)
-    
-    h_dy.SetTitle(histTitle)
-    fit = FitAndDraw(h_dy, littleLabel)
-    legend.Draw()
-    pngName = "DT_dy_%s_%s.png" % (wheel , station)
-    pdfName = "DT_dy_%s_%s.pdf" % (wheel , station)
-    c1.SaveAs(pngPath+pngName)
-    c1.SaveAs(pdfPath+pdfName)
-    sRMS = "%.3f" % h_dy.GetRMS()
-    dtGroupTable.FillDtGroup("dyRMS", wheel, station, sRMS, "./PNG/"+pngName)
-    if fit[0]:
-      sSigma = "%.3f" % fit[1].GetParameter(2)
-      dtGroupTable.FillDtGroup("dyGaussSig", wheel, station, sSigma, "./PNG/"+pngName)
-    
-    h_dz.SetTitle(histTitle)
-    fit = FitAndDraw(h_dz, littleLabel)
-    legend.Draw()
-    pngName = "DT_dz_%s_%s.png" % (wheel , station)
-    pdfName = "DT_dz_%s_%s.pdf" % (wheel , station)
-    c1.SaveAs(pngPath+pngName)
-    c1.SaveAs(pdfPath+pdfName)
-    sRMS = "%.3f" % h_dz.GetRMS()
-    dtGroupTable.FillDtGroup("dzRMS", wheel, station, sRMS, "./PNG/"+pngName)
-    if fit[0]:
-      sSigma = "%.3f" % fit[1].GetParameter(2)
-      dtGroupTable.FillDtGroup("dzGaussSig", wheel, station, sSigma, "./PNG/"+pngName)
-    
-    h_dphix.SetTitle(histTitle)
-    fit = FitAndDraw(h_dphix, littleLabel)
-    legend.Draw()
-    pngName = "DT_dphix_%s_%s.png" % (wheel , station)
-    pdfName = "DT_dphix_%s_%s.pdf" % (wheel , station)
-    c1.SaveAs(pngPath+pngName)
-    c1.SaveAs(pdfPath+pdfName)
-    sRMS = "%.3f" % h_dphix.GetRMS()
-    dtGroupTable.FillDtGroup("dphixRMS", wheel, station, sRMS, "./PNG/"+pngName)
-    if fit[0]:
-      sSigma = "%.3f" % fit[1].GetParameter(2)
-      dtGroupTable.FillDtGroup("dphixGaussSig", wheel, station, sSigma, "./PNG/"+pngName)
-    
-    h_dphiy.SetTitle(histTitle)
-    fit = FitAndDraw(h_dphiy, littleLabel)
-    legend.Draw()
-    pngName = "DT_dphiy_%s_%s.png" % (wheel , station)
-    pdfName = "DT_dphiy_%s_%s.pdf" % (wheel , station)
-    c1.SaveAs(pngPath+pngName)
-    c1.SaveAs(pdfPath+pdfName)
-    sRMS = "%.3f" % h_dphiy.GetRMS()
-    dtGroupTable.FillDtGroup("dphiyRMS", wheel, station, sRMS, "./PNG/"+pngName)
-    if fit[0]:
-      sSigma = "%.3f" % fit[1].GetParameter(2)
-      dtGroupTable.FillDtGroup("dphiyGaussSig", wheel, station, sSigma, "./PNG/"+pngName)
-    
-    h_dphiz.SetTitle(histTitle)
-    fit = FitAndDraw(h_dphiz, littleLabel)
-    legend.Draw()
-    pngName = "DT_dphiz_%s_%s.png" % (wheel , station)
-    pdfName = "DT_dphiz_%s_%s.pdf" % (wheel , station)
-    c1.SaveAs(pngPath+pngName)
-    c1.SaveAs(pdfPath+pdfName)
-    sRMS = "%.3f" % h_dphiz.GetRMS()
-    dtGroupTable.FillDtGroup("dphizRMS", wheel, station, sRMS, "./PNG/"+pngName)
-    if fit[0]:
-      sSigma = "%.3f" % fit[1].GetParameter(2)
-      dtGroupTable.FillDtGroup("dphizGaussSig", wheel, station, sSigma, "./PNG/"+pngName)
+        return
 
-#****** Fit uncert: save plots and fill tables over homogeneous chambers *******
 
-    if isReport:      
-      histTitle = dtGroupPrettyName+": Alignment fit uncertainties"
-      
-      h_ex.SetTitle(histTitle)
-      fit = FitAndDraw(h_ex, alignmentName)
-      legend.Draw()
-      pngName = "DT_ex_%s_%s.png" % (wheel , station)
-      pdfName = "DT_ex_%s_%s.pdf" % (wheel , station)
-      c1.SaveAs(pngPath+pngName)
-      c1.SaveAs(pdfPath+pdfName)
-      sMean = "%.3f" % h_ex.GetMean()
-      dtGroupTable.FillDtGroup("exMean", wheel, station, sMean, "./PNG/"+pngName)
-      if fit[0]:
-        sGaussMean = "%.3f" % fit[1].GetParameter(1)
-        dtGroupTable.FillDtGroup("exGaussMean", wheel, station, sGaussMean, "./PNG/"+pngName)
-      
-      if ( station != 4 ) :
-        h_ey.SetTitle(histTitle)
-        fit = FitAndDraw(h_ey, alignmentName)
-        legend.Draw()
-        pngName = "DT_ey_%s_%s.png" % (wheel , station)
-        pdfName = "DT_ey_%s_%s.pdf" % (wheel , station)
-        c1.SaveAs(pngPath+pngName)
-        c1.SaveAs(pdfPath+pdfName)
-        sMean = "%.3f" % h_ey.GetMean()
-        dtGroupTable.FillDtGroup("eyMean", wheel, station, sMean, "./PNG/"+pngName)
-        if fit[0]:
-          sGaussMean = "%.3f" % fit[1].GetParameter(1)
-          dtGroupTable.FillDtGroup("eyGaussMean", wheel, station, sGaussMean, "./PNG/"+pngName)
-      
-      h_ez.SetTitle(histTitle)
-      fit = FitAndDraw(h_ez, alignmentName)
-      legend.Draw()
-      pngName = "DT_ez_%s_%s.png" % (wheel , station)
-      pdfName = "DT_ez_%s_%s.pdf" % (wheel , station)
-      c1.SaveAs(pngPath+pngName)
-      c1.SaveAs(pdfPath+pdfName)
-      sMean = "%.3f" % h_ez.GetMean()
-      dtGroupTable.FillDtGroup("ezMean", wheel, station, sMean, "./PNG/"+pngName)
-      if fit[0]:
-        sGaussMean = "%.3f" % fit[1].GetParameter(1)
-        dtGroupTable.FillDtGroup("ezGaussMean", wheel, station, sGaussMean, "./PNG/"+pngName)
-      
-      h_ephix.SetTitle(histTitle)
-      fit = FitAndDraw(h_ephix, alignmentName)
-      legend.Draw()
-      pngName = "DT_ephix_%s_%s.png" % (wheel , station)
-      pdfName = "DT_ephix_%s_%s.pdf" % (wheel , station)
-      c1.SaveAs(pngPath+pngName)
-      c1.SaveAs(pdfPath+pdfName)
-      sMean = "%.3f" % h_ephix.GetMean()
-      dtGroupTable.FillDtGroup("ephixMean", wheel, station, sMean, "./PNG/"+pngName)
-      if fit[0]:
-        sGaussMean = "%.3f" % fit[1].GetParameter(1)
-        dtGroupTable.FillDtGroup("ephixGaussMean", wheel, station, sGaussMean, "./PNG/"+pngName)
-      
-      h_ephiy.SetTitle(histTitle)
-      fit = FitAndDraw(h_ephiy, alignmentName)
-      legend.Draw()
-      pngName = "DT_ephiy_%s_%s.png" % (wheel , station)
-      pdfName = "DT_ephiy_%s_%s.pdf" % (wheel , station)
-      c1.SaveAs(pngPath+pngName)
-      c1.SaveAs(pdfPath+pdfName)
-      sMean = "%.3f" % h_ephiy.GetMean()
-      dtGroupTable.FillDtGroup("ephiyMean", wheel, station, sMean, "./PNG/"+pngName)
-      if fit[0]:
-        sGaussMean = "%.3f" % fit[1].GetParameter(1)
-        dtGroupTable.FillDtGroup("ephiyGaussMean", wheel, station, sGaussMean, "./PNG/"+pngName)
-      
-      h_ephiz.SetTitle(histTitle)
-      fit = FitAndDraw(h_ephiz, alignmentName)
-      legend.Draw()
-      pngName = "DT_ephiz_%s_%s.png" % (wheel , station)
-      pdfName = "DT_ephiz_%s_%s.pdf" % (wheel , station)
-      c1.SaveAs(pngPath+pngName)
-      c1.SaveAs(pdfPath+pdfName)
-      sMean = "%.3f" % h_ephiz.GetMean()
-      dtGroupTable.FillDtGroup("ephizMean", wheel, station, sMean, "./PNG/"+pngName)
-      if fit[0]:
-        sGaussMean = "%.3f" % fit[1].GetParameter(1)
-        dtGroupTable.FillDtGroup("ephizGaussMean", wheel, station, sGaussMean, "./PNG/"+pngName)
-        
-#******** Pulls: save plots and fill tables over homogeneous chambers **********
-      
-      histTitle = dtGroupPrettyName+": Pulls"
-      
-      h_px.SetTitle(histTitle)
-      fit = FitAndDraw(h_px, littleLabel)
-      legend.Draw()
-      pngName = "DT_px_%s_%s.png" % (wheel , station)
-      pdfName = "DT_px_%s_%s.pdf" % (wheel , station)
-      c1.SaveAs(pngPath+pngName)
-      c1.SaveAs(pdfPath+pdfName)
-      sRMS = "%.3f" % h_px.GetRMS()
-      dtGroupTable.FillDtGroup("pxRMS", wheel, station, sRMS, "./PNG/"+pngName)
-      if fit[0]:
-        sSigma = "%.3f" % fit[1].GetParameter(2)
-        dtGroupTable.FillDtGroup("pxGaussSig", wheel, station, sSigma, "./PNG/"+pngName)
-      
-      if ( station != 4 ) :
-        h_py.SetTitle(histTitle)
-        fit = FitAndDraw(h_py, littleLabel)
-        legend.Draw()
-        pngName = "DT_py_%s_%s.png" % (wheel , station)
-        pdfName = "DT_py_%s_%s.pdf" % (wheel , station)
-        c1.SaveAs(pngPath+pngName)
-        c1.SaveAs(pdfPath+pdfName)
-        sRMS = "%.3f" % h_py.GetRMS()
-        dtGroupTable.FillDtGroup("pyRMS", wheel, station, sRMS, "./PNG/"+pngName)
-        if fit[0]:
-          sSigma = "%.3f" % fit[1].GetParameter(2)
-          dtGroupTable.FillDtGroup("pyGaussSig", wheel, station, sSigma, "./PNG/"+pngName)
-      
-      h_pz.SetTitle(histTitle)
-      fit = FitAndDraw(h_pz, littleLabel)
-      legend.Draw()
-      pngName = "DT_pz_%s_%s.png" % (wheel , station)
-      pdfName = "DT_pz_%s_%s.pdf" % (wheel , station)
-      c1.SaveAs(pngPath+pngName)
-      c1.SaveAs(pdfPath+pdfName)
-      sRMS = "%.3f" % h_pz.GetRMS()
-      dtGroupTable.FillDtGroup("pzRMS", wheel, station, sRMS, "./PNG/"+pngName)
-      if fit[0]:
-        sSigma = "%.3f" % fit[1].GetParameter(2)
-        dtGroupTable.FillDtGroup("pzGaussSig", wheel, station, sSigma, "./PNG/"+pngName)
-      
-      h_pphix.SetTitle(histTitle)
-      fit = FitAndDraw(h_pphix, littleLabel)
-      legend.Draw()
-      pngName = "DT_pphix_%s_%s.png" % (wheel , station)
-      pdfName = "DT_pphix_%s_%s.pdf" % (wheel , station)
-      c1.SaveAs(pngPath+pngName)
-      c1.SaveAs(pdfPath+pdfName)
-      sRMS = "%.3f" % h_pphix.GetRMS()
-      dtGroupTable.FillDtGroup("pphixRMS", wheel, station, sRMS, "./PNG/"+pngName)
-      if fit[0]:
-        sSigma = "%.3f" % fit[1].GetParameter(2)
-        dtGroupTable.FillDtGroup("pphixGaussSig", wheel, station, sSigma, "./PNG/"+pngName)
-      
-      h_pphiy.SetTitle(histTitle)
-      fit = FitAndDraw(h_pphiy, littleLabel)
-      legend.Draw()
-      pngName = "DT_pphiy_%s_%s.png" % (wheel , station)
-      pdfName = "DT_pphiy_%s_%s.pdf" % (wheel , station)
-      c1.SaveAs(pngPath+pngName)
-      c1.SaveAs(pdfPath+pdfName)
-      sRMS = "%.3f" % h_pphiy.GetRMS()
-      dtGroupTable.FillDtGroup("pphiyRMS", wheel, station, sRMS, "./PNG/"+pngName)
-      if fit[0]:
-        sSigma = "%.3f" % fit[1].GetParameter(2)
-        dtGroupTable.FillDtGroup("pphiyGaussSig", wheel, station, sSigma, "./PNG/"+pngName)
-      
-      h_pphiz.SetTitle(histTitle)
-      fit = FitAndDraw(h_pphiz, littleLabel)
-      legend.Draw()
-      pngName = "DT_pphiz_%s_%s.png" % (wheel , station)
-      pdfName = "DT_pphiz_%s_%s.pdf" % (wheel , station)
-      c1.SaveAs(pngPath+pngName)
-      c1.SaveAs(pdfPath+pdfName)
-      sRMS = "%.3f" % h_pphiz.GetRMS()
-      dtGroupTable.FillDtGroup("pphizRMS", wheel, station, sRMS, "./PNG/"+pngName)
-      if fit[0]:
-        sSigma = "%.3f" % fit[1].GetParameter(2)
-        dtGroupTable.FillDtGroup("pphizGaussSig", wheel, station, sSigma, "./PNG/"+pngName)
-    
-#Print 2`0 worse chambers
-if map_ID_Diff_x:
-  print "---------------WORSE 20 CHAMBER IN X------------------"
-  sorted_x = sorted(map_ID_Diff_x.items(), key=operator.itemgetter(1))
-  sorted_x.reverse()
-  for iN in range(20):
-    print sorted_x[iN]
-if map_ID_Diff_y:
-  print "---------------WORSE 20 CHAMBER IN Y------------------"
-  sorted_y = sorted(map_ID_Diff_y.items(), key=operator.itemgetter(1))
-  sorted_y.reverse()
-  for iN in range(20):
-    print sorted_y[iN]
-if map_ID_Diff_z:
-  print "---------------WORSE 20 CHAMBER IN Z------------------"
-  sorted_z = sorted(map_ID_Diff_z.items(), key=operator.itemgetter(1))
-  sorted_z.reverse()
-  for iN in range(20):
-    print sorted_z[iN]
-if map_ID_Diff_phix:
-  print "---------------WORSE 20 CHAMBER IN PHIX------------------"
-  sorted_phix = sorted(map_ID_Diff_phix.items(), key=operator.itemgetter(1))
-  sorted_phix.reverse()
-  print sorted_phix
-  for iN in range(20):
-    print sorted_phix[iN]
-if map_ID_Diff_phiy:
-  print "---------------WORSE 20 CHAMBER IN PHIY------------------"
-  sorted_phiy = sorted(map_ID_Diff_phiy.items(), key=operator.itemgetter(1))
-  sorted_phiy.reverse()
-  print sorted_phiy
-  for iN in range(20):
-    print sorted_phiy[iN]
-if map_ID_Diff_phiz:
-  print "---------------WORSE 20 CHAMBER IN PHIZ------------------"
-  sorted_phiz = sorted(map_ID_Diff_phiz.items(), key=operator.itemgetter(1))
-  sorted_phiz.reverse()
-  print sorted_phiz
-  for iN in range(20):
-    print sorted_phiz[iN]
 
-#*******************************************************************************
-#                        Auxiliarly output HTML files                           
-#                           1. htmlName_d - file for corrections or biases      
-#                           2. htmlName_e - file for fit uncertainties          
-#                           3. htmlName_p - file for pulls                      
-#*******************************************************************************
+    def fitDrawHists(self,type,dof,histTitle,label):
+        """Fit and Draw histograms
 
-#************************* Corrections: print all DOF **************************
+        @param type       "d","e","p"
+        @param dof        x,y,z,phix,phiy,phiz
+        @param histTitle
+        @param label
+        """
+        h = self.histo.histograms["h_"+type][dof]
+        h.SetTitle(histTitle)
+        fit = self.hfd.FitAndDraw(h,label,0)
+        self.histo.legend.Draw()
+ 
+        pngName = "{0}/DT_{1}{2}.png".format(self.pngPath,type,dof)
+        pdfName = "{0}/DT_{1}{2}.pdf".format(self.pdfPath,type,dof)
+        self.histo.c1.SaveAs( pngName )
+        self.histo.c1.SaveAs( pdfName )
 
-htmlFile_d = htmlPath + htmlName_d
-texFile_d  = texPath  + texName_d
+        return fit
 
-PrintHtmlHeader(htmlFile_d)
-PrintTexHeader(texFile_d)
 
-PrintHtmlCode(htmlFile_d,"<font size=\"+2\">%s for %s</font>" % (correctionName,alignmentName) )
-PrintHtmlCode(htmlFile_d,"<p>")
-PrintHtmlCode(htmlFile_d,"<table border=\"1\" cellpadding=\"5\">")
-caption = "<font size=+1>%s</font> <br><font size=-1><pre>%s</pre></font>" % (correctionName, littleLabel)
-PrintHtmlCode(htmlFile_d,"<caption>%s</caption>" % caption)
-PrintHtmlCode(htmlFile_d,"<tr align=center>")
-for dof in "x","y","z","phix","phiy","phiz": 
-  pngName = "DT_d%s.png" % dof
-  PrintHtmlCode(htmlFile_d,"<td><a href=\"./PNG/%s\"><img src=\"./PNG/%s\" alt=\"text\" width=\"250\"></a></td>" % (pngName, pngName))
-  if dof == "z": PrintHtmlCode(htmlFile_d,"</tr><tr align=center>")
-PrintHtmlCode(htmlFile_d,"</tr>")
-PrintHtmlCode(htmlFile_d,"</table>")
+    def fillHistograms(self,wheel,station,sector,rep=None,fillTable=False):
+        """
+        Fill histograms with some values
 
-# Visualization
-PrintHtmlCode(htmlFile_d,"<p>")
-PrintHtmlCode(htmlFile_d,"<table border=\"1\" cellpadding=\"5\">")
-caption = ("<font size=+1>%s visualization</font> <br><font size=-1><pre>%s</pre></font>" % (correctionName, littleLabel) )
-PrintHtmlCode(htmlFile_d,"<caption>%s</caption>" % caption)
-PrintHtmlCode(htmlFile_d,"<tr align=center>")
-for station in 1,2,3,4:
-  imageName = alignmentName+"-"+referenceName+("__MBs%s" % station)
-  pngName = imageName+".png"
-  PrintHtmlCode(htmlFile_d,"<td><a href=\"./PNG/%s\"><img src=\"./PNG/%s\" alt=\"text\" width=\"500\"></a></td>" % (pngName, pngName))
-  if station == 2: PrintHtmlCode(htmlFile_d,"</tr><tr align=center>")
-PrintHtmlCode(htmlFile_d,"</tr>")
-PrintHtmlCode(htmlFile_d,"</table>")
+        @param rep        report (for errors and pulls)
+        @param wheel  
+        @param station
+        @param sector
+        @param fillTable  boolean to fill dtTable
+        """
+        for i,cc in enumerate(self.dof):
+            if cc.startswith("phi"):
+                factor    = 1000.
+            else:
+                factor    = 10.
 
-PrintHtmlCode(htmlFile_d,"<p>")
-PrintHtmlCode(htmlFile_d,"<table border=\"1\" cellpadding=\"5\">")
-caption = ("<font size=+1>%s visualization</font> <br><font size=-1><pre>%s</pre></font>" % (correctionName, littleLabel))
-PrintHtmlCode(htmlFile_d,"<caption>%s</caption>" % caption)
-PrintHtmlCode(htmlFile_d,"<tr align=center>")
-for wheel in 0,-1,-2,1,2:
-  imageName = alignmentName+"-"+referenceName+("__MBw%s" % wheel)
-  pngName = imageName+".png"
-  if wheel ==0: PrintHtmlCode(htmlFile_d,"<td rowspan=\"2\"><a href=\"./PNG/%s\"><img src=\"./PNG/%s\" alt=\"text\" width=\"300\"></a></td>" % (pngName, pngName))
-  else : PrintHtmlCode(htmlFile_d,"<td><a href=\"./PNG/%s\"><img src=\"./PNG/%s\" alt=\"text\" width=\"300\"></a></td>" % (pngName, pngName))
-  if wheel == -2: PrintHtmlCode(htmlFile_d,"</tr><tr align=center>")
-PrintHtmlCode(htmlFile_d,"</tr>")
-PrintHtmlCode(htmlFile_d,"</table>")
+            g_new = getattr(self.g_new.dt[endcap,disk,ring,chamber],cc)
+            g_ref = getattr(self.g_ref.dt[endcap,disk,ring,chamber],cc)
 
-PrintHtmlCode(htmlFile_d,"<p>")
-caption = ("<font size=+1>%s averaged over homogeneous chambers</font> <br><font size=-1><pre>%s</pre></font>" % (correctionName, littleLabel))
-dtGroupTable.PrintHtml(htmlFile_d,["dxRMS","dyRMS","dzRMS","dphixRMS","dphiyRMS","dphizRMS"],caption,0)
+            # correction
+            d_mm  = factor
+            d_mm *= (g_new - g_ref)
+            d_mm *= sc.signConventions["DT",wheel,station,sector][i%3]
+            self.histo.histograms["h_d"][cc].Fill(d_mm)
+            if fillTable:
+                self.dtTab["d"][cc].FillDt(wheel,station,sector,"%.3f" % d_mm)
 
-PrintHtmlCode(htmlFile_d,"<p>")
-caption = ("<font size=+1>%s averaged over homogeneous chambers</font> <br><font size=-1><pre>%s</pre></font>" % (correctionName, littleLabel))
-dtGroupTable.PrintHtml(htmlFile_d,["dxRMS","dxGaussSig","dyRMS","dyGaussSig","dzRMS","dzGaussSig","dphixRMS","dphixGaussSig","dphiyRMS","dphiyGaussSig","dphizRMS","dphizGaussSig"],caption,0)
+            # uncertainty & pull
+            if rep is not None:
+	            if ( cc=="y" and station==4 ): continue
 
-#************************* Corrections: print separate DOF *********************
+                delta =  getattr(rep,"delta"+cc)
+                e_mm  =  factor
+                e_mm  *= delta.error
+                self.histo.histograms["h_e"][cc].Fill(e_mm)
 
-for dof in "x","y","z","phix","phiy","phiz":
-  
-  PrintHtmlCode(htmlFile_d,"<p>")
-  
-  if dof == "x":    htmlDof, texDof, unitDof = "&delta;x", "\\delta x", "mm"
-  if dof == "y":    htmlDof, texDof, unitDof = "&delta;y", "\\delta y", "mm"
-  if dof == "z":    htmlDof, texDof, unitDof = "&delta;z", "\\delta z", "mm"
-  if dof == "phix": htmlDof, texDof, unitDof = "&delta;&phi;<sub>x</sub>", "\\delta \\phi_{x}", "mrad"
-  if dof == "phiy": htmlDof, texDof, unitDof = "&delta;&phi;<sub>y</sub>", "\\delta \\phi_{y}", "mrad"
-  if dof == "phiz": htmlDof, texDof, unitDof = "&delta;&phi;<sub>z</sub>", "\\delta \\phi_{z}", "mrad"
-  
-  htmlCaption = "<font size=+1>%s <i>%s</i> (%s) </font> <br><font size=-1><pre>%s</pre></font>" % (correctionName, htmlDof, unitDof, littleLabel)
-  texCaption  = "%s $%s$~(%s) \\\\ {\\tiny \\verb;%s;}" % (correctionName, texDof, unitDof, littleLabel)
-  if dof == "x": 
-    dtTab_dx.PrintHtml(htmlFile_d, htmlCaption, 0)
-    dtTab_dx.PrintTex(texFile_d, texCaption, "dtTab_dx", 0)
-  if dof == "y":
-    dtTab_dy.PrintHtml(htmlFile_d, htmlCaption, 0)
-    dtTab_dy.PrintTex(texFile_d, texCaption, "dtTab_dy", 0)
-  if dof == "z":
-    dtTab_dz.PrintHtml(htmlFile_d, htmlCaption, 0)
-    dtTab_dz.PrintTex(texFile_d, texCaption, "dtTab_dz", 0)
-  if dof == "phix":
-    dtTab_dphix.PrintHtml(htmlFile_d, htmlCaption, 0)
-    dtTab_dphix.PrintTex(texFile_d, texCaption, "dtTab_dphix", 0)
-  if dof == "phiy":
-    dtTab_dphiy.PrintHtml(htmlFile_d, htmlCaption, 0)
-    dtTab_dphiy.PrintTex(texFile_d, texCaption, "dtTab_dphiy", 0)
-  if dof == "phiz":
-    dtTab_dphiz.PrintHtml(htmlFile_d, htmlCaption, 0)
-    dtTab_dphiz.PrintTex(texFile_d, texCaption, "dtTab_dphiz", 0)
-  
-  htmlCaption = ("<font size=+1>%s <i>%s</i> (%s) in homogeneous chambers</font> <br><font size=-1><pre>%s</pre></font>" % (correctionName, htmlDof, unitDof, littleLabel) )
-  
-  PrintHtmlCode(htmlFile_d,"<p>")
-  PrintHtmlCode(htmlFile_d,"<table border=\"1\" cellpadding=\"5\">")
-  PrintHtmlCode(htmlFile_d,"<caption>%s</caption>" % htmlCaption)
-  PrintHtmlCode(htmlFile_d,"<tr align=center><th></th><th><i>Wheel -2</i></th><th><i>Wheel -1</i></th><th><i>Wheel 0</i></th><th><i>Wheel +1</i></th><th><i>Wheel +2</i></th>")
-  for station in 1, 2, 3, 4:
-    PrintHtmlCode( htmlFile_d, ("<tr align=center><th><i>Station %s</i></th>" % station) )
-    for wheel in -2, -1, 0, +1, +2:
-      pngName = "DT_d%s_%s_%s.png" % (dof, wheel , station)
-      if dof == "y" and station == 4: PrintHtmlCode( htmlFile_d, "<td>None</td>" )
-      else: PrintHtmlCode( htmlFile_d, ("<td><a href=\"./PNG/%s\"><img src=\"./PNG/%s\" alt=\"text\" width=\"250\"></a></td>" % (pngName, pngName)) )
-    PrintHtmlCode(htmlFile_d,"</tr>")
-  PrintHtmlCode(htmlFile_d,"</table>")
+                if fillTable:
+                    self.dtTab["e"][cc].FillDt(wheel,station,sector,"%.3f" % e_mm)
 
-PrintHtmlTrailer(htmlFile_d)
-PrintTexTrailer(texFile_d)
+                if fabs(e_mm) > 1e-8:
+                    p = d_mm/e_mm
+                    self.histo.histograms["h_p"][cc].Fill(p)
+                    if fillTable:
+                        self.dtTab["p"][cc].FillDt(wheel,station,sector,"%.3f" % p)
+            elif rep is None and fillTable:
+                #Find worse 50 chambers
+                ID_chamber = "chamber_{0}_{1}_{2}".format(wheel,station,sector)
+                self.map_ID_Diff[cc][ID_chamber] = round(abs(d_mm),2)
 
-#************************* Fit uncert: print all DOF ***************************
+        return
 
-if isReport:
-  htmlFile_e = htmlPath + htmlName_e
-  texFile_e  = texPath  + texName_e
-  
-  PrintHtmlHeader(htmlFile_e)
-  PrintTexHeader(texFile_e)
-  
-  PrintHtmlCode(htmlFile_e,"<font size=\"+2\">Alignment fit uncertainties (<i>&sigma;<sub>fit</sub></i>) for %s</font>" % alignmentName )
-  PrintHtmlCode(htmlFile_e,"<p>")
-  PrintHtmlCode(htmlFile_e,"<table border=\"1\" cellpadding=\"5\">")
-  htmlCaption = "<font size=+1>Alignment fit uncertainties</font> <br><font size=-1><pre>%s</pre></font>" % alignmentName
-  PrintHtmlCode(htmlFile_e,"<caption>%s</caption>" % htmlCaption)
-  PrintHtmlCode(htmlFile_e,"<tr align=center>")
-  for dof in "x","y","z","phix","phiy","phiz": 
-    pngName = "DT_e"+dof+".png"
-    PrintHtmlCode(htmlFile_e,"<td><a href=\"./PNG/%s\"><img src=\"./PNG/%s\" alt=\"text\" width=\"250\"></a></td>" % (pngName, pngName))
-    if dof == "z": PrintHtmlCode(htmlFile_e,"</tr><tr align=center>")
-  PrintHtmlCode(htmlFile_e,"</tr>")
-  PrintHtmlCode(htmlFile_e,"</table>")
 
-  PrintHtmlCode(htmlFile_e,"<p>")
-  htmlCaption = "<font size=+1>Alignment fit uncertainties averaged over homogeneous chambers</font> <br><font size=-1><pre>%s</pre></font>" % alignmentName
-  dtGroupTable.PrintHtml(htmlFile_e,["exMean","eyMean","ezMean","ephixMean","ephiyMean","ephizMean"],htmlCaption,0)
 
-  PrintHtmlCode(htmlFile_e,"<p>")
-  htmlCaption = "<font size=+1>Alignment fit uncertainties averaged over homogeneous chambers</font> <br><font size=-1><pre>%s</pre></font>" % alignmentName
-  dtGroupTable.PrintHtml(htmlFile_e,["exMean","exGaussMean","eyMean","eyGaussMean","ezMean","ezGaussMean","ephixMean","ephixGaussMean","ephiyMean","ephiyGaussMean","ephizMean","ephizGaussMean"],htmlCaption,0)
+    def execute(self):
+        """Execute the code to make the plots!"""
+        self.histo.init_corrections()   # h_d
+        self.histo.init_uncertainties() # h_e
+        self.histo.init_pulls()         # h_p
 
-#************************ Fit uncert: print separate DOF *********************
+        for station in self.stations:
+            imageName = alignmentName+"-"+referenceName+"__MBs{0}".format(station)
+            svgName   = imageName+".svg"
+            pngName   = imageName+".png"
 
-  for dof in "x","y","z","phix","phiy","phiz":
-    
-    PrintHtmlCode(htmlFile_e,"<p>")
-    
-    if dof == "x":    htmlDof, texDof, unitDof = "&sigma;<sub>fit</sub>x", "\\sigma_{fit} x", "mm"
-    if dof == "y":    htmlDof, texDof, unitDof = "&sigma;<sub>fit</sub>y", "\\sigma_{fit} y", "mm"
-    if dof == "z":    htmlDof, texDof, unitDof = "&sigma;<sub>fit</sub>z", "\\sigma_{fit} z", "mm"
-    if dof == "phix": htmlDof, texDof, unitDof = "&sigma;<sub>fit</sub>&phi;<sub>x</sub>", "\\sigma_{fit} \\phi_{x}", "mrad"
-    if dof == "phiy": htmlDof, texDof, unitDof = "&sigma;<sub>fit</sub>&phi;<sub>y</sub>", "\\sigma_{fit} \\phi_{y}", "mrad"
-    if dof == "phiz": htmlDof, texDof, unitDof = "&sigma;<sub>fit</sub>&phi;<sub>z</sub>", "\\sigma_{fit} \\phi_{z}", "mrad"
-    
-    htmlCaption = ("<font size=+1><Alignment fit uncertainties <i>%s</i> (%s)</font> <br><font size=-1><pre>%s</pre></font>" % (htmlDof, unitDof, alignmentName))
-    texCaption = "Alignment fit uncertainties $%s$~(%s) \\\\ {\\tiny \\verb;%s;}" % (texDof, unitDof, alignmentName)
-    
-    if dof == "x":
-      dtTab_ex.PrintHtml(htmlFile_e, htmlCaption, 0)
-      dtTab_ex.PrintTex(texFile_e, texCaption, "dtTab_ex", 0)
-    if dof == "y":
-      dtTab_ey.PrintHtml(htmlFile_e, htmlCaption, 0)
-      dtTab_ey.PrintTex(texFile_e, texCaption, "dtTab_ey", 0)
-    if dof == "z":
-      dtTab_ez.PrintHtml(htmlFile_e, htmlCaption, 0)
-      dtTab_ez.PrintTex(texFile_e, texCaption, "dtTab_ez", 0)
-    if dof == "phix":
-      dtTab_ephix.PrintHtml(htmlFile_e, htmlCaption, 0)
-      dtTab_ephix.PrintTex(texFile_e, texCaption, "dtTab_ephix", 0)
-    if dof == "phiy":
-      dtTab_ephiy.PrintHtml(htmlFile_e, htmlCaption, 0)
-      dtTab_ephiy.PrintTex(texFile_e, texCaption, "dtTab_ephiy", 0)
-    if dof == "phiz":
-      dtTab_ephiz.PrintHtml(htmlFile_e, htmlCaption, 0)
-      dtTab_ephiz.PrintTex(texFile_e, texCaption, "dtTab_ephiz", 0)
-    
-    htmlCaption = ("<font size=+1><Alignment fit uncertainties <i>%s</i> (%s) in homogeneous chambers</font> <br><font size=-1><pre>%s</pre></font>" % (htmlDof, unitDof, alignmentName))
-    
-    PrintHtmlCode(htmlFile_e,"<p>")
-    PrintHtmlCode(htmlFile_e,"<table border=\"1\" cellpadding=\"5\">")
-    PrintHtmlCode(htmlFile_e,"<caption>%s</caption>" % htmlCaption)
-    PrintHtmlCode(htmlFile_e,"<tr align=center><th></th><th><i>Wheel -2</i></th><th><i>Wheel -1</i></th><th><i>Wheel 0</i></th><th><i>Wheel +1</i></th><th><i>Wheel +2</i></th>")
-    for station in 1, 2, 3, 4:
-      PrintHtmlCode( htmlFile_e, ("<tr align=center><th><i>Station %s</i></th>" % station) )
-      for wheel in -2, -1, 0, +1, +2:
-        pngName = "DT_e%s_%s_%s.png" % (dof, wheel , station)
-        if dof == "y" and station ==4: PrintHtmlCode( htmlFile_e, "<td>None</td>" )
-        else: PrintHtmlCode( htmlFile_e, ("<td><a href=\"./PNG/%s\"><img src=\"./PNG/%s\" alt=\"text\" width=\"250\"></a></td>" % (pngName, pngName)) )
-      PrintHtmlCode(htmlFile_e,"</tr>")
-    PrintHtmlCode(htmlFile_e,"</table>")
+            gdv.draw_station(self.g_new,self.g_ref,station,self.svgPath+svgName,length_factor,angle_factor)
 
-  PrintHtmlTrailer(htmlFile_e)
-  PrintTexTrailer(texFile_e)
+            retvalue = os.system("convert -density 104.2 {0} {1}".format(self.svgPath+svgName, self.pngPath+pngName) )
 
-#***************************** Pulls: print all DOF ****************************
+        for wheel in self.wheels:
+            imageName = alignmentName+"-"+referenceName+"__MBw{0}".format(wheel)
+            svgName   = imageName+".svg"
+            pngName   = imageName+".png"
 
-  htmlFile_p = htmlPath + htmlName_p
-  texFile_p  = texPath  + texName_p
-  
-  PrintHtmlHeader(htmlFile_p)
-  PrintTexHeader(texFile_p)
+            gdv.draw_wheel(self.g_new,self.g_ref,wheel,self.svgPath+svgName,length_factor,angle_factor)
 
-  PrintHtmlCode(htmlFile_p,"<font size=\"+2\">Pulls for %s</font>" % alignmentName )
-  PrintHtmlCode(htmlFile_p,"<p>")
-  PrintHtmlCode(htmlFile_p,"<table border=\"1\" cellpadding=\"5\">")
-  htmlCaption = "<font size=+1>Pulls</font> <br><font size=-1><pre>%s</pre></font>" % littleLabel
-  PrintHtmlCode(htmlFile_p,"<caption>%s</caption>" % htmlCaption)
-  PrintHtmlCode(htmlFile_p,"<tr align=center>")
-  for dof in "x","y","z","phix","phiy","phiz": 
-    pngName = "DT_p%s.png" % dof
-    PrintHtmlCode(htmlFile_p,"<td><a href=\"./PNG/%s\"><img src=\"./PNG/%s\" alt=\"text\" width=\"250\"></a></td>" % (pngName, pngName))
-    if dof == "z": PrintHtmlCode(htmlFile_p,"</tr><tr align=center>")
-  PrintHtmlCode(htmlFile_p,"</tr>")
-  PrintHtmlCode(htmlFile_p,"</table>")
+            retvalue = os.system("convert -density 104.2 {0} {1}".format(self.svgPath+svgName,self.pngPath+pngName) )
 
-  PrintHtmlCode(htmlFile_p,"<p>")
-  caption = "<font size=+1>Pulls averaged over homogeneous chambers (RMSes only)</font> <br><font size=-1><pre>%s</pre></font>" % littleLabel
-  dtGroupTable.PrintHtml(htmlFile_p,["pxRMS","pyRMS","pzRMS","pphixRMS","pphiyRMS","pphizRMS"],caption,0)
+        if self.isReport:
+            for r1 in self.report:
+                if not (r1.status=="PASS" and r1.postal_address[0]=="DT"):
+                    continue
+				wheel   = r1.postal_address[1]
+				station = r1.postal_address[2]
+				sector  = r1.postal_address[3]
 
-  PrintHtmlCode(htmlFile_p,"<p>")
-  caption = "<font size=+1>Pulls averaged over homogeneous chambers (RMSes compared to Gaussian sigmas)</font> <br><font size=-1><pre>%s</pre></font>" % littleLabel
-  dtGroupTable.PrintHtml(htmlFile_p,["pxRMS","pxGaussSig","pyRMS","pyGaussSig","pzRMS","pzGaussSig","pphixRMS","pphixGaussSig","pphiyRMS","pphiyGaussSig","pphizRMS","pphizGaussSig"],caption,0)
+                self.fillHistograms( wheel,station,sector,rep=r1 )
+        else:
+            for wheel in self.wheels:
+                for station in self.stations:
+                    sectors = self.sectors if station != 4 else self.sectors4
+                    for sector in sectors:
+                        self.fillHistograms( wheel,station,sector )
 
-#************************ Pulls: print separate DOF *********************
 
-  for dof in "x","y","z","phix","phiy","phiz":
-    
-    PrintHtmlCode(htmlFile_p,"<p>")
-    
-    if dof == "x":    htmlDof, texDof = "x", "x"
-    if dof == "y":    htmlDof, texDof = "y", "y"
-    if dof == "z":    htmlDof, texDof = "z", "z"
-    if dof == "phix": htmlDof, texDof = "&phi;<sub>x</sub>", "\\phi_{x}"
-    if dof == "phiy": htmlDof, texDof = "&phi;<sub>y</sub>", "\\phi_{y}"
-    if dof == "phiz": htmlDof, texDof = "&phi;<sub>z</sub>", "\\phi_{z}"
-      
-    htmlCaption = ("<font size=+1>Pulls for <i>%s</i></font> <br><font size=-1><pre>%s</pre></font>" % (htmlDof, littleLabel) )
-    texCaption = ("Pulls for $%s$ \\\\ {\\tiny \\verb;%s;}" % (htmlDof, littleLabel) )
-    
-    if dof == "x":
-      dtTab_px.PrintHtml(htmlFile_p, htmlCaption, 0)
-      dtTab_px.PrintTex(texFile_p, texCaption, "dtTab_px", 0)
-    if dof == "y":
-      dtTab_py.PrintHtml(htmlFile_p, htmlCaption, 0)
-      dtTab_py.PrintTex(texFile_p, texCaption, "dtTab_py", 0)
-    if dof == "z":
-      dtTab_pz.PrintHtml(htmlFile_p, htmlCaption, 0)
-      dtTab_py.PrintTex(texFile_p, texCaption, "dtTab_py", 0)
-    if dof == "phix":
-      dtTab_pphix.PrintHtml(htmlFile_p, htmlCaption, 0)
-      dtTab_pphix.PrintTex(texFile_p, texCaption, "dtTab_pphix", 0)
-    if dof == "phiy":
-      dtTab_pphiy.PrintHtml(htmlFile_p, htmlCaption, 0)
-      dtTab_pphiy.PrintTex(texFile_p, texCaption, "dtTab_pphiy", 0)
-    if dof == "phiz":
-      dtTab_pphiz.PrintHtml(htmlFile_p, htmlCaption, 0)
-      dtTab_pphiz.PrintTex(texFile_p, texCaption, "dtTab_pphiz", 0)
-    
-    caption = ("Pulls for <i>%s</i> in homogeneous chambers</font> <br><font size=-1><pre>%s</pre></font>" % (htmlDof, littleLabel))
-    
-    PrintHtmlCode(htmlFile_p,"<p>")
-    PrintHtmlCode(htmlFile_p,"<table border=\"1\" cellpadding=\"5\">")
-    PrintHtmlCode(htmlFile_p,"<caption>%s</caption>" % caption)
-    PrintHtmlCode(htmlFile_p,"<tr align=center><th></th><th><i>Wheel -2</i></th><th><i>Wheel -1</i></th><th><i>Wheel 0</i></th><th><i>Wheel +1</i></th><th><i>Wheel +2</i></th>")
-    for station in 1, 2, 3, 4:
-      PrintHtmlCode( htmlFile_p, ("<tr align=center><th><i>Station %s</i></th>" % station) )
-      for wheel in -2, -1, 0, +1, +2:
-        pngName = "DT_p%s_%s_%s.png" % (dof, wheel , station)
-        if dof == "y" and station ==4: PrintHtmlCode( htmlFile_p, "<td>None</td>" )
-        else: PrintHtmlCode( htmlFile_p, ("<td><a href=\"./PNG/%s\"><img src=\"./PNG/%s\" alt=\"text\" width=\"250\"></a></td>" % (pngName, pngName)) )
-      PrintHtmlCode(htmlFile_p,"</tr>")
-    PrintHtmlCode(htmlFile_p,"</table>")
+        systemPrettyName = "MB ALL"
+        histTitle = systemPrettyName+": {0}"
 
-  PrintHtmlTrailer(htmlFile_p)
-  PrintTexTrailer(texFile_e)
+        for dof in self.dof:
+            self.fitDrawHists("d",dof,histTitle.format(self.text["d"],label))
+
+            if self.isReport:
+
+                ### Uncertainties
+                self.fitDrawHists("e",dof,histTitle.format(self.text["e"],self.alignmentName))
+
+                ### Pulls
+                self.fitDrawHists("p",dof,histTitle.format(self.text["p"],label))
+
+        for wheel in self.wheels:
+            for station in self.stations:
+                for dof in self.dof:
+                    self.histo.histograms["h_d"][dof].Reset("ICESM")
+                    self.histo.histograms["h_e"][dof].Reset("ICESM")
+                    self.histo.histograms["h_p"][dof].Reset("ICESM")
+
+
+                    if self.isReport:
+                        for r1 in self.report:
+                            if ( r1.status == "PASS" and r1.postal_address[:3]==["DT",wheel,station]):
+                                sector = r1.postal_address[3]
+                                self.fillHistograms( wheel,station,sector,rep=r1,fillTable=True )
+
+                    else: # if isReport
+                        sectors = self.sectors if station != 4 else self.sectors4
+                        for sector in sectors:
+                            self.fillHistograms( wheel,station,sector,fillTable=True )
+
+
+                    #****** Corrections: save plots and fill tables over homogeneous chambers ******
+                    dtGroupPrettyName = "MB {0}/{1}/ALL".format(wheel,station)
+                    histTitle   = dtGroupPrettyName+": {0}"
+                    pngName = "DT_{0}{1}_{2}_{3}.png"
+                    pdfName = "DT_{0}{1}_{2}_{3}.pdf"
+
+                    for dof in self.dof:
+                        pngName_d = pngName.format('d',dof,wheel,station)
+                        pdfName_d = pngName.format('d',dof,wheel,station)
+
+                        h = self.histo.histograms["h_d"][dof]
+                        h.SetTitle(histTitle.format(self.text['d']))
+                        fit = self.hfd.FitAndDraw(h,self.label)
+                        self.histo.legend.Draw()
+
+                        self.histo.c1.SaveAs( self.pngPath+"/"+pngName_d )
+                        self.histo.c1.SaveAs( self.pdfPath+"/"+pdfName_d )
+
+                        sRMS = "%.3f" % h.GetRMS()
+                        self.dtGroupTable.FillDtGroup("d{0}RMS".format(dof),endcap,disk,ring,sRMS,self.pngPath+pngName_d)
+                        if fit[0]:
+                            sSigma = "%.3f" % fit[1].GetParameter(2)
+                            self.dtGroupTable.FillDtGroup("d{0}GaussSig".format(dof),endcap,disk,ring,sSigma,self.pngPath+pngName_d)
+
+
+                    #****** Fit uncert: save plots and fill tables over homogeneous chambers *******
+                    #******** Pulls: save plots and fill tables over homogeneous chambers **********
+
+                        if self.isReport:
+                            pngName_e = pngName.format('e',dof,wheel,station)
+                            pdfName_e = pngName.format('e',dof,wheel,station)
+
+                            ## uncertainties
+                            h = self.histo.histograms["h_e"][dof]
+                            h.SetTitle(histTitle.format(self.text['e']))
+                            fit = self.hfd.FitAndDraw(h,self.alignmentName)
+                            self.histo.legend.Draw()
+                            self.histo.c1.SaveAs( self.pngPath+"/"+pngName_e )
+                            self.histo.c1.SaveAs( self.pdfPath+"/"+pdfName_e )
+
+                            sMean = "%.3f" % h.GetMean()
+                            self.dtGroupTable.FillDtGroup("e{0}Mean".format(dof),wheel,station,sMean,self.pngPath+pngName_e)
+                            if fit[0]:
+                                sGaussMean = "%.3f" % fit[1].GetParameter(1)
+                                self.dtGroupTable.FillDtGroup("e{0}GaussMean".format(dof),wheel,station,sGaussMean,self.pngPath+pngName_e)
+
+                            pngName_p = pngName.format('p',dof,wheel,station)
+                            pdfName_p = pngName.format('p',dof,wheel,station)
+
+                            ## pulls
+                            h = self.histo.histograms["h_p"][dof]
+                            h.SetTitle(histTitle.format(self.text['p']))
+                            fit = self.hfd.FitAndDraw(h,self.label)
+                            self.histo.legend.Draw()
+                            self.histo.c1.SaveAs( self.pngPath+"/"+pngName_p )
+                            self.histo.c1.SaveAs( self.pdfPath+"/"+pdfName_p )
+
+                            sRMS = "%.3f" % h.GetRMS()
+                            self.dtGroupTable.FillDtGroup("p{0}RMS".format(dof),wheel,station,sRMS,self.pngPath+pngName_p)
+                            if fit[0]:
+                                sSigma = "%.3f" % fit[1].GetParameter(2)
+                                self.dtGroupTable.FillDtGroup("p{0}GaussSig".format(dof),wheel,station,sSigma,self.pngPath+pngName_p)
+
+
+
+
+        #******************************************************************************#
+        #                        Auxiliarly output HTML files                          #
+        #                           1. htmlName_d - file for corrections or biases     #
+        #                           2. htmlName_e - file for fit uncertainties         #
+        #                           3. htmlName_p - file for pulls                     #
+        #******************************************************************************#
+
+		## Print 20 worst chambers
+		for dof in self.dof:
+		    if self.map_ID_Diff[dof]:
+    			print "---------------WORSE 20 CHAMBER IN {0}------------------".format(dof)
+	    		sorted = sorted(map_ID_Diff[dof].items(), key=operator.itemgetter(1))
+		    	sorted.reverse()
+			    for iN in range(20):
+			        print sorted[iN]
+
+
+        self.writeData("d")
+
+        if self.isReport:
+            self.writeData("e")
+            self.writeData("p")
+
+        return
+
+
+
+    def writeData(self,type):
+        """Write data to HTML and TeX files"""
+        htmlFile = self.htmlPath
+        texFile  = self.texPath
+
+        if type=="e":
+            htmlFile += self.htmlName_e
+            texFile  += self.texName_e
+            label    =  self.alignmentName
+            htmlDofString = ["delta;","sigma;<sub>fit</sub>"]
+            texDofString  = ["delta","sigma_{fit}"]
+        elif type=="p":
+            htmlFile += self.htmlName_p
+            texFile  += self.texName_p
+            label     = self.label
+            htmlDofString = ["&delta;",""]
+            texDofString  = ["\\delta ",""]
+        else:
+            htmlFile += self.htmlName_d
+            texFile  += self.texName_d
+            label     = self.label
+            htmlDofString = ["",""]
+            texDofString  = ["",""]
+
+
+        self.html.PrintHtmlHeader(htmlFile)
+        self.tex.PrintTexHeader(texFile)
+
+        self.html.PrintHtmlCode(htmlFile,"<font size=\"+2\">{0} for {1}</font>".format(self.text[type],self.alignmentName) )
+        self.html.PrintHtmlCode(htmlFile,"<p>")
+        self.html.PrintHtmlCode(htmlFile,"<table border=\"1\" cellpadding=\"5\">")
+
+        caption = "<font size=+1>{0}</font> <br><font size=-1>{1}</font>".format(self.text[type],label)
+
+        self.html.PrintHtmlCode(htmlFile,"<caption>{0}</caption>".format(caption))
+        self.html.PrintHtmlCode(htmlFile,"<tr align=center>")
+
+        for dof in self.dof: 
+            pngName = "DT_"+type+dof+".png"
+            self.html.PrintHtmlCode(htmlFile,"<td><a href=\"./PNG/%s\"><img src=\"./PNG/%s\" alt=\"text\" width=\"250\"></a></td>" % (pngName, pngName))
+            if dof == "z": self.html.PrintHtmlCode(htmlFile,"</tr><tr align=center>")
+
+        self.html.PrintHtmlCode(htmlFile,"</tr>")
+        self.html.PrintHtmlCode(htmlFile,"</table>")
+
+		## Visualization
+		caption = "<font size=+1>%s visualization</font> <br><font size=-1><pre>%s</pre></font>"%(self.correctionName, label)
+		self.html.PrintHtmlCode(htmlFile,"<p>")
+		self.html.PrintHtmlCode(htmlFile,"<table border=\"1\" cellpadding=\"5\">")
+		self.html.PrintHtmlCode(htmlFile,"<caption>%s</caption>" % caption)
+		self.html.PrintHtmlCode(htmlFile,"<tr align=center>")
+
+		for station in self.stations:
+		    imageName = self.alignmentName+"-"+self.referenceName+"__MBs{0}".format(station)
+		    pngName   = imageName+".png"
+		    self.html.PrintHtmlCode(htmlFile,"<td><a href=\"./PNG/%s\"><img src=\"./PNG/%s\" alt=\"text\" width=\"500\"></a></td>" % (pngName, pngName))
+		    if station == 2:
+		        self.html.PrintHtmlCode(htmlFile,"</tr><tr align=center>")
+
+		self.html.PrintHtmlCode(htmlFile,"</tr>")
+		self.html.PrintHtmlCode(htmlFile,"</table>")
+
+		self.html.PrintHtmlCode(htmlFile,"<p>")
+		self.html.PrintHtmlCode(htmlFile,"<table border=\"1\" cellpadding=\"5\">")
+		self.html.PrintHtmlCode(htmlFile,"<caption>%s</caption>" % caption)
+		self.html.PrintHtmlCode(htmlFile,"<tr align=center>")
+
+		for wh,wheel in enumerate(self.wheels):
+		    imageName = self.alignmentName+"-"+self.referenceName+"__MBw{0}".format(wheel)
+		    pngName   = imageName+".png"
+		    if wh == 0:
+		        self.html.PrintHtmlCode(htmlFile,"<td rowspan=\"2\"><a href=\"{0}/{1}\"><img src=\"{0}/{1}\" alt=\"text\" width=\"300\"></a></td>".format(self.pngPath,pngName))
+		    else:
+		        self.html.PrintHtmlCode(htmlFile,"<td><a href=\".{0}/{1}\"><img src=\"{0}/{1}\" alt=\"text\" width=\"300\"></a></td>".format(self.pngPath,pngName))
+
+		    if wheel == (len(self.wheels)%2+len(self.wheels)/2): # draw 3 then 2 on the next line
+		        self.html.PrintHtmlCode(htmlFile,"</tr><tr align=center>")
+
+		self.html.PrintHtmlCode(htmlFile,"</tr>")
+		self.html.PrintHtmlCode(htmlFile,"</table>")
+
+
+        cap_title = "averaged over homogeneous chambers"
+        caption   = "<font size=+1>{0} {1}</font> <br><font size=-1>{2}</font>".format(self.text[type],cap_title,label)
+
+        self.html.PrintHtmlCode(htmlFile,"<p>")
+        self.dtGroupTable.PrintHtml(htmlFile,self.groupTableList['e'],caption,0)
+        self.html.PrintHtmlCode(htmlFile,"<p>")
+        self.dtGroupTable.PrintHtml(htmlFile,self.groupTableListFull['e'],caption,0)
+
+
+        #************************ Separate DOF *********************
+        for dof in self.dof:
+
+            htmlDof = self.histo.html_names[dof].replace(htmlDofString[0],htmlDofString[1])
+            texDof  = self.histo.latex_names[dof].replace(texDofString[0],texDofString[1])
+            unitDof = self.histo.units[dof].strip("(").rstrip(")")
+
+            if type=="e":
+                htmlCaption = "<font size=+1><{0} <i>{1}</i> ({2})</font> <br><font size=-1><pre>{3}</pre></font>".format(self.text[type],htmlDof,unitDof,label)
+                texCaption  = "%s $%s$~(%s) \\\\ {\\tiny \\verb;%s;}" % (self.text[type],texDof, unitDof, label)
+                caption     = "<font size=+1><{0} <i>{1}</i> ({2}) in homogeneous chambers</font> <br><font size=-1><pre>{3}</pre></font>".format(self.text[type],htmlDof,unitDof,label)
+            elif type=="p":
+                htmlCaption = "<font size=+1>{0} for <i>{1}</i></font> <br><font size=-1><pre>{2}</pre></font>".format(self.text[type],htmlDof, label)
+                texCaption  = "%s for $%s$ \\\\ {\\tiny \\verb;%s;}" % (self.text[type],htmlDof,label)
+                caption     = "{0} for <i>{1}</i> in homogeneous chambers</font> <br><font size=-1><pre>{2}</pre></font>".format(self.text[type],htmlDof,label)
+            else:
+                htmlCaption = "<font size=+1>%s <i>%s</i> (%s) </font> <br><font size=-1><pre>%s</pre></font>" % (self.text['d'],htmlDof,unitDof,self.label)
+                texCaption  = "%s $%s$~(%s) \\\\ {\\tiny \\verb;%s;}" % (self.text[type], texDof, unitDof, label)
+                caption     = "<font size=+1>%s <i>%s</i> (%s) in homogeneous chambers</font> <br><font size=-1><pre>%s</pre></font>"%(self.text['d'],htmlDof,unitDof,self.label) 
+
+
+
+            self.dtTab[type][dof].PrintHtml(htmlFile, htmlCaption, 0)
+            self.dtTab[type][dof].PrintTex(texFile,   texCaption, "dtTab_"type+dof, 0)
+
+            self.html.PrintHtmlCode(htmlFile,"<p>")
+            self.html.PrintHtmlCode(htmlFile,"<table border=\"1\" cellpadding=\"5\">")
+            self.html.PrintHtmlCode(htmlFile,"<caption>%s</caption>" % caption)
+            self.html.PrintHtmlCode(htmlFile,"<tr align=center><th></th><th><i>Wheel {0}</i></th><th><i>Wheel {1}</i></th><th><i>Wheel {2}</i></th><th><i>Wheel {3}</i></th><th><i>Wheel {4}</i></th>".format(self.wheels[0],self.wheels[1],self.wheels[2],self.wheels[3],self.wheels[4]))
+            for station in self.stations:
+
+                self.html.PrintHtmlCode( htmlFile, ("<tr align=center><th><i>Station %s</i></th>" % station) )
+
+                for wheel in self.wheels:
+                    pngName = "DT_%s%s_%s_%s.png" % (type,dof,wheel,station)
+                    if dof == "y" and station == 4: 
+                        self.html.PrintHtmlCode( htmlFile, "<td>None</td>" )
+                    else:
+                        self.html.PrintHtmlCode( htmlFile, "<td><a href=\"{0}/{1}\"><img src=\"{0}/{1}\" alt=\"text\" width=\"250\"></a></td>".format(self.pngPath,pngName) )
+
+                self.html.PrintHtmlCode(htmlFile,"</tr>")
+            self.html.PrintHtmlCode(htmlFile,"</table>")
+
+        self.html.PrintHtmlTrailer(htmlFile)
+        self.tex.PrintTexTrailer(htmlFile)
+
+        return
+
+
+    def setupDtGroupTable(self):
+        """Setup the DT group table"""
+        self.dtGroupTable.AddDtGroupVar("dxRMS",         "&delta;x (mm) <br>RMS",                           "$RMS(\\delta x)$",                     "mm")
+        self.dtGroupTable.AddDtGroupVar("dxGaussSig",    "&delta;x (mm) <br>Gauss Sigma",                   "$\\sigma_{Gauss}(\\delta x)$",         "mm")
+        self.dtGroupTable.AddDtGroupVar("dyRMS",         "&delta;y (mm) <br>RMS",                           "$RMS(\\delta y)$",                     "mm")
+        self.dtGroupTable.AddDtGroupVar("dyGaussSig",    "&delta;y (mm) <br>Gauss Sigma",                   "$\\sigma_{Gauss}(\\delta y)$",         "mm")
+        self.dtGroupTable.AddDtGroupVar("dzRMS",         "&delta;z (mm) <br>RMS",                           "$RMS(\\delta z)$",                     "mm")
+        self.dtGroupTable.AddDtGroupVar("dzGaussSig",    "&delta;z (mm) <br>Gauss Sigma",                   "$\\sigma_{Gauss}(\\delta z)$",         "mm")
+        self.dtGroupTable.AddDtGroupVar("dphixRMS",      "&delta;&phi;<sub>x</sub> (mrad) <br>RMS",         "$RMS(\\delta \\phi_{x})$",             "mrad")
+        self.dtGroupTable.AddDtGroupVar("dphixGaussSig", "&delta;&phi;<sub>x</sub> (mrad) <br>Gauss Sigma", "$\\sigma_{Gauss}(\\delta \\phi_{x})$", "mrad")
+        self.dtGroupTable.AddDtGroupVar("dphiyRMS",      "&delta;&phi;<sub>y</sub> (mrad) <br>RMS",         "$RMS(\\delta \\phi_{y})$",             "mrad")
+        self.dtGroupTable.AddDtGroupVar("dphiyGaussSig", "&delta;&phi;<sub>y</sub> (mrad) <br>Gauss Sigma", "$\\sigma_{Gauss}(\\delta \\phi_{y})$", "mrad")
+        self.dtGroupTable.AddDtGroupVar("dphizRMS",      "&delta;&phi;<sub>z</sub> (mrad) <br>RMS",         "$RMS(\\delta \\phi_{z})$",             "mrad")
+        self.dtGroupTable.AddDtGroupVar("dphizGaussSig", "&delta;&phi;<sub>z</sub> (mrad) <br>Gauss Sigma", "$\\sigma_{Gauss}(\\delta \\phi_{z})$", "mrad")
+
+        self.dtGroupTable.AddDtGroupVar("exMean",         "&sigma;<sub>fit</sub>x (mm) <br>Mean",                         "$Mean(\\sigma_{fit} x) $",               "mm")
+        self.dtGroupTable.AddDtGroupVar("exGaussMean",    "&sigma;<sub>fit</sub>x (mm) <br>Gauss Mean",                   "$Mean_{Gauss}(\\sigma_{fit} x) $",       "mm")
+        self.dtGroupTable.AddDtGroupVar("eyMean",         "&sigma;<sub>fit</sub>y (mm) <br>Mean",                         "$Mean(\\sigma_{fit} y) $",               "mm")
+        self.dtGroupTable.AddDtGroupVar("eyGaussMean",    "&sigma;<sub>fit</sub>y (mm) <br>Gauss Mean",                   "$Mean_{Gauss}(\\sigma_{fit} y) $",       "mm")
+        self.dtGroupTable.AddDtGroupVar("ezMean",         "&sigma;<sub>fit</sub>z (mm) <br>Mean",                         "$Mean(\\sigma_{fit} z) $",               "mm")
+        self.dtGroupTable.AddDtGroupVar("ezGaussMean",    "&sigma;<sub>fit</sub>z (mm) <br>Gauss Mean",                   "$Mean_{Gauss}(\\sigma_{fit} z) $",       "mm")
+        self.dtGroupTable.AddDtGroupVar("ephixMean",      "&sigma;<sub>fit</sub>&phi;<sub>x</sub> (mrad) <br>Mean",       "$Mean(\\sigma_{fit} \\phi_x) $",         "mrad")
+        self.dtGroupTable.AddDtGroupVar("ephixGaussMean", "&sigma;<sub>fit</sub>&phi;<sub>x</sub> (mrad) <br>Gauss Mean", "$Mean_{Gauss}(\\sigma_{fit} \\phi_x) $", "mrad")
+        self.dtGroupTable.AddDtGroupVar("ephiyMean",      "&sigma;<sub>fit</sub>&phi;<sub>y</sub> (mrad) <br>Mean",       "$Mean(\\sigma_{fit} \\phi_y) $",         "mrad")
+        self.dtGroupTable.AddDtGroupVar("ephiyGaussMean", "&sigma;<sub>fit</sub>&phi;<sub>y</sub> (mrad) <br>Gauss Mean", "$Mean_{Gauss}(\\sigma_{fit} \\phi_y) $", "mrad")
+        self.dtGroupTable.AddDtGroupVar("ephizMean",      "&sigma;<sub>fit</sub>&phi;<sub>z</sub> (mrad) <br>Mean",       "$Mean(\\sigma_{fit} \\phi_z) $",         "mrad")
+        self.dtGroupTable.AddDtGroupVar("ephizGaussMean", "&sigma;<sub>fit</sub>&phi;<sub>z</sub> (mrad) <br>Gauss Mean", "$Mean_{Gauss}(\\sigma_{fit} \\phi_z) $", "mrad")
+
+        self.dtGroupTable.AddDtGroupVar("pxRMS","x pull <br>RMS",                                 "$RMS(P x)$",                     None)
+        self.dtGroupTable.AddDtGroupVar("pxGaussSig","x pull <br>Gauss Sigma",                    "$\\sigma_{Gauss}(P x)$",         None)
+        self.dtGroupTable.AddDtGroupVar("pyRMS","y pull <br>RMS",                                 "$RMS(P y)$",                     None)
+        self.dtGroupTable.AddDtGroupVar("pyGaussSig","y pull <br>Gauss Sigma",                    "$\\sigma_{Gauss}(P y)$",         None)
+        self.dtGroupTable.AddDtGroupVar("pzRMS","z pull <br>RMS",                                 "$RMS(P z)$",                     None)
+        self.dtGroupTable.AddDtGroupVar("pzGaussSig","z pull <br>Gauss Sigma",                    "$\\sigma_{Gauss}(P z)$",         None)
+        self.dtGroupTable.AddDtGroupVar("pphixRMS","&phi;<sub>x</sub> pull <br>RMS",              "$RMS(P \\phi_{x})$",             None)
+        self.dtGroupTable.AddDtGroupVar("pphixGaussSig","&phi;<sub>x</sub> pull <br>Gauss Sigma", "$\\sigma_{Gauss}(P \\phi_{x})$", None)
+        self.dtGroupTable.AddDtGroupVar("pphiyRMS","&phi;<sub>y</sub> pull <br>RMS",              "$RMS(P \\phi_{y})$",             None)
+        self.dtGroupTable.AddDtGroupVar("pphiyGaussSig","&phi;<sub>y</sub> pull <br>Gauss Sigma", "$\\sigma_{Gauss}(P \\phi_{y})$", None)
+        self.dtGroupTable.AddDtGroupVar("pphizRMS","&phi;<sub>z</sub> pull <br>RMS",              "$RMS(P \\phi_{z})$",             None)
+        self.dtGroupTable.AddDtGroupVar("pphizGaussSig","&phi;<sub>z</sub> pull <br>Gauss Sigma", "$\\sigma_{Gauss}(P \\phi_{z})$", None)
+
+        return
+
+
+
+
+## THE END ##

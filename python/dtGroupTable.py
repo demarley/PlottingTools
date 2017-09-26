@@ -48,7 +48,7 @@ class DtGroupTable(Table):
                 self.data[var][1][wheel+2][station-1][1] = None
 
         return
-  
+
     def FillDtGroupByIndex(self, varIndex, wheel, station, data, link = None):
         self.data[varIndex][1][wheel+2][station-1][0] = data
         self.data[varIndex][1][wheel+2][station-1][1] = link

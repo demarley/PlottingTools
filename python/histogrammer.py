@@ -115,11 +115,11 @@ class Histogrammer(object):
             sys.exit(-1)
 
 
-        for coordinate in self.coordinates:
+        for co,coordinate in enumerate(self.coordinates):
             name       = "{0}{1}_{2}".format(basename,coordinate,self.name)
 
             h = ROOT.TH1F(name,name,bins,min,max)
-            h.SetXTitle(plot_xtitle.format(self.tex_names[coordinate])
+            h.SetXTitle(plot_xtitle[co]
             h.SetYTitle(self.yTitle)
             h.SetLineColor(self.lineColor)
             h.SetFillColor(self.fillColor)

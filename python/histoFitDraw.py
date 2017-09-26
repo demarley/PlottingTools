@@ -1,21 +1,30 @@
 """
-8 August 2017
+13 September 2017
 Dan Marley
 daniel.edison.marley@cernSPAMNOT.ch
 
-Initialize histograms.
+Fit and draw histograms
 """
+import util
 import ROOT
 
 
 class HistoFitDraw(object):
     """Class for fitting and drawing histograms"""
-    def __init__(self):
+    def __init__(self,config):
         self.fitLineColor = ROOT.kRed
         self.fitLineWidth = 3
 
+        self.config = config
+
+        self.vb = util.VERBOSE()
+        self.vb.level = config.verbose_level()
+        self.vb.name  = "HISTOFITDRAW"
+
+
 	def FitAndDraw(histo, littleLabel="", doFit=True):
-		print "doFit:", doFit
+	    """Fit and draw histogram"""
+		self.vb.DEBUG("doFit: {0}".format(doFit))
 
 		hEntries = histo.GetEntries()
 		hNorm    = histo.Integral()*histo.GetBinWidth(0)
@@ -24,11 +33,11 @@ class HistoFitDraw(object):
 		hRms     = histo.GetRMS()
 		hRmsErr  = histo.GetRMSError()
   
-		print "Histogram", histo.GetName(), histo.GetTitle()
-		print "  Entries        = ", hEntries
-		print "  Normalization  = ", hNorm
-		print "  Mean           = ", hMean, "+-", hMeanErr
-		print "  RMS            = ", hRms, "+-", hRmsErr
+		self.vb.DEBUG("Histogram {0} {1}".format(histo.GetName(), histo.GetTitle())
+		self.vb.DEBUG("  Entries        = {0}".format(hEntries)
+		self.vb.DEBUG("  Normalization  = {0}".format(hNorm)
+		self.vb.DEBUG("  Mean           = {0} +- {1}".format(hMean, hMeanErr))
+		self.vb.DEBUG("  RMS            = {0} +- {1}".format(hRms, hRmsErr))
   
 		sHEntries = "%d" % hEntries
 		sHMean    = "%.3f" % hMean
@@ -66,7 +75,7 @@ class HistoFitDraw(object):
 		maxY = histo.GetMaximum()
   
 		if doFit:
-			fit = Fit1DGauss(histo)
+			fit = self.Fit1DGauss(histo)
 			fitIsOk     = fit[0]
 			fitFunction = fit[1]
 			fitLegend   = fit[2]
@@ -90,15 +99,16 @@ class HistoFitDraw(object):
 
 
 	def Fit1DHLine(histo):
+	    """1-D HLine fit"""
 		minY = histo.GetMinimum()
 		maxY = histo.GetMaximum()
 		minX = histo.GetXaxis().GetXmin()
 		maxX = histo.GetXaxis().GetXmax()
 
-		print "MinY = ", minY
-		print "MaxY = ", maxY
-		print "MinX = ", minX
-		print "MaxX = ", maxX
+		self.vb.DEBUG("MinY = {0}".format(minY))
+		self.vb.DEBUG("MaxY = {0}".format(maxY))
+		self.vb.DEBUG("MinX = {0}".format(minX))
+		self.vb.DEBUG("MaxX = {0}".format(maxX))
 
 		fit = ROOT.TF1( "fit","[0]", minX, maxX )
 		fit.SetLineColor(self.fitLineColor)
@@ -106,15 +116,14 @@ class HistoFitDraw(object):
 		fit.SetParName(0,"value")
 		fit.SetParameter(0, (minY + maxY) /2.0 );
 		histo.Fit("fit","QR","same")
-		val    = fit.GetParameter(0)
-		val_e  = fit.GetParError(0)
-		print "Value   =", val, "+-", val_e
+
+		self.vb.DEBUG("Value   = {0} +- {1}".format(fit.GetParameter(0),fit.GetParError(0)))
 
 		return fit
 
 
 	def Fit1DGauss(histo):
-
+        """1-D Gaussian fit"""
 		norm0  = histo.Integral()*histo.GetBinWidth(0)
 		mean0  = histo.GetMean()
 		sigma0 = histo.GetRMS()
@@ -135,10 +144,11 @@ class HistoFitDraw(object):
 		mean1_e  = fit1.GetParError(1)
 		sigma1   = fit1.GetParameter(2)
 		sigma1_e = fit1.GetParError(2)
-		print "  Fit parameters:"
-		print "    Norm1   =", norm1, "+-", norm1_e;
-		print "    Mean1   =", mean1, "+-", mean1_e;
-		print "    Sigma1  =", sigma1, "+-", sigma1_e;
+
+		self.vb.DEBUG("  Fit parameters:")
+		self.vb.DEBUG("    Norm1   = {0} +- {1}".format(norm1, norm1_e))
+		self.vb.DEBUG("    Mean1   = {0} +- {1}".format(mean1, mean1_e))
+		self.vb.DEBUG("    Sigma1  = {0} +- {1}".format(sigma1, sigma1_e))
 
 		fit2 = ROOT.TF1( "fit2","[0]/[2]/(2.0*3.14159)^0.5*exp(-0.5*((x-[1])/[2])^2)", mean1-2.0*sigma1, mean1+2.0*sigma1 );
 		fit2.SetLineColor(self.fitLineColor)
@@ -156,9 +166,9 @@ class HistoFitDraw(object):
 		mean2_e  = fit2.GetParError(1)
 		sigma2   = fit2.GetParameter(2)
 		sigma2_e = fit2.GetParError(2)
-		print "    Norm2   =", norm2, "+-", norm2_e
-		print "    Mean2   =", mean2, "+-", mean2_e
-		print "    Sigma2  =", sigma2, "+-", sigma2_e
+		self.vb.DEBUG("    Norm1   = {0} +- {1}".format(norm2, norm2_e))
+		self.vb.DEBUG("    Mean1   = {0} +- {1}".format(mean2, mean2_e))
+		self.vb.DEBUG("    Sigma1  = {0} +- {1}".format(sigma2, sigma2_e))
 
 		fitIsOk = False
 		if mean2_e > 0.0 and sigma2_e > 0.001 and sigma2 < 10000. and sigma2 > 0.001 and mean2 > -10000. and mean2 < 10000.: fitIsOk = True # data for fit is not empty

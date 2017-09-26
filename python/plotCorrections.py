@@ -26,17 +26,25 @@ class PlotCorrections(object):
     def __init__(self,cfg):
         self.config = cfg
 
+        self.vb = util.VERBOSE()
+        self.vb.level = cfg.verbose_level()
+        self.vb.name  = "PLOTCORRECTIONS"  # simple name of this script to recognize the output
+
+        self.alignmentName  = self.cfg.alignmentName()
+        self.referenceName  = self.cfg.referenceName()
+        self.correctionName = self.cfg.correctionName()
+
         try:  
            self.alignmentName = os.environ["alignmentName"]
         except KeyError: 
-           self.config.ERROR("PLOTCORRECTIONS: Please set the environment variable 'alignmentName'")
+           self.vb.ERROR("Please set the environment variable 'alignmentName'")
            sys.exit(-1)
 
         self.isDT  = self.config.isDT()
         self.isCSC = self.config.isCSC()
 
         if (not self.isDT and not self.isCSC) or (self.isDT and self.isCSC):
-            self.config.ERROR("PLOTCORR: DT and CSC set to same value.  Set only one option to 'true'")
+            self.vb.ERROR("DT and CSC set to same value.  Set only one option to 'true'")
             sys.exit(-1)
         elif self.isDT:
             groupTable = DtGroupTable()  # execfile("Plot_Corrections_DT.py")
@@ -44,6 +52,7 @@ class PlotCorrections(object):
             groupTable = CscGroupTable() # execfile("Plot_Corrections_CSC.py")
         else:
             groupTable = None
+
 
         self.html = util.HTML()
         self.plt_csc = PlotCorrectionsCSC()
@@ -87,7 +96,7 @@ class PlotCorrections(object):
 
         self.html.PrintHtmlCode(htmlFile,"<p><hr width=\"100%\">")
         self.html.PrintHtmlCode(htmlFile,"<p>Additional information:<ul>")
-        self.html.PrintHtmlCode(htmlFile,"<li><a href=\"%s\">%s</a></li>" % (htmlName_d,correctionName) )
+        self.html.PrintHtmlCode(htmlFile,"<li><a href=\"%s\">%s</a></li>" % (htmlName_d,self.correctionName) )
 
         if self.config.isReport():
             self.html.PrintHtmlCode(htmlFile,"<li><a href=\"%s\">Alignment fit uncertainties</a></li>" % (htmlName_e) )
