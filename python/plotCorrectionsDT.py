@@ -6,7 +6,6 @@ Plot corrections class for DTs
 """
 import os
 import operator
-import importlib
 
 from dtTable import DtTable
 from dtGroupTable import dtGroupTable
@@ -67,7 +66,7 @@ class PlotCorrectionsDT(object):
         self.groupTableListFull = {
           'd':["dxRMS","dxGaussSig","dyRMS","dyGaussSig","dzRMS","dzGaussSig",
                "dphixRMS","dphixGaussSig","dphiyRMS","dphiyGaussSig",
-               "dphizRMS","dphizGaussSig"]
+               "dphizRMS","dphizGaussSig"],
           'e':["exMean","exGaussMean","eyMean","eyGaussMean","ezMean","ezGaussMean",
                "ephixMean","ephixGaussMean","ephiyMean","ephiyGaussMean",
                "ephizMean","ephizGaussMean"],
@@ -87,11 +86,12 @@ class PlotCorrectionsDT(object):
                             "phix":DtTable(),"phiy":DtTable(),"phiz":DtTable()}
                       }
 
-		self.map_ID_Diff = {"x":{},   "y":{},   "z":{},
+        self.map_ID_Diff = {"x":{},   "y":{},   "z":{},
                             "phix":{},"phiy":{},"phiz":{}}
 
         if self.isReport:
-            rep = importlib.import_module(self.config.reportfile())
+            rep = __import__(self.config.reportfile())
+               # importlib.import_module(self.config.reportfile()) # not available
                # reportfile1 = "Geometries/"+alignmentName+"_report.py"
             self.report = rep.reports()
 
@@ -149,7 +149,7 @@ class PlotCorrectionsDT(object):
 
             # uncertainty & pull
             if rep is not None:
-	            if ( cc=="y" and station==4 ): continue
+                if ( cc=="y" and station==4 ): continue
 
                 delta =  getattr(rep,"delta"+cc)
                 e_mm  =  factor
@@ -201,9 +201,9 @@ class PlotCorrectionsDT(object):
             for r1 in self.report:
                 if not (r1.status=="PASS" and r1.postal_address[0]=="DT"):
                     continue
-				wheel   = r1.postal_address[1]
-				station = r1.postal_address[2]
-				sector  = r1.postal_address[3]
+                wheel   = r1.postal_address[1]
+                station = r1.postal_address[2]
+                sector  = r1.postal_address[3]
 
                 self.fillHistograms( wheel,station,sector,rep=r1 )
         else:
@@ -321,14 +321,14 @@ class PlotCorrectionsDT(object):
         #                           3. htmlName_p - file for pulls                     #
         #******************************************************************************#
 
-		## Print 20 worst chambers
-		for dof in self.dof:
-		    if self.map_ID_Diff[dof]:
-    			print "---------------WORSE 20 CHAMBER IN {0}------------------".format(dof)
-	    		sorted = sorted(map_ID_Diff[dof].items(), key=operator.itemgetter(1))
-		    	sorted.reverse()
-			    for iN in range(20):
-			        print sorted[iN]
+        ## Print 20 worst chambers
+        for dof in self.dof:
+            if self.map_ID_Diff[dof]:
+                print "---------------WORSE 20 CHAMBER IN {0}------------------".format(dof)
+                sorted = sorted(map_ID_Diff[dof].items(), key=operator.itemgetter(1))
+                sorted.reverse()
+                for iN in range(20):
+                    print sorted[iN]
 
 
         self.writeData("d")
@@ -386,41 +386,41 @@ class PlotCorrectionsDT(object):
         self.html.PrintHtmlCode(htmlFile,"</tr>")
         self.html.PrintHtmlCode(htmlFile,"</table>")
 
-		## Visualization
-		caption = "<font size=+1>%s visualization</font> <br><font size=-1><pre>%s</pre></font>"%(self.correctionName, label)
-		self.html.PrintHtmlCode(htmlFile,"<p>")
-		self.html.PrintHtmlCode(htmlFile,"<table border=\"1\" cellpadding=\"5\">")
-		self.html.PrintHtmlCode(htmlFile,"<caption>%s</caption>" % caption)
-		self.html.PrintHtmlCode(htmlFile,"<tr align=center>")
+        ## Visualization
+        caption = "<font size=+1>%s visualization</font> <br><font size=-1><pre>%s</pre></font>"%(self.correctionName, label)
+        self.html.PrintHtmlCode(htmlFile,"<p>")
+        self.html.PrintHtmlCode(htmlFile,"<table border=\"1\" cellpadding=\"5\">")
+        self.html.PrintHtmlCode(htmlFile,"<caption>%s</caption>" % caption)
+        self.html.PrintHtmlCode(htmlFile,"<tr align=center>")
 
-		for station in self.stations:
-		    imageName = self.alignmentName+"-"+self.referenceName+"__MBs{0}".format(station)
-		    pngName   = imageName+".png"
-		    self.html.PrintHtmlCode(htmlFile,"<td><a href=\"./PNG/%s\"><img src=\"./PNG/%s\" alt=\"text\" width=\"500\"></a></td>" % (pngName, pngName))
-		    if station == 2:
-		        self.html.PrintHtmlCode(htmlFile,"</tr><tr align=center>")
+        for station in self.stations:
+            imageName = self.alignmentName+"-"+self.referenceName+"__MBs{0}".format(station)
+            pngName   = imageName+".png"
+            self.html.PrintHtmlCode(htmlFile,"<td><a href=\"./PNG/%s\"><img src=\"./PNG/%s\" alt=\"text\" width=\"500\"></a></td>" % (pngName, pngName))
+            if station == 2:
+                self.html.PrintHtmlCode(htmlFile,"</tr><tr align=center>")
 
-		self.html.PrintHtmlCode(htmlFile,"</tr>")
-		self.html.PrintHtmlCode(htmlFile,"</table>")
+        self.html.PrintHtmlCode(htmlFile,"</tr>")
+        self.html.PrintHtmlCode(htmlFile,"</table>")
 
-		self.html.PrintHtmlCode(htmlFile,"<p>")
-		self.html.PrintHtmlCode(htmlFile,"<table border=\"1\" cellpadding=\"5\">")
-		self.html.PrintHtmlCode(htmlFile,"<caption>%s</caption>" % caption)
-		self.html.PrintHtmlCode(htmlFile,"<tr align=center>")
+        self.html.PrintHtmlCode(htmlFile,"<p>")
+        self.html.PrintHtmlCode(htmlFile,"<table border=\"1\" cellpadding=\"5\">")
+        self.html.PrintHtmlCode(htmlFile,"<caption>%s</caption>" % caption)
+        self.html.PrintHtmlCode(htmlFile,"<tr align=center>")
 
-		for wh,wheel in enumerate(self.wheels):
-		    imageName = self.alignmentName+"-"+self.referenceName+"__MBw{0}".format(wheel)
-		    pngName   = imageName+".png"
-		    if wh == 0:
-		        self.html.PrintHtmlCode(htmlFile,"<td rowspan=\"2\"><a href=\"{0}/{1}\"><img src=\"{0}/{1}\" alt=\"text\" width=\"300\"></a></td>".format(self.pngPath,pngName))
-		    else:
-		        self.html.PrintHtmlCode(htmlFile,"<td><a href=\".{0}/{1}\"><img src=\"{0}/{1}\" alt=\"text\" width=\"300\"></a></td>".format(self.pngPath,pngName))
+        for wh,wheel in enumerate(self.wheels):
+            imageName = self.alignmentName+"-"+self.referenceName+"__MBw{0}".format(wheel)
+            pngName   = imageName+".png"
+            if wh == 0:
+                self.html.PrintHtmlCode(htmlFile,"<td rowspan=\"2\"><a href=\"{0}/{1}\"><img src=\"{0}/{1}\" alt=\"text\" width=\"300\"></a></td>".format(self.pngPath,pngName))
+            else:
+                self.html.PrintHtmlCode(htmlFile,"<td><a href=\".{0}/{1}\"><img src=\"{0}/{1}\" alt=\"text\" width=\"300\"></a></td>".format(self.pngPath,pngName))
 
-		    if wheel == (len(self.wheels)%2+len(self.wheels)/2): # draw 3 then 2 on the next line
-		        self.html.PrintHtmlCode(htmlFile,"</tr><tr align=center>")
+            if wheel == (len(self.wheels)%2+len(self.wheels)/2): # draw 3 then 2 on the next line
+                self.html.PrintHtmlCode(htmlFile,"</tr><tr align=center>")
 
-		self.html.PrintHtmlCode(htmlFile,"</tr>")
-		self.html.PrintHtmlCode(htmlFile,"</table>")
+        self.html.PrintHtmlCode(htmlFile,"</tr>")
+        self.html.PrintHtmlCode(htmlFile,"</table>")
 
 
         cap_title = "averaged over homogeneous chambers"
