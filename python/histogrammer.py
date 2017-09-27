@@ -6,6 +6,7 @@ daniel.edison.marley@cernSPAMNOT.ch
 Initialize histograms.
 """
 import sys
+import util
 import ROOT
 
 
@@ -16,14 +17,18 @@ class Histogrammer(object):
         self.config = cfg   # configuration object from MuonAlignmentAlgorithms/scripts/
         self.name   = name
 
+        self.vb = util.VERBOSE()
+        self.vb.level = cfg.verbose_level()
+        self.vb.name  = name
+
         self.lineColor = ROOT.kBlack
         self.yTitle    = "Number of "
         color          = ROOT.TColor()
 
-        if self.config.isDT():
+        if self.config.doDT():
             self.fillColor  = color.GetColor("#ffe0a1")   # ROOT.kGreen + 3
             self.yTitle    += "DTs"
-        elif self.config.isCSC():
+        elif self.config.doCSC():
             self.fillColor  = color.GetColor("#3ffa3f")   # ROOT.kBlue - 7
             self.yTitle    += "CSCs"
         else:
@@ -83,7 +88,7 @@ class Histogrammer(object):
         """Fit Uncertainties"""
         h_basename = "h_e"
         h_binning  = self.config.uncertainties_binning()
-        h_xtitle   = dict( (c,"{0} {1} {2}".format(self.uncertainty_label,self.tex_names[c],self.units[c])) \
+        h_xtitle   = dict( (c,self.uncertainty_label+" {0} {1}".format(self.tex_names[c],self.units[c])) \
                            for c in self.coordinates)
 
         self.init_hists( basename=h_basename,plot_xtitle=h_xtitle,binning=h_binning )
@@ -95,14 +100,15 @@ class Histogrammer(object):
         """Pulls"""
         h_basename = "h_p"
         h_binning  = self.config.pulls_binning()
-        h_xtitle   = "%s {0} / %s {0}"%(self.correction_label,self.uncertainty_label)
+        h_xtitle   = dict( (c,"{1} {0} / {2} {0}".format(c,self.correction_label,self.uncertainty_label)) \
+                           for c in self.coordinates)
 
         self.init_hists( basename=h_basename,plot_xtitle=h_xtitle,binning=h_binning )
 
         return
 
 
-    def init_hists(self,basename="h",plot_xtitle="",binning={}):
+    def init_hists(self,basename="h",plot_xtitle={},binning={}):
         """Initialize histograms"""
         self.histograms[basename] = {}
 
@@ -111,21 +117,20 @@ class Histogrammer(object):
             min  = binning["min"]
             max  = binning["max"]
         except KeyError:
-            self.config.ERROR("HIST : No binning information provided to histogrammer")
+            self.vb.ERROR("HIST : No binning information provided to histogrammer")
             sys.exit(-1)
 
-
-        for co,coordinate in enumerate(self.coordinates):
-            name       = "{0}{1}_{2}".format(basename,coordinate,self.name)
+        for co,coord in enumerate(self.coordinates):
+            name       = "{0}{1}_{2}".format(basename,coord,self.name)
 
             h = ROOT.TH1F(name,name,bins,min,max)
-            h.SetXTitle(plot_xtitle[co]
+            h.SetXTitle(plot_xtitle[coord])
             h.SetYTitle(self.yTitle)
             h.SetLineColor(self.lineColor)
             h.SetFillColor(self.fillColor)
             h.StatOverflows(ROOT.kTRUE)
 
-            self.histograms[basename][coordinate] = h
+            self.histograms[basename][coord] = h
 
         return
 

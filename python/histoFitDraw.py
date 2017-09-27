@@ -22,9 +22,9 @@ class HistoFitDraw(object):
         self.vb.name  = "HISTOFITDRAW"
 
 
-    def FitAndDraw(histo, littleLabel="", doFit=True):
+    def FitAndDraw(self,histo, littleLabel="", doFit=True):
         """Fit and draw histogram"""
-            self.vb.DEBUG("doFit: {0}".format(doFit))
+        self.vb.DEBUG("doFit: {0}".format(doFit))
 
         hEntries = histo.GetEntries()
         hNorm    = histo.Integral()*histo.GetBinWidth(0)
@@ -32,19 +32,19 @@ class HistoFitDraw(object):
         hMeanErr = histo.GetMeanError()
         hRms     = histo.GetRMS()
         hRmsErr  = histo.GetRMSError()
-  
-        self.vb.DEBUG("Histogram {0} {1}".format(histo.GetName(), histo.GetTitle())
-        self.vb.DEBUG("  Entries        = {0}".format(hEntries)
-        self.vb.DEBUG("  Normalization  = {0}".format(hNorm)
+
+        self.vb.DEBUG("Histogram {0} {1}".format(histo.GetName(), histo.GetTitle()))
+        self.vb.DEBUG("  Entries        = {0}".format(hEntries))
+        self.vb.DEBUG("  Normalization  = {0}".format(hNorm))
         self.vb.DEBUG("  Mean           = {0} +- {1}".format(hMean, hMeanErr))
         self.vb.DEBUG("  RMS            = {0} +- {1}".format(hRms, hRmsErr))
-  
+
         sHEntries = "%d" % hEntries
         sHMean    = "%.3f" % hMean
         sHMeanErr = "%.3f" % hMeanErr
         sHRms     = "%.3f" % hRms
         sHRmsErr  = "%.3f" % hRmsErr
-  
+
         littleLegend = ROOT.TLegend(0.995,0.1,1.0,0.8)
         littleLegend.SetFillColor(ROOT.kWhite)
         littleLegend.SetFillStyle(0)
@@ -98,7 +98,7 @@ class HistoFitDraw(object):
         return fitIsOk, fitFunction, fitLegend, histo, histLegend, littleLegend
 
 
-    def Fit1DHLine(histo):
+    def Fit1DHLine(self,histo):
         """1-D HLine fit"""
         minY = histo.GetMinimum()
         maxY = histo.GetMaximum()
@@ -122,7 +122,7 @@ class HistoFitDraw(object):
         return fit
 
 
-    def Fit1DGauss(histo):
+    def Fit1DGauss(self,histo):
         """1-D Gaussian fit"""
         norm0  = histo.Integral()*histo.GetBinWidth(0)
         mean0  = histo.GetMean()
@@ -193,7 +193,7 @@ class HistoFitDraw(object):
             fitLegend.AddEntry(fit2, " Mean  = "+sMean+"#pm"+sMean_e, "")
             fitLegend.AddEntry(fit2, " Sigma = "+sSigma+"#pm"+sSigma_e, "")
   
-      return fitIsOk, fit2, fitLegend
+        return fitIsOk, fit2, fitLegend
 
 
 ## THE END ##

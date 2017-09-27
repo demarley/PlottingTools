@@ -8,8 +8,8 @@ import sys
 from config import Config
 from plotCorrections import PlotCorrections
 
-cfg = Config()
-cfg.initialize(sys.argv[1])
+cfg = Config(sys.argv[1])
+cfg.initialize()
 
 pc = PlotCorrections(cfg)
 pc.execute()           # configuration file

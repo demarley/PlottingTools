@@ -1,0 +1,12 @@
+alignmentName data_DT-1100-111111_2017B_CMSSW925p2_SingMu_MuAlCalIsoMuv1_92XdataRun2Promptv5_1refit_noT0_01
+xmlfile_ref ../../CMSSW_9_2_5_patch2/src/data_DT-1100-111111_2017B_CMSSW925p2_SingMu_MuAlCalIsoMuv1_92XdataRun2Promptv5_1refit_noT0_01/data_DT-1100-111111_2017B_CMSSW925p2_SingMu_MuAlCalIsoMuv1_92XdataRun2Promptv5_1refit_noT0_01.xml
+xmlfile_new ../../CMSSW_9_2_5_patch2/src/data_DT-1100-111111_2017B_CMSSW925p2_SingMu_MuAlCalIsoMuv1_92XdataRun2Promptv5_1refit_01/data_DT-1100-111111_2017B_CMSSW925p2_SingMu_MuAlCalIsoMuv1_92XdataRun2Promptv5_1refit_01.xml
+referenceName IDEAL_Geo
+correctionName Displacements from ideal geometry
+runComparison False
+uploadComparison False
+runCorrelation False
+printCorrelationFactors False
+doCSC False
+doDT True
+isReport False

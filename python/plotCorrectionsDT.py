@@ -5,17 +5,19 @@ Dan Marley
 Plot corrections class for DTs
 """
 import os
+import math
 import operator
 
 from dtTable import DtTable
-from dtGroupTable import dtGroupTable
+from dtGroupTable import DtGroupTable
 
 import info
 from util import HTML,TeX
-from histoFitDraw import HistoFitDraw
-from histogrammer import Hisogrammer
-import geometryDiffVisualization as gdv
 import signConventions as sc
+from histoFitDraw import HistoFitDraw
+from histogrammer import Histogrammer
+import geometryXMLparser as gXML
+import geometryDiffVisualization as gdv
 
 
 class PlotCorrectionsDT(object):
@@ -33,6 +35,9 @@ class PlotCorrectionsDT(object):
         self.referenceName  = self.cfg.referenceName()
         self.correctionName = self.cfg.correctionName()
 
+        self.g_new = gXML.MuonGeometry(self.cfg.xmlfile("new"))
+        self.g_ref = gXML.MuonGeometry(self.cfg.xmlfile("reference"))
+
         # Setup histogrammer
         self.histo = Histogrammer(self.cfg)
         self.histo.initialize()
@@ -46,12 +51,20 @@ class PlotCorrectionsDT(object):
         self.html = HTML()
         self.tex  = TeX()
 
+        self.htmlPath = self.cfg.htmlPath()
         self.pngPath  = self.cfg.pngPath()
         self.pdfPath  = self.cfg.pdfPath()
         self.svgPath  = self.cfg.svgPath()
-        self.htmlPath = self.cfg.htmlPath()
         self.texPath  = self.cfg.texPath()
 
+        self.htmlName_d = self.alignmentName+".d.html" # file for correction
+        self.texName_d  = self.alignmentName+".d.tex"  # file for correction
+
+        if self.cfg.isReport():
+            self.htmlName_e = self.alignmentName+".e.html"  # html file for uncertainties
+            self.htmlName_p = self.alignmentName+".p.html"  # html file for pulls
+            self.texName_e  = self.alignmentName+".e.tex"   # tex file for uncertainties
+            self.texName_p  = self.alignmentName+".p.tex"   # tex file for pulls
 
         self.label = self.alignmentName+" - "+self.referenceName
         self.text  = {'e':"Fit Uncertainties",
@@ -75,7 +88,7 @@ class PlotCorrectionsDT(object):
                "pphizRMS","pphizGaussSig"]
           }
 
-        self.dtGroupTable = dtGroupTable()
+        self.dtGroupTable = DtGroupTable()
         self.setupDtGroupTable()
 
         self.dtTab = {"d":{"x":DtTable(),"y":DtTable(),"z":DtTable(),
@@ -90,13 +103,17 @@ class PlotCorrectionsDT(object):
                             "phix":{},"phiy":{},"phiz":{}}
 
         if self.isReport:
-            rep = __import__(self.config.reportfile())
+            rep = __import__(self.cfg.reportfile())
                # importlib.import_module(self.config.reportfile()) # not available
                # reportfile1 = "Geometries/"+alignmentName+"_report.py"
             self.report = rep.reports()
 
         return
 
+
+    def groupTable(self):
+        """Return the group table"""
+        return self.dtGroupTable
 
 
     def fitDrawHists(self,type,dof,histTitle,label):
@@ -136,8 +153,8 @@ class PlotCorrectionsDT(object):
             else:
                 factor    = 10.
 
-            g_new = getattr(self.g_new.dt[endcap,disk,ring,chamber],cc)
-            g_ref = getattr(self.g_ref.dt[endcap,disk,ring,chamber],cc)
+            g_new = getattr(self.g_new.dt[wheel,station,sector],cc)
+            g_ref = getattr(self.g_ref.dt[wheel,station,sector],cc)
 
             # correction
             d_mm  = factor
@@ -165,7 +182,7 @@ class PlotCorrectionsDT(object):
                     if fillTable:
                         self.dtTab["p"][cc].FillDt(wheel,station,sector,"%.3f" % p)
             elif rep is None and fillTable:
-                #Find worse 50 chambers
+                # Find worst chambers
                 ID_chamber = "chamber_{0}_{1}_{2}".format(wheel,station,sector)
                 self.map_ID_Diff[cc][ID_chamber] = round(abs(d_mm),2)
 
@@ -180,20 +197,20 @@ class PlotCorrectionsDT(object):
         self.histo.init_pulls()         # h_p
 
         for station in self.stations:
-            imageName = alignmentName+"-"+referenceName+"__MBs{0}".format(station)
+            imageName = self.alignmentName+"-"+self.referenceName+"__MBs{0}".format(station)
             svgName   = imageName+".svg"
             pngName   = imageName+".png"
 
-            gdv.draw_station(self.g_new,self.g_ref,station,self.svgPath+svgName,length_factor,angle_factor)
+            gdv.draw_station(self.g_new,self.g_ref,station,self.svgPath+svgName)
 
             retvalue = os.system("convert -density 104.2 {0} {1}".format(self.svgPath+svgName, self.pngPath+pngName) )
 
         for wheel in self.wheels:
-            imageName = alignmentName+"-"+referenceName+"__MBw{0}".format(wheel)
+            imageName = self.alignmentName+"-"+self.referenceName+"__MBw{0}".format(wheel)
             svgName   = imageName+".svg"
             pngName   = imageName+".png"
 
-            gdv.draw_wheel(self.g_new,self.g_ref,wheel,self.svgPath+svgName,length_factor,angle_factor)
+            gdv.draw_wheel(self.g_new,self.g_ref,wheel,self.svgPath+svgName)
 
             retvalue = os.system("convert -density 104.2 {0} {1}".format(self.svgPath+svgName,self.pngPath+pngName) )
 
@@ -218,7 +235,7 @@ class PlotCorrectionsDT(object):
         histTitle = systemPrettyName+": {0}"
 
         for dof in self.dof:
-            self.fitDrawHists("d",dof,histTitle.format(self.text["d"],label))
+            self.fitDrawHists("d",dof,histTitle.format(self.text["d"]),self.label)
 
             if self.isReport:
 
@@ -226,7 +243,7 @@ class PlotCorrectionsDT(object):
                 self.fitDrawHists("e",dof,histTitle.format(self.text["e"],self.alignmentName))
 
                 ### Pulls
-                self.fitDrawHists("p",dof,histTitle.format(self.text["p"],label))
+                self.fitDrawHists("p",dof,histTitle.format(self.text["p"],self.label))
 
         for wheel in self.wheels:
             for station in self.stations:
@@ -267,10 +284,10 @@ class PlotCorrectionsDT(object):
                         self.histo.c1.SaveAs( self.pdfPath+"/"+pdfName_d )
 
                         sRMS = "%.3f" % h.GetRMS()
-                        self.dtGroupTable.FillDtGroup("d{0}RMS".format(dof),endcap,disk,ring,sRMS,self.pngPath+pngName_d)
+                        self.dtGroupTable.FillDtGroup("d{0}RMS".format(dof),wheel,station,sRMS,self.pngPath+pngName_d)
                         if fit[0]:
                             sSigma = "%.3f" % fit[1].GetParameter(2)
-                            self.dtGroupTable.FillDtGroup("d{0}GaussSig".format(dof),endcap,disk,ring,sSigma,self.pngPath+pngName_d)
+                            self.dtGroupTable.FillDtGroup("d{0}GaussSig".format(dof),wheel,station,sSigma,self.pngPath+pngName_d)
 
 
                     #****** Fit uncert: save plots and fill tables over homogeneous chambers *******
@@ -324,11 +341,12 @@ class PlotCorrectionsDT(object):
         ## Print 20 worst chambers
         for dof in self.dof:
             if self.map_ID_Diff[dof]:
-                print "---------------WORSE 20 CHAMBER IN {0}------------------".format(dof)
-                sorted = sorted(map_ID_Diff[dof].items(), key=operator.itemgetter(1))
-                sorted.reverse()
-                for iN in range(20):
-                    print sorted[iN]
+                if any( [math.fabs(i[1])>1e-3 for i in self.map_ID_Diff[dof].items()] ):
+                    print "---------------WORST 20 CHAMBER IN {0}------------------".format(dof)
+                    sorted_vals = sorted(self.map_ID_Diff[dof].items(), key=operator.itemgetter(1))
+                    sorted_vals.reverse()
+                    for iN in range(20):
+                        print sorted_vals[iN]
 
 
         self.writeData("d")
@@ -455,7 +473,7 @@ class PlotCorrectionsDT(object):
 
 
             self.dtTab[type][dof].PrintHtml(htmlFile, htmlCaption, 0)
-            self.dtTab[type][dof].PrintTex(texFile,   texCaption, "dtTab_"type+dof, 0)
+            self.dtTab[type][dof].PrintTex(texFile,   texCaption, "dtTab_"+type+dof, 0)
 
             self.html.PrintHtmlCode(htmlFile,"<p>")
             self.html.PrintHtmlCode(htmlFile,"<table border=\"1\" cellpadding=\"5\">")

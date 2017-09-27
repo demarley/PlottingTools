@@ -12,7 +12,7 @@ def csc_colors(endcap, station, ring, chamber):
 #    return rgb(0.1, 0.5, 0.8)
     return '#3ffa3f'
 
-def draw_station(geom1, geom2, station, filename, length_factor=100., angle_factor=100., colors=dt_colors):
+def draw_station(geom1, geom2, station, filename, length_factor=200., angle_factor=200., colors=dt_colors):
     if station == 4: station_template = load_svg("station4_template.svg")
     else: station_template = load_svg("station_template.svg")
 

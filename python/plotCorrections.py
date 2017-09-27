@@ -15,6 +15,9 @@ import tdrStyle
 import plotscripts
 import geometryXMLparser as gXML
 
+from dtGroupTable import DtGroupTable
+from cscGroupTable import CscGroupTable
+
 from plotCorrectionsCSC import PlotCorrectionsCSC
 from plotCorrectionsDT import PlotCorrectionsDT
 
@@ -30,33 +33,18 @@ class PlotCorrections(object):
         self.vb.level = cfg.verbose_level()
         self.vb.name  = "PLOTCORRECTIONS"  # simple name of this script to recognize the output
 
-        self.alignmentName  = self.cfg.alignmentName()
-        self.referenceName  = self.cfg.referenceName()
-        self.correctionName = self.cfg.correctionName()
+        self.alignmentName  = self.config.alignmentName()
+        self.referenceName  = self.config.referenceName()
+        self.correctionName = self.config.correctionName()
 
-        try:  
-           self.alignmentName = os.environ["alignmentName"]
-        except KeyError: 
-           self.vb.ERROR("Please set the environment variable 'alignmentName'")
-           sys.exit(-1)
-
-        self.isDT  = self.config.isDT()
-        self.isCSC = self.config.isCSC()
+        self.isDT  = self.config.doDT()
+        self.isCSC = self.config.doCSC()
 
         if (not self.isDT and not self.isCSC) or (self.isDT and self.isCSC):
             self.vb.ERROR("DT and CSC set to same value.  Set only one option to 'true'")
             sys.exit(-1)
-        elif self.isDT:
-            groupTable = DtGroupTable()  # execfile("Plot_Corrections_DT.py")
-        elif self.isCSC:
-            groupTable = CscGroupTable() # execfile("Plot_Corrections_CSC.py")
-        else:
-            groupTable = None
-
 
         self.html = util.HTML()
-        self.plt_csc = PlotCorrectionsCSC()
-        self.plt_dt  = PlotCorrectionsDT()
 
 
     def execute(self):
@@ -82,10 +70,23 @@ class PlotCorrections(object):
             texName_e  = self.alignmentName+".e.tex"   # tex file for uncertainties
             texName_p  = self.alignmentName+".p.tex"   # tex file for pulls
 
+        ## Do the plotting 
+        if self.isCSC:
+            plt_csc = PlotCorrectionsCSC()
+            plt_csc.initialize(self.config)
+            plt_csc.execute( ) # pass necessary arguments
+            groupTable = plt_csc.groupTable()
+        else:
+            plt_dt = PlotCorrectionsDT()
+            plt_dt.initialize(self.config)
+            plt_dt.execute( )  # pass necessary arguments
+            groupTable = plt_dt.groupTable()
+
+        summaryTable       = self.config.summaryTable()
+        summaryHtmlCaption = "<font size=+1>%s (<i>&delta;</i>) for all DOF <br>averaged over homogeneous chambers</font> <br><font size=-1><pre>%s</pre></font>" % (self.correctionName, self.alignmentName+" - "+self.referenceName)
 
         texFile = texPath+texName
         groupTable.PrintTex(texFile,summaryTable, ("Summary table %s" % self.alignmentName), ("tab:summary_%s" % self.alignmentName), 1)
-
 
         htmlFile = htmlPath+htmlName
         self.html.PrintHtmlHeader(htmlFile)
@@ -103,15 +104,6 @@ class PlotCorrections(object):
             self.html.PrintHtmlCode(htmlFile,"<li><a href=\"%s\">Pulls</a></li>" % (htmlName_p) )
 
         self.html.PrintHtmlTrailer(htmlFile)
-
-
-        ## Do the plotting 
-        if self.isCSC:
-            plt_csc.initialize(self.config)
-            plt_csc.execute( ) # pass necessary arguments
-        else:
-            plt_dt.initialize(self.config)
-            plt_dt.execute( )  # pass necessary arguments
 
         return
 

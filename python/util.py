@@ -68,7 +68,7 @@ class TeX(object):
         print >> texFile, "\\usepackage{times}"
         print >> texFile, "\\usepackage{caption}"
         print >> texFile, "\\usepackage{cprotect}"
-        print >> texFile, "\\renewcommand\\arraystretch{%s}" % rowStretch
+        print >> texFile, "\\renewcommand\\arraystretch{%s}" % self.rowStretch
         print >> texFile, "\\begin{document}"
         print >> texFile, ""
         texFile.close()
@@ -94,6 +94,21 @@ class TeX(object):
 
         return
 ## End TeX
+
+
+
+
+def str2bool( value ):
+    """Turn string into boolean"""
+    valueBoolean = False
+
+    if value == "True" or value == "true" or value == "1":
+        valueBoolean = True
+    else:
+        valueBoolean = False
+
+    return valueBoolean
+
 
 
 class VERBOSE(object):

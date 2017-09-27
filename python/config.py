@@ -20,7 +20,7 @@ from copy import deepcopy
 
 class Config(object):
     """Configuration object that handles the setup"""
-    def __init__(self,configfile,script='createJobs.py',verbose_level="INFO"):
+    def __init__(self,configfile,script='runPlotting.py',verbose_level="INFO"):
         self.filename = configfile
 
         self.vb = util.VERBOSE()
@@ -38,29 +38,37 @@ class Config(object):
         self.setConfigurations()     # set the configuration options
 
 
-        self.xmlfile = {"reference":self.get("xmlfile_ref"),
-                        "new":self.get("xmlfile_new")}
+        self.xmlfiles = {"reference":self.get("xmlfile_ref"),
+                         "new":self.get("xmlfile_new")}
         
         # Setup paths
-        self.htmlPath = self.config.folderName()
-        if not os.path.exists(self.htmlPath):
-             os.makedirs(self.htmlPath)
+        htmlPath = self.get('folderName')+"/RESULT/{0}".format(self.get('alignmentName'))
+        if not os.path.exists(htmlPath):
+             os.makedirs(htmlPath)
 
-        self.texPath = self.htmlPath+"/TEX/"
-        if not os.path.exists(self.texPath):
-             os.makedirs(self.texPath)
+        texPath = htmlPath+"/TEX/"
+        if not os.path.exists(texPath):
+             os.makedirs(texPath)
 
-        self.pngPath = self.htmlPath+"/PNG/"
-        if not os.path.exists(self.pngPath):
-             os.makedirs(self.pngPath)
+        pngPath = htmlPath+"/PNG/"
+        if not os.path.exists(pngPath):
+             os.makedirs(pngPath)
 
-        self.pdfPath = self.htmlPath+"/PDF/"
-        if not os.path.exists(self.pdfPath):
-             os.makedirs(self.pdfPath)
+        pdfPath = htmlPath+"/PDF/"
+        if not os.path.exists(pdfPath):
+             os.makedirs(pdfPath)
 
-        self.svgPath = self.htmlPath+"/SVG/"
-        if not os.path.exists(self.svgPath):
-             os.makedirs(self.svgPath)
+        svgPath = htmlPath+"/SVG/"
+        if not os.path.exists(svgPath):
+             os.makedirs(svgPath)
+
+        self.configuration['htmlPath'] = htmlPath
+        self.configuration['texPath']  = texPath
+        self.configuration['pngPath']  = pngPath
+        self.configuration['pdfPath']  = pdfPath
+        self.configuration['svgPath']  = svgPath
+
+        self.configuration['reportfile'] = "Geometries/{0}_report.py".format(self.get('alignmentName'))
 
         return
 
@@ -69,8 +77,9 @@ class Config(object):
         """Read the configuration file and set arguments"""
         file = open(self.filename,'r').readlines()
         for line in file:
-            param,value = line.split(' ')
-            value       = value.rstrip('\n')
+            params = line.split(' ')
+            param  = params[0]
+            value  = " ".join(params[1:]).rstrip('\n')
 
             self.configuration[param] = value
 
@@ -107,19 +116,22 @@ class Config(object):
 			'uploadComparison':"False",
 			'runCorrelation':"False",
 			'printCorrelationFactors':"False",
-            'doCSC':"False", 
-            'doDT':"False", 
+                        'doCSC':"False", 
+                        'doDT':"False", 
 			'isReport':"False",
 			'plotsHeader':r"CMS 2016X  #sqrt{s} = 13 TeV   L_{int} = X fb^{-1}",
 			'corrections_bins':{"bins":200,"min":-10,"max":10.0},
 			'uncertainties_bins':{"bins": 50,"min":  0,"max": 0.5},
 			'pulls_bins':{"bins":100,"min":-10,"max":10.0},
-			'folderName':'',
+			'folderName':os.getcwd(),
+                        'reportfile':"Geometries/report.py",
 			'htmlPath':'.',
 			'texPath':'.',
 			'pngPath':'.',
 			'pdfPath':'.',
 			'svgPath':'.',
+                        'verbose_level':self.vb.level,
+                        'summaryTable':["dxRMS","dyRMS","dzRMS","dphixRMS","dphiyRMS","dphizRMS"],
 		}
 
         self.configuration = deepcopy(self.defaults)
@@ -154,16 +166,63 @@ class Config(object):
 
     def xmlfile(self,type):
         """Obtain the XML file for different geometries"""
-        return self.xmlfile(type)
+        return self.xmlfiles[type]
+
+    def alignmentName(self):
+        """Alignment name"""
+        return self.get('alignmentName')
+
+    def referenceName(self):
+        """Reference name"""
+        return self.get('referenceName')
+
+    def correctionName(self):
+        """Correction name"""
+        return self.get('correctionName')
+
+    def isReport(self):
+        """Report"""
+        return util.str2bool(self.get('isReport'))
+
+    def reportfile(self):
+        """Report file"""
+        return self.get('reportfile')
+
+    def plotsHeader(self):
+        """Plot header"""
+        return self.get('plotsHeader')
+
+    def htmlPath(self):
+        """HTML path"""
+        return self.get("htmlPath")
+
+    def texPath(self):
+        """TEX path"""
+        return self.get("texPath")
+
+    def pngPath(self):
+        """PNG path"""
+        return self.get("pngPath")
+
+    def pdfPath(self):
+        """PDF path"""
+        return self.get("pdfPath")
+
+    def svgPath(self):
+        """SVG path"""
+        return self.get("svgPath")
+
+    def summaryTable(self):
+        """Summary table"""
+        return self.get("summaryTable")
 
     def __str__(self):
         """Specialized print statement for this class"""
-        command = """ Track-Based Muon Alignment : Configuration
+        command = """ Track-Based Muon Alignment : Plotting Scripts Configuration
 
-./%(prog)s <configuration>
+python python/%(prog)s <configuration>
 
-Creates (overwrites) a directory for each of the iterations and creates (overwrites)
-'submitJobs.sh' with the submission sequence and dependencies.
+Plot results from alignment.
 """ % {'prog': self.source}
 
         keys = configuration.keys()

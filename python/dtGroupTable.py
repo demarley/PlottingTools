@@ -23,9 +23,9 @@ class DtGroupTable(Table):
 
 
     def AddDtGroupVar(self, varName, varTitle=None, varTitleTex=None, varUnitTex=None):
-        if varTitle is None:    varTitle=varName
-        if varTitleTex is None: varTitleTex=varName
-    
+        if varTitle is None:    varTitle    = varName
+        if varTitleTex is None: varTitleTex = varName
+
         self.data.append([])
         var = len(self.data) - 1
         self.data[var].append([])
@@ -86,9 +86,9 @@ class DtGroupTable(Table):
             for station in self.stations:  
                 print >> htmlFile, "<tr align=center>"  
                 if station == 1:
-                    if wheel == 0:   print >> htmlFile, "<th rowspan=\"4\"><i>MB %s</i></th>" % wheel
-                    elif wheel >  0: print >> htmlFile, "<th rowspan=\"4\"><i>MB+%s</i></th>" % wheel
-                    else:            print >> htmlFile, "<th rowspan=\"4\"><i>MB%s</i></th>" % wheel
+                    if wheel == 0:  print >> htmlFile, "<th rowspan=\"4\"><i>MB %s</i></th>" % wheel
+                    elif wheel > 0: print >> htmlFile, "<th rowspan=\"4\"><i>MB+%s</i></th>" % wheel
+                    else:           print >> htmlFile, "<th rowspan=\"4\"><i>MB%s</i></th>" % wheel
                 if wheel==0:  print >> htmlFile, "<th><i>MB %s/%s</i></th>" % (wheel,station)
                 elif wheel>0: print >> htmlFile, "<th><i>MB+%s/%s</i></th>" % (wheel,station)
                 else:         print >> htmlFile, "<th><i>MB%s/%s</i></th>" % (wheel,station)

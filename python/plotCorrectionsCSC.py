@@ -5,16 +5,19 @@ Dan Marley
 Plot corrections class for CSCs
 """
 import os
+import math
 
 from cscTable import CscTable
 from cscGroupTable import CscGroupTable
 
 import info
 from util import HTML,TeX
+import signConventions as sc
 from histoFitDraw import HistoFitDraw
 from histogrammer import Histogrammer
+import geometryXMLparser as gXML
 import geometryDiffVisualization as gdv
-import signConventions as sc
+
 
 class PlotCorrectionsCSC(object):
     """Class for plotting corrections in the CSC"""
@@ -30,6 +33,9 @@ class PlotCorrectionsCSC(object):
         self.referenceName  = self.cfg.referenceName()
         self.correctionName = self.cfg.correctionName()
 
+        self.g_new = gXML.MuonGeometry(self.cfg.xmlfile("new"))
+        self.g_ref = gXML.MuonGeometry(self.cfg.xmlfile("reference"))
+
         # Setup histogrammer
         self.histo = Histogrammer(self.cfg)
         self.histo.initialize()
@@ -43,10 +49,10 @@ class PlotCorrectionsCSC(object):
         self.html = HTML()
         self.tex  = TeX()
 
+        self.htmlPath = self.cfg.htmlPath()
         self.pngPath  = self.cfg.pngPath()
         self.pdfPath  = self.cfg.pdfPath()
         self.svgPath  = self.cfg.svgPath()
-        self.htmlPath = self.cfg.htmlPath()
         self.texPath  = self.cfg.texPath()
 
 
@@ -72,7 +78,7 @@ class PlotCorrectionsCSC(object):
                "pphizRMS","pphizGaussSig"]
           }
 
-        self.cscGroupTable = cscGroupTable()
+        self.cscGroupTable = CscGroupTable()
         self.setupCscGroupTable()
 
         self.cscTab = {"d":{"x":CscTable(),"y":CscTable(),"z":CscTable(),
@@ -84,14 +90,18 @@ class PlotCorrectionsCSC(object):
                       }
 
         if self.isReport:
-            rep = __import__(self.config.reportfile())
-               # importlib.import_module(self.config.reportfile()) # not available
+            rep = __import__(self.cfg.reportfile())
+               # importlib.import_module(self.cfg.reportfile()) # not available
                # reportfile1 = "Geometries/"+alignmentName+"_report.py"
             self.report = rep.reports()
 
 
         return
 
+
+    def groupTable(self):
+        """Return the group table"""
+        return self.cscGroupTable
 
 
     def fitDrawHists(self,type,dof,histTitle,label):
@@ -208,10 +218,6 @@ class PlotCorrectionsCSC(object):
                         for chamber in chambers:
                             self.fillHistograms( endcap,disk,ring,chamber )
 
-
-
-
-
         systemPrettyName = "ME ALL"
         histTitle = systemPrettyName+": {0}"
 
@@ -225,9 +231,6 @@ class PlotCorrectionsCSC(object):
 
                 ### Pulls
                 self.fitDrawHists("p",dof,histTitle.format(self.text["p"],label))
-
-
-
 
         for endcap in self.endcaps:
             if endcap == 1:
@@ -252,9 +255,6 @@ class PlotCorrectionsCSC(object):
                                 continue
                             chamber  = r1.postal_address[4]
                             self.fillHistograms( endcap,disk,ring,chamber,rep=r1,fillTable=True )
-
-
-
                     else: # if isReport
                         chambers = range(1,19) if (disk!=1 and ring==1) else range(1,37)
                         for chamber in chambers:
@@ -262,7 +262,6 @@ class PlotCorrectionsCSC(object):
 
 
                     #****** Corrections: save plots and fill tables over homogeneous chambers ******
-
                     cscGroupPrettyName = "ME{0}{1}/{2}/ALL".format(sEndcapSign,disk,ring)
                     histTitle   = cscGroupPrettyName+": {0}"
                     pngName = "CSC_{0}{1}_{2}_{3}_{4}.png"
@@ -294,7 +293,7 @@ class PlotCorrectionsCSC(object):
                             pngName_e = pngName.format('e',dof,sEndcapPorM,disk,ring)
                             pdfName_e = pngName.format('e',dof,sEndcapPorM,disk,ring)
 
-                            ## uncertainties
+                            ### Uncertainties
                             h = self.histo.histograms["h_e"][dof]
                             h.SetTitle(histTitle.format(self.text['e']))
                             fit = self.hfd.FitAndDraw(h,self.alignmentName)
@@ -311,7 +310,7 @@ class PlotCorrectionsCSC(object):
                             pngName_p = pngName.format('p',dof,sEndcapPorM,disk,ring)
                             pdfName_p = pngName.format('p',dof,sEndcapPorM,disk,ring)
 
-                            ## pulls
+                            ### Pulls
                             h = self.histo.histograms["h_p"][dof]
                             h.SetTitle(histTitle.format(self.text['p']))
                             fit = self.hfd.FitAndDraw(h,self.label)
